@@ -254,3 +254,22 @@ Do the Kconfig/CMake/source-comment pass as its own branch with a full
 build+flash verification before merging, since it touches identifiers other
 code and anyone's saved `sdkconfig` depend on.
 
+## Change the boot-up sound
+
+Craig wants a new startup sound cue to go with the Chroninkle rebrand
+(2026-09-13) — he'll make/source the audio himself later.
+
+To swap it: replace `components/system_sound_service/sounds/startup.mp3`
+with the new MP3 (same filename, no other changes needed), rebuild, flash.
+No asset-generation script/pipeline involved, unlike the boot logo — the
+MP3 is embedded directly via `EMBED_FILES` in
+`components/system_sound_service/CMakeLists.txt`. Source can be any
+standard MP3 (any sample rate/mono-or-stereo); the firmware decodes and
+resamples/downmixes to mono 16kHz 16-bit PCM automatically to match the
+ES8311 codec's fixed clock, though exporting at 16kHz mono directly avoids
+any resampling artifacts. No hard size/duration cap, but it's embedded raw
+into the firmware image and fully decoded to PCM in PSRAM on first play
+(cached for the app's life, ~32KB/sec of audio) — existing cues are all
+short blips, and `startup.mp3` is already the longest at a few seconds, so
+keep the replacement in that ballpark.
+
