@@ -1658,7 +1658,7 @@ void HandleDispatchedButtonEvent(const button_service::ButtonEventInfo& event)
     switch (event.event) {
         case button_service::ButtonEvent::kSingleClick:
             // Intentionally inert. UP/DOWN navigation is driven on press-down/
-            // repeat via input_focus_runtime, and POWER_OK activation via page
+            // repeat via input_focus_runtime, and select/back activation via page
             // input above. In particular, UP/DOWN must not drive anything while
             // the lock screen is active -- this previously buzzed and forced a
             // lock-screen refresh, making the keys feel live behind the lock.

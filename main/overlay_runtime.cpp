@@ -960,7 +960,7 @@ app_interaction::InputResult HandleButtonEvent(const button_service::ButtonEvent
         if (s_sticky_note_state.visible) {
             result.consumed = true;
             const int focus_index = s_sticky_note_focus.index();
-            if (button_service::IsPrimaryButton(event.button) &&
+            if (button_service::IsSelectButton(event.button) &&
                 event.event == button_service::ButtonEvent::kSingleClick) {
                 play_click = true;
                 if (StickyFocusIsBody(focus_index)) {
@@ -991,10 +991,8 @@ app_interaction::InputResult HandleButtonEvent(const button_service::ButtonEvent
                 request_refresh = true;
                 refresh_policy =
                     DetermineOverlayRefreshPolicy(before, CaptureOverlayRefreshSnapshotLocked());
-            } else if (event.button == button_service::ButtonId::kDown &&
-                       event.event == button_service::ButtonEvent::kLongPressStart &&
-                       s_sticky_note_state.scroll_active) {
-                // Holding DOWN exits the transcript scroll, back to roving the controls.
+            } else if (button_service::IsBackGesture(event) && s_sticky_note_state.scroll_active) {
+                // A quick ACTION tap exits the transcript scroll, back to roving the controls.
                 s_sticky_note_state.scroll_active = false;
                 SyncStickyFocusLocked();
                 play_click = true;
@@ -1008,7 +1006,7 @@ app_interaction::InputResult HandleButtonEvent(const button_service::ButtonEvent
             result.consumed = true;
             switch (event.event) {
                 case button_service::ButtonEvent::kSingleClick:
-                    if (button_service::IsPrimaryButton(event.button) &&
+                    if (button_service::IsSelectButton(event.button) &&
                         epaper_ui::CardModalActionCount(s_card_modal_state) > 0) {
                         const int index = s_card_modal_state.selected_action_index;
                         switch (s_card_modal_purpose) {
@@ -1080,7 +1078,7 @@ app_interaction::InputResult HandleButtonEvent(const button_service::ButtonEvent
             keyboard_context = s_keyboard_event_context;
             switch (event.event) {
                 case button_service::ButtonEvent::kSingleClick:
-                    if (button_service::IsPrimaryButton(event.button)) {
+                    if (button_service::IsSelectButton(event.button)) {
                         const epaper_ui::KeyboardActionResult action =
                             epaper_ui::KeyboardController::ActivateFocusedKey(s_keyboard_state, false);
                         keyboard_callback_state = s_keyboard_state;
@@ -1107,7 +1105,7 @@ app_interaction::InputResult HandleButtonEvent(const button_service::ButtonEvent
             result.consumed = true;
             switch (event.event) {
                 case button_service::ButtonEvent::kSingleClick:
-                    if (button_service::IsPrimaryButton(event.button)) {
+                    if (button_service::IsSelectButton(event.button)) {
                         const int index = CurrentSelectModalIndexLocked();
                         const bool toggle_in_place =
                             s_select_modal_state.multi_select && index >= 0 &&

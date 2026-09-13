@@ -8,8 +8,8 @@
 namespace button_service {
 
 enum class ButtonId {
-    kAction,    // BOOT / GPIO0: recording control, and the light-sleep wake button.
-    kFunction,  // FN / GPIO5: activate, double-click, long-press.
+    kAction,    // BOOT / GPIO0: recording control, and the dedicated back button.
+    kFunction,  // FN / GPIO5: the dedicated select/confirm button.
     kUp,
     kDown,
 };
@@ -24,12 +24,19 @@ enum class ButtonEvent {
     kLongPressUp,
 };
 
-// Either of the two non-navigation keys confirms/selects, matching the reference
-// firmware where the BOOT and FN buttons both drive primary activation. Recording
-// stays exclusive to kAction and the lock screen exclusive to kFunction.
-inline bool IsPrimaryButton(ButtonId button)
+// FN is the sole dedicated select/confirm button. Recording stays exclusive to
+// kAction and the lock screen exclusive to kFunction.
+inline bool IsSelectButton(ButtonId button)
 {
-    return button == ButtonId::kAction || button == ButtonId::kFunction;
+    return button == ButtonId::kFunction;
+}
+
+// A quick tap of ACTION is the dedicated back button -- everything else about
+// ACTION (press-and-hold arm/start/stop) is recording control, handled
+// upstream before page input ever sees it.
+inline bool IsBackButton(ButtonId button)
+{
+    return button == ButtonId::kAction;
 }
 
 struct ButtonEventInfo {
@@ -37,6 +44,15 @@ struct ButtonEventInfo {
     ButtonEvent event = ButtonEvent::kPressDown;
     uint32_t pressed_ms = 0;
 };
+
+// The app-wide "go back" gesture: a quick ACTION tap, exiting an entered
+// sub-control (item list, scroll container, etc). Holding DOWN is
+// deliberately not part of this -- that hold is reserved for continuous
+// scrolling within an entered control instead.
+inline bool IsBackGesture(const ButtonEventInfo& event)
+{
+    return event.button == ButtonId::kAction && event.event == ButtonEvent::kSingleClick;
+}
 
 using EventHandler = void (*)(const ButtonEventInfo& event, void* context);
 

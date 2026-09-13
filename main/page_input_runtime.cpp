@@ -371,7 +371,7 @@ FocusMoveResult ApplySettingsStorageMoveResult(const page_actions::FocusMoveOutc
 ButtonResult HandleSettingsStorageButtonEvent(const button_service::ButtonEventInfo& event)
 {
     ButtonResult result = {};
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -483,7 +483,7 @@ FocusMoveResult ApplySettingsTodosMoveResult(const page_actions::FocusMoveOutcom
 ButtonResult HandleSettingsTodosButtonEvent(const button_service::ButtonEventInfo& event)
 {
     ButtonResult result = {};
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -596,7 +596,7 @@ FocusMoveResult ApplySettingsTopicsMoveResult(const page_actions::FocusMoveOutco
 ButtonResult HandleSettingsTopicsButtonEvent(const button_service::ButtonEventInfo& event)
 {
     ButtonResult result = {};
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -998,7 +998,7 @@ FocusMoveResult ApplyTopicsBrowseMoveResult(const page_actions::FocusMoveOutcome
 ButtonResult HandleTopicsBrowseButtonEvent(const button_service::ButtonEventInfo& event)
 {
     ButtonResult result = {};
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -1108,7 +1108,7 @@ FocusMoveResult ApplyBookListMoveResult(const page_actions::FocusMoveOutcome& ou
 ButtonResult HandleBookListButtonEvent(const button_service::ButtonEventInfo& event)
 {
     ButtonResult result = {};
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -1157,11 +1157,11 @@ ButtonResult HandleBookReaderButtonEvent(const button_service::ButtonEventInfo& 
 {
     ButtonResult result = {};
 
-    // App-wide gesture: holding DOWN exits the reader back to the book list. The whole reader
-    // screen counts as one entered control (there's no outer level within it the way a
-    // timeline's item list has), so this is the only way out other than the mic/power buttons.
-    if (event.button == button_service::ButtonId::kDown &&
-        event.event == button_service::ButtonEvent::kLongPressStart) {
+    // App-wide gesture: a quick ACTION tap (the dedicated back button) exits the reader
+    // back to the book list. The whole reader screen counts as one entered control (there's
+    // no outer level within it the way a timeline's item list has), so this is the only way
+    // out other than the mic/power buttons.
+    if (button_service::IsBackGesture(event)) {
         if (book_reader_page_runtime::ExitActiveControl()) {
             result.handled = true;
             result.interaction_result = MakeConsumedResult(true);
@@ -1169,7 +1169,7 @@ ButtonResult HandleBookReaderButtonEvent(const button_service::ButtonEventInfo& 
         return result;
     }
 
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -1287,9 +1287,9 @@ ButtonResult HandleTopicEntriesButtonEvent(const button_service::ButtonEventInfo
 {
     ButtonResult result = {};
 
-    // App-wide gesture: holding DOWN exits an entered item list.
-    if (event.button == button_service::ButtonId::kDown &&
-        event.event == button_service::ButtonEvent::kLongPressStart) {
+    // App-wide gesture: a quick ACTION tap (the dedicated back button) exits an entered
+    // item list.
+    if (button_service::IsBackGesture(event)) {
         if (topic_entries_page_runtime::ExitActiveControl()) {
             result.handled = true;
             result.interaction_result = MakeConsumedResult(true);
@@ -1297,7 +1297,7 @@ ButtonResult HandleTopicEntriesButtonEvent(const button_service::ButtonEventInfo
         return result;
     }
 
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -1407,9 +1407,9 @@ ButtonResult HandleTopicSummaryButtonEvent(const button_service::ButtonEventInfo
 {
     ButtonResult result = {};
 
-    // App-wide gesture: holding DOWN exits an entered control (scroll).
-    if (event.button == button_service::ButtonId::kDown &&
-        event.event == button_service::ButtonEvent::kLongPressStart) {
+    // App-wide gesture: a quick ACTION tap (the dedicated back button) exits an entered
+    // control (scroll).
+    if (button_service::IsBackGesture(event)) {
         if (topic_summary_page_runtime::ExitActiveControl()) {
             result.handled = true;
             result.interaction_result = MakeConsumedResult(true);
@@ -1417,7 +1417,7 @@ ButtonResult HandleTopicSummaryButtonEvent(const button_service::ButtonEventInfo
         return result;
     }
 
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -1540,9 +1540,9 @@ ButtonResult HandleNotesButtonEvent(const button_service::ButtonEventInfo& event
 {
     ButtonResult result = {};
 
-    // App-wide gesture: holding DOWN exits an entered item list.
-    if (event.button == button_service::ButtonId::kDown &&
-        event.event == button_service::ButtonEvent::kLongPressStart) {
+    // App-wide gesture: a quick ACTION tap (the dedicated back button) exits an entered
+    // item list.
+    if (button_service::IsBackGesture(event)) {
         if (notes_page_runtime::ExitActiveControl()) {
             result.handled = true;
             result.interaction_result = MakeConsumedResult(true);
@@ -1550,7 +1550,7 @@ ButtonResult HandleNotesButtonEvent(const button_service::ButtonEventInfo& event
         return result;
     }
 
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -1675,9 +1675,9 @@ ButtonResult HandleTodosButtonEvent(const button_service::ButtonEventInfo& event
 {
     ButtonResult result = {};
 
-    // App-wide gesture: holding DOWN exits an entered item list.
-    if (event.button == button_service::ButtonId::kDown &&
-        event.event == button_service::ButtonEvent::kLongPressStart) {
+    // App-wide gesture: a quick ACTION tap (the dedicated back button) exits an entered
+    // item list.
+    if (button_service::IsBackGesture(event)) {
         if (todos_page_runtime::ExitActiveControl()) {
             result.handled = true;
             result.interaction_result = MakeConsumedResult(true);
@@ -1685,7 +1685,7 @@ ButtonResult HandleTodosButtonEvent(const button_service::ButtonEventInfo& event
         return result;
     }
 
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -1808,9 +1808,9 @@ ButtonResult HandleFollowUpButtonEvent(const button_service::ButtonEventInfo& ev
 {
     ButtonResult result = {};
 
-    // App-wide gesture: holding DOWN exits an entered item list.
-    if (event.button == button_service::ButtonId::kDown &&
-        event.event == button_service::ButtonEvent::kLongPressStart) {
+    // App-wide gesture: a quick ACTION tap (the dedicated back button) exits an entered
+    // item list.
+    if (button_service::IsBackGesture(event)) {
         if (follow_up_page_runtime::ExitActiveControl()) {
             result.handled = true;
             result.interaction_result = MakeConsumedResult(true);
@@ -1818,7 +1818,7 @@ ButtonResult HandleFollowUpButtonEvent(const button_service::ButtonEventInfo& ev
         return result;
     }
 
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -1884,8 +1884,8 @@ ButtonResult HandleOnboardingButtonEvent(const button_service::ButtonEventInfo& 
     ButtonResult result = {};
 
     // Consistent with every other page: UP/DOWN rove (handled upstream in input_focus_runtime),
-    // POWER_OK activates the focused control (Prev/Next change the slide, Close dismisses).
-    if (!button_service::IsPrimaryButton(event.button)) {
+    // Select activates the focused control (Prev/Next change the slide, Close dismisses).
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -2012,9 +2012,9 @@ ButtonResult HandleDetailsButtonEvent(const button_service::ButtonEventInfo& eve
 {
     ButtonResult result = {};
 
-    // App-wide gesture: holding DOWN exits the entered scroll container.
-    if (event.button == button_service::ButtonId::kDown &&
-        event.event == button_service::ButtonEvent::kLongPressStart) {
+    // App-wide gesture: a quick ACTION tap (the dedicated back button) exits the entered
+    // scroll container.
+    if (button_service::IsBackGesture(event)) {
         if (details_page_runtime::ExitActiveControl()) {
             result.handled = true;
             result.interaction_result = MakeConsumedResult(true);
@@ -2022,7 +2022,7 @@ ButtonResult HandleDetailsButtonEvent(const button_service::ButtonEventInfo& eve
         return result;
     }
 
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -2046,7 +2046,7 @@ ButtonResult HandleDetailsButtonEvent(const button_service::ButtonEventInfo& eve
 ButtonResult HandleSettingsButtonEvent(const button_service::ButtonEventInfo& event)
 {
     ButtonResult result = {};
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -2073,27 +2073,22 @@ ButtonResult HandleWifiButtonEvent(const button_service::ButtonEventInfo& event)
 
     switch (event.event) {
         case button_service::ButtonEvent::kSingleClick:
-            if (!button_service::IsPrimaryButton(event.button)) {
-                return result;
-            }
-            return ApplyWifiActivateResult(wifi_page_runtime::ActivateFocusedItem());
-        case button_service::ButtonEvent::kLongPressStart:
-            // App-wide gesture: holding DOWN exits an entered UI (here, the network list).
-            if (event.button == button_service::ButtonId::kDown) {
+            // App-wide gesture: a quick ACTION tap (the dedicated back button) exits an
+            // entered UI (here, the network list).
+            if (button_service::IsBackButton(event.button)) {
                 return ApplyWifiSecondaryActivateResult(
                     wifi_page_runtime::SecondaryActivateFocusedItem());
             }
-            if (!button_service::IsPrimaryButton(event.button)) {
+            if (!button_service::IsSelectButton(event.button)) {
                 return result;
             }
-            result.handled = true;
-            result.interaction_result.consumed = true;
-            return result;
+            return ApplyWifiActivateResult(wifi_page_runtime::ActivateFocusedItem());
         case button_service::ButtonEvent::kPressDown:
         case button_service::ButtonEvent::kPressUp:
         case button_service::ButtonEvent::kPressRepeat:
+        case button_service::ButtonEvent::kLongPressStart:
         case button_service::ButtonEvent::kLongPressUp:
-            if (!button_service::IsPrimaryButton(event.button)) {
+            if (!button_service::IsSelectButton(event.button)) {
                 return result;
             }
             result.handled = true;
@@ -2108,7 +2103,7 @@ ButtonResult HandleWifiButtonEvent(const button_service::ButtonEventInfo& event)
 ButtonResult HandleTimeButtonEvent(const button_service::ButtonEventInfo& event)
 {
     ButtonResult result = {};
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -2132,7 +2127,7 @@ ButtonResult HandleTimeButtonEvent(const button_service::ButtonEventInfo& event)
 ButtonResult HandleDashboardButtonEvent(const button_service::ButtonEventInfo& event)
 {
     ButtonResult result = {};
-    if (!button_service::IsPrimaryButton(event.button)) {
+    if (!button_service::IsSelectButton(event.button)) {
         return result;
     }
 
@@ -2351,8 +2346,8 @@ ButtonResult HandleButtonEventForCurrentScreen(const button_service::ButtonEvent
     // The Sticky footer button is uniform across pages (always opens the sticky overlay), so rather
     // than thread a per-page intent through every page's activation, handle it centrally: the shared
     // per-page footer handler only maps Home/Settings/Wifi/Time, so a focused Sticky button falls
-    // through here on a POWER_OK single click.
-    if (!result.handled && button_service::IsPrimaryButton(event.button) &&
+    // through here on a Select single click.
+    if (!result.handled && button_service::IsSelectButton(event.button) &&
         event.event == button_service::ButtonEvent::kSingleClick &&
         BuildFooterProjectionForScreen(screen).focused_item ==
             footer_runtime::FooterFocusItem::kSticky) {

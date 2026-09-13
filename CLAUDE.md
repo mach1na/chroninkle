@@ -168,12 +168,15 @@ Full detail: "Dependency Direction" in `docs/app-architecture.md`.
   (`raw_y = height - 1 - x`), which is why a large fill with a gate-periodic
   dither pattern produces visible banding on a partial refresh.
 - Input precedence: overlay focus first, then footer, then page targets.
-  `UP`/`DOWN` press-down move roving focus; long-press `DOWN` is the app-wide
-  "exit entered control" gesture; `ACTION`/BOOT or the rocker-middle `FN`
-  single-click activates/submits; press-and-hold `ACTION` arms/starts/stops a
-  recording. `PWR` is not a GPIO button — it's wired to the AXP2101 and
-  surfaces as PMIC interrupts (short press, long press, and a hardware-forced
-  6s rail cut).
+  `UP`/`DOWN` press-down move roving focus; a quick `ACTION`/BOOT press is the
+  app-wide "exit entered control"/back gesture (`button_service::
+  IsBackGesture`); the rocker-middle `FN` single-click is the dedicated
+  select/confirm button (`button_service::IsSelectButton`); press-and-hold
+  `ACTION` arms/starts/stops a recording. Long-press `DOWN` is deliberately
+  *not* part of the back gesture — that hold is reserved for continuous
+  scrolling within an entered control. `PWR` is not a GPIO button — it's wired
+  to the AXP2101 and surfaces as PMIC interrupts (short press, long press, and
+  a hardware-forced 6s rail cut).
 
 ### Recording flow (press-and-hold, with review playback)
 

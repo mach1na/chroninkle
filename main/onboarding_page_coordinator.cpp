@@ -22,11 +22,10 @@ constexpr std::array<Slide, 6> kSlides = {{
      EmbeddedImageId::kSlide1},
     {"Capture in a tap",
      "Hold Record to capture a note, idea, or task -- saved straight to the SD card. A quick "
-     "press selects, same as the rocker.",
+     "press is Back -- it exits whatever you're inside.",
      EmbeddedImageId::kSlide2},
     {"Navigate with the rocker",
-     "Tilt the rocker up or down to move your selection; press it in to select. Hold the "
-     "down-tilt to exit.",
+     "Tilt the rocker up or down to move your selection; press it in to select.",
      EmbeddedImageId::kSlide3},
     {"Sleep & power",
      "The device sleeps when inactive. Hold PWR for about a second to open a shut-down "

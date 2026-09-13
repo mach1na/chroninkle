@@ -7,6 +7,18 @@ via `git log`, not backfilled here.
 
 ## [Unreleased]
 
+### Changed
+
+- The Record button's quick tap is now a dedicated **Back** button instead of
+  a second select/confirm button: it exits an entered list/scroll/control
+  (`button_service::IsBackGesture`). The rocker-middle FN button is now the
+  sole select/confirm control (`button_service::IsSelectButton`). Holding the
+  rocker's down-tilt no longer exits an entered control either — that hold is
+  freed up for continuous scrolling within one, reserved for later. Recording
+  (press-and-hold the Record button) is unaffected. Updated the onboarding
+  carousel's text and artwork (`assets/images/slide2.png`,
+  `assets/images/slide3.png`) to match.
+
 ## [0.4.0] - 2026-09-13
 
 ### Added
