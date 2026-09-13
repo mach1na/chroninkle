@@ -207,3 +207,50 @@ Open questions for whoever designs this:
 
 Own branch/PR.
 
+## Finish the Followup -> Chroninkle rename
+
+Craig decided (2026-09-13) to rename the project from Followup to
+**Chroninkle**, since it's diverged enough from the original Followup
+concept to warrant its own identity. The boot splash, `README.md`, and
+`docs/user-manual.md` already lead with the new name and logo (the Followup
+and ALXV Labs logos it grew from moved to a "Based on" attribution line on
+the splash and stayed credited in the README) -- see `CHANGELOG.md`
+[Unreleased] and PR #53. Everything below is still Followup/Folloup and
+needs its own pass, deliberately deferred rather than done as a drive-by:
+
+- **GitHub repo**: `mach1na/folloup` -> a new name (`chroninkle`?). Update
+  the repo description too (`"A Folloup port for SeeedStudio's Sticky"` is
+  already stale -- Sticky isn't even the current target). Repoint the local
+  `origin` remote explicitly rather than relying on GitHub's redirect.
+- **ESP-IDF project name**: `CMakeLists.txt:7` -- `project(folloup_sticky)`.
+  This is what shows up as the app name in build output and the `.bin`/`.elf`
+  filenames.
+- **Kconfig namespace**: 14 `CONFIG_FOLLOWUP_*` symbols (Wi-Fi AP
+  prefix/SSID/password, time sync defaults, default timezone, Gemini API
+  key, auto-sleep timeouts, todo-archive days, text-reader folder) across
+  `main/Kconfig.projbuild`, `sdkconfig.defaults`, and every `.cpp` that reads
+  them. This is the most invasive single piece -- renaming it means updating
+  every reference plus anyone's local `sdkconfig`, so it wants a dedicated
+  branch and a real build+flash test, not folded into another change.
+- **Source comments/log strings**: ~53 files under `main/`/`components/`
+  (excluding generated files) mention "Followup"/"Folloup", including the
+  onboarding carousel's first slide ("Welcome to Followup") and the startup
+  log line (`"Followup firmware version %s"` in `app_shell.cpp`). The device's
+  Wi-Fi setup hotspot also still broadcasts as `Followup-XXXXXX`
+  (`CONFIG_FOLLOWUP_WIFI_AP_PREFIX="Followup"`) until the Kconfig rename
+  above lands -- `docs/user-manual.md` calls this out explicitly rather than
+  describing a name the device doesn't actually broadcast yet.
+- **Internal technical docs**: `docs/app-architecture.md`,
+  `docs/gemini-service.md`, `docs/auto-sleep.md`, `docs/asset-generation.md`,
+  `docs/versioning.md`, `docs/waveshare-epaper-hardware-spec.md` all describe
+  the product as Followup and reference the `CONFIG_FOLLOWUP_*`/`kFollowupLogo`
+  symbols by their real (current) names -- rename these alongside the code
+  they describe, not before, so they don't end up describing symbols that
+  don't exist yet.
+- **`webserver/`** (setup portal): page title/copy and `package.json` name
+  still say Followup.
+
+Do the Kconfig/CMake/source-comment pass as its own branch with a full
+build+flash verification before merging, since it touches identifiers other
+code and anyone's saved `sdkconfig` depend on.
+

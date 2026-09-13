@@ -1,6 +1,8 @@
-# Followup Product Introduction
+# Chroninkle Product Introduction
 
-Followup is a place to capture your thoughts — whether it's an idea, a to-do, or just a note. Record what's on your mind at that light-bulb moment, before it slips away, and Followup helps you organize it afterward. With Gemini, your recordings are transcribed automatically, and you can ask for a written summary of your Notes or Todos any time. Everything is stored on your SD card.
+![Chroninkle](assets/logos/chroninkle-logo.png)
+
+Chroninkle is a place to capture your thoughts — whether it's an idea, a to-do, or just a note. Record what's on your mind at that light-bulb moment, before it slips away, and Chroninkle helps you organize it afterward. With Gemini, your recordings are transcribed automatically, and you can ask for a written summary of your Notes or Todos any time. Everything is stored on your SD card.
 
 It runs on the [Waveshare ESP32-S3-ePaper-3.97](https://docs.waveshare.com/ESP32-S3-ePaper-3.97), so your thoughts live on a quiet, always-on screen you can place anywhere — a constant, low-interruption reminder instead of one more notification buried in your phone.
 
@@ -8,7 +10,7 @@ For the full walkthrough of every screen and control, see the [user manual](docs
 
 ## One-Sentence Positioning
 
-**Followup is a voice-first thought-capture companion on always-on ePaper: record ideas, to-dos, and notes in the moment, let Gemini transcribe them and summarize what matters on demand, and keep your pending todos in view even when the screen is locked or off.**
+**Chroninkle is a voice-first thought-capture companion on always-on ePaper: record ideas, to-dos, and notes in the moment, let Gemini transcribe them and summarize what matters on demand, and keep your pending todos in view even when the screen is locked or off.**
 
 ## What It Is Suitable For
 
@@ -40,7 +42,7 @@ Ideas don't all age well. Review each one and decide whether it's still a vibe w
 
 ### 5. Follow Up on Tasks and Notes
 
-Mark a task or note as a follow-up to keep it on your radar. Followup helps you stay on track and focused on what actually needs doing next.
+Mark a task or note as a follow-up to keep it on your radar. Chroninkle helps you stay on track and focused on what actually needs doing next.
 
 ### 6. Your Pending Todos, Visible at a Glance
 
@@ -56,7 +58,7 @@ Tag a Note, Idea, or Todo with a topic — a project name, say — independent o
 
 ### 9. Read Your Own Text Files
 
-Copy plain `.txt` files onto the SD card's `books` folder and read them right on the device. Folloup remembers your page in each book, so picking one back up continues where you left off.
+Copy plain `.txt` files onto the SD card's `books` folder and read them right on the device. Chroninkle remembers your page in each book, so picking one back up continues where you left off.
 
 ## Typical Applications
 
@@ -74,11 +76,11 @@ Copy plain `.txt` files onto the SD card's `books` folder and read them right on
 
 ## Brief Specifications
 
-Followup runs on the [Waveshare ESP32-S3-ePaper-3.97](https://docs.waveshare.com/ESP32-S3-ePaper-3.97).
+Chroninkle runs on the [Waveshare ESP32-S3-ePaper-3.97](https://docs.waveshare.com/ESP32-S3-ePaper-3.97).
 
 | Item | Information |
 | --- | --- |
-| Product Name | Followup (on ESP32-S3-ePaper-3.97) |
+| Product Name | Chroninkle (on ESP32-S3-ePaper-3.97) |
 | Product Type | Voice-capture notes app on an ePaper terminal |
 | MCU | ESP32-S3R8, dual-core Xtensa LX7 up to 240MHz |
 | Memory | 8MB PSRAM, 16MB flash |
@@ -91,11 +93,11 @@ Followup runs on the [Waveshare ESP32-S3-ePaper-3.97](https://docs.waveshare.com
 | Storage | microSD card (recordings, transcripts, summaries, `.txt` books) |
 | AI | Gemini (cloud) transcription and summarization, over Wi-Fi |
 
-The board also carries an SHTC3 temperature/humidity sensor on the shared I2C bus. Followup does not currently read it.
+The board also carries an SHTC3 temperature/humidity sensor on the shared I2C bus. Chroninkle does not currently read it.
 
 ## Controls
 
-Followup is driven entirely by three physical controls: a rocker, the Record button, and the PWR button. There is no touchscreen.
+Chroninkle is driven entirely by three physical controls: a rocker, the Record button, and the PWR button. There is no touchscreen.
 
 | Control | Action |
 | --- | --- |
@@ -113,10 +115,14 @@ See the [user manual](docs/user-manual.md) for how these controls apply on every
 
 ## Product Value Summary
 
-The value of Followup is a quiet, always-visible place to catch your thoughts and keep the important ones in front of you. Instead of losing an idea to a forgotten note app or burying a task in a notification stream, you speak it in the moment, let Gemini turn it into clean text and a summary, and keep everything private on your SD card.
+The value of Chroninkle is a quiet, always-visible place to catch your thoughts and keep the important ones in front of you. Instead of losing an idea to a forgotten note app or burying a task in a notification stream, you speak it in the moment, let Gemini turn it into clean text and a summary, and keep everything private on your SD card.
 
 Ideas get a vibe check so you only carry forward what still matters. Tasks and notes become follow-ups so you stay on track. Your pending todos stay visible at a glance on the lock screen — even locked, asleep, or shut down — and the follow-ups you've flagged are always a button away as stickies: together, a steady, low-interruption view of what's next.
 
 ## License and Attribution
 
-Followup is licensed under the [GNU GPLv3](LICENSE). This repository is a fork of [ALXV's folloup-sticky](https://github.com/alxv2016/folloup-sticky), whose `main` branch targets SeeedStudio's reTerminal Sticky and which also has a `folloup-waveshare` branch porting it to the Waveshare ESP32-S3-ePaper-3.97. This fork builds on that Waveshare work and makes it the primary target going forward. Thank you to ALXV for the original design and implementation this project builds on.
+Chroninkle is licensed under the [GNU GPLv3](LICENSE).
+
+Chroninkle was renamed from **Followup**, this project's own name through [version 0.5.0](CHANGELOG.md) — the boot screen still credits that name on a "Based on" line rather than dropping it. Followup was itself a fork of [ALXV's folloup-sticky](https://github.com/alxv2016/folloup-sticky), whose `main` branch targets SeeedStudio's reTerminal Sticky and which also has a `folloup-waveshare` branch porting it to the Waveshare ESP32-S3-ePaper-3.97; this fork built on that Waveshare work and made it the primary target going forward. Thank you to ALXV for the original design and implementation this project builds on.
+
+The rename is still in progress — the GitHub repo, build/config identifiers, and some internal docs still say Followup/Folloup under the hood (tracked in `docs/todo.md`).
