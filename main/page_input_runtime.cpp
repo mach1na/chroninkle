@@ -2,6 +2,9 @@
 
 #include "epaper_ui/toast.h"
 
+#include "book_list_page_interactions.h"
+#include "book_list_page_runtime.h"
+#include "book_reader_page_runtime.h"
 #include "dashboard_page_interactions.h"
 #include "dashboard_page_runtime.h"
 #include "details_page_interactions.h"
@@ -1017,6 +1020,175 @@ ButtonResult HandleTopicsBrowseButtonEvent(const button_service::ButtonEventInfo
     }
 }
 
+// --- Book list page ------------------------------------------------------
+
+esp_err_t ApplyBookListPageAndFooterDisplayState()
+{
+    const esp_err_t page_err = book_list_page_runtime::UpdateDisplayState();
+    if (page_err != ESP_OK && page_err != ESP_ERR_INVALID_STATE) {
+        return page_err;
+    }
+    const esp_err_t footer_err = footer_runtime::UpdateDisplayState();
+    if (footer_err != ESP_OK && footer_err != ESP_ERR_INVALID_STATE) {
+        return footer_err;
+    }
+    return page_err != ESP_OK ? page_err : footer_err;
+}
+
+void ApplyBookListPageStateUpdate(const display_service::RefreshRequest& refresh_request)
+{
+    (void)book_list_page_runtime::UpdateDisplayStateAndRequestRefresh(refresh_request);
+}
+
+void ApplyBookListFocusUpdate(const page_actions::FocusUpdateOutcome& outcome)
+{
+    if (!outcome.handled) {
+        return;
+    }
+    if (outcome.sync_footer_projection) {
+        footer_runtime::SetProjectionState(book_list_page_runtime::BuildFooterProjectionState());
+    }
+    if (outcome.apply_page_state) {
+        const display_service::RefreshRequest refresh_request = {
+            .refresh_mode = display_service::RefreshMode::kPartial,
+            .scope = display_service::RefreshScope::kRegion,
+        };
+        if (outcome.sync_footer_projection) {
+            (void)ui_refresh_runtime::Schedule(ui_refresh_runtime::SurfaceKey::kBookListPage,
+                                               &ApplyBookListPageAndFooterDisplayState,
+                                               refresh_request);
+            return;
+        }
+        ApplyBookListPageStateUpdate(refresh_request);
+    }
+}
+
+ButtonResult ApplyBookListActivateResult(
+    const book_list_page_interactions::ActivateResult& activation)
+{
+    ButtonResult result = {};
+    if (!activation.handled) {
+        return result;
+    }
+
+    result.handled = true;
+    result.interaction_result = MakeConsumedResult(activation.play_activate_cue);
+
+    book_list_page_interactions::ActivateCallbacks callbacks = {};
+    callbacks.show_home = [&result]() {
+        result.footer_item = footer_runtime::FooterFocusItem::kHome;
+    };
+    callbacks.select_book = []() {
+        book_list_page_runtime::RequestShowReaderForFocusedBook();
+    };
+    book_list_page_interactions::ApplyPrimaryActivateResult(activation, callbacks);
+    if (result.footer_item != footer_runtime::FooterFocusItem::kNone) {
+        result.interaction_result.play_feedback = false;
+        result.interaction_result.feedback_cue = app_interaction::FeedbackCue::kNone;
+    }
+    return result;
+}
+
+FocusMoveResult ApplyBookListMoveResult(const page_actions::FocusMoveOutcome& outcome)
+{
+    FocusMoveResult result = {};
+    if (!outcome.handled) {
+        return result;
+    }
+    result.handled = true;
+    result.interaction_result = MakeConsumedResult(outcome.play_navigation_cue);
+    ApplyBookListFocusUpdate({
+        .handled = outcome.handled,
+        .apply_page_state = outcome.apply_page_state,
+        .sync_footer_projection = outcome.sync_footer_projection,
+    });
+    return result;
+}
+
+ButtonResult HandleBookListButtonEvent(const button_service::ButtonEventInfo& event)
+{
+    ButtonResult result = {};
+    if (!button_service::IsPrimaryButton(event.button)) {
+        return result;
+    }
+
+    switch (event.event) {
+        case button_service::ButtonEvent::kSingleClick:
+            return ApplyBookListActivateResult(book_list_page_runtime::ActivateFocusedItem());
+        case button_service::ButtonEvent::kPressDown:
+        case button_service::ButtonEvent::kPressUp:
+        case button_service::ButtonEvent::kPressRepeat:
+        case button_service::ButtonEvent::kLongPressStart:
+        case button_service::ButtonEvent::kLongPressUp:
+            result.handled = true;
+            result.interaction_result.consumed = true;
+            return result;
+        case button_service::ButtonEvent::kDoubleClick:
+        default:
+            return result;
+    }
+}
+
+// --- Book reader page ------------------------------------------------------
+
+void ApplyBookReaderPageStateUpdate(const display_service::RefreshRequest& refresh_request)
+{
+    (void)book_reader_page_runtime::UpdateDisplayStateAndRequestRefresh(refresh_request);
+}
+
+FocusMoveResult ApplyBookReaderMoveResult(const page_actions::FocusMoveOutcome& outcome)
+{
+    FocusMoveResult result = {};
+    if (!outcome.handled) {
+        return result;
+    }
+    result.handled = true;
+    result.interaction_result = MakeConsumedResult(outcome.play_navigation_cue);
+    if (outcome.apply_page_state) {
+        ApplyBookReaderPageStateUpdate({
+            .refresh_mode = display_service::RefreshMode::kPartial,
+            .scope = display_service::RefreshScope::kRegion,
+        });
+    }
+    return result;
+}
+
+ButtonResult HandleBookReaderButtonEvent(const button_service::ButtonEventInfo& event)
+{
+    ButtonResult result = {};
+
+    // App-wide gesture: holding DOWN exits the reader back to the book list. The whole reader
+    // screen counts as one entered control (there's no outer level within it the way a
+    // timeline's item list has), so this is the only way out other than the mic/power buttons.
+    if (event.button == button_service::ButtonId::kDown &&
+        event.event == button_service::ButtonEvent::kLongPressStart) {
+        if (book_reader_page_runtime::ExitActiveControl()) {
+            result.handled = true;
+            result.interaction_result = MakeConsumedResult(true);
+        }
+        return result;
+    }
+
+    if (!button_service::IsPrimaryButton(event.button)) {
+        return result;
+    }
+
+    switch (event.event) {
+        case button_service::ButtonEvent::kPressDown:
+        case button_service::ButtonEvent::kPressUp:
+        case button_service::ButtonEvent::kPressRepeat:
+        case button_service::ButtonEvent::kSingleClick:
+        case button_service::ButtonEvent::kLongPressStart:
+        case button_service::ButtonEvent::kLongPressUp:
+            result.handled = true;
+            result.interaction_result.consumed = true;
+            return result;
+        case button_service::ButtonEvent::kDoubleClick:
+        default:
+            return result;
+    }
+}
+
 // --- Topic entries page ------------------------------------------------------
 
 esp_err_t ApplyTopicEntriesPageAndFooterDisplayState()
@@ -2014,6 +2186,10 @@ footer_runtime::ProjectionState BuildFooterProjectionForScreen(display_service::
             return follow_up_page_runtime::BuildFooterProjectionState();
         case display_service::ScreenId::kDetails:
             return details_page_runtime::BuildFooterProjectionState();
+        case display_service::ScreenId::kBookList:
+            return book_list_page_runtime::BuildFooterProjectionState();
+        case display_service::ScreenId::kBookReader:
+            return book_reader_page_runtime::BuildFooterProjectionState();
         case display_service::ScreenId::kLockScreen:
         default:
             return {};
@@ -2068,6 +2244,12 @@ void ResetFocusForScreen(display_service::ScreenId screen)
         case display_service::ScreenId::kOnboarding:
             onboarding_page_runtime::ResetFocus();
             return;
+        case display_service::ScreenId::kBookList:
+            book_list_page_runtime::ResetFocus();
+            return;
+        case display_service::ScreenId::kBookReader:
+            book_reader_page_runtime::ResetFocus();
+            return;
         case display_service::ScreenId::kLockScreen:
         default:
             return;
@@ -2107,6 +2289,10 @@ FocusMoveResult MoveFocusForCurrentScreen(int delta, bool page_jump)
             return ApplyDetailsMoveResult(details_page_runtime::MoveFocus(delta));
         case display_service::ScreenId::kOnboarding:
             return ApplyOnboardingMoveResult(onboarding_page_runtime::MoveFocus(delta));
+        case display_service::ScreenId::kBookList:
+            return ApplyBookListMoveResult(book_list_page_runtime::MoveFocus(delta));
+        case display_service::ScreenId::kBookReader:
+            return ApplyBookReaderMoveResult(book_reader_page_runtime::MoveFocus(delta));
         case display_service::ScreenId::kLockScreen:
         default:
             return {};
@@ -2147,6 +2333,10 @@ ButtonResult HandleButtonEventForScreen(display_service::ScreenId screen,
             return HandleDetailsButtonEvent(event);
         case display_service::ScreenId::kOnboarding:
             return HandleOnboardingButtonEvent(event);
+        case display_service::ScreenId::kBookList:
+            return HandleBookListButtonEvent(event);
+        case display_service::ScreenId::kBookReader:
+            return HandleBookReaderButtonEvent(event);
         case display_service::ScreenId::kLockScreen:
         default:
             return {};

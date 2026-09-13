@@ -18,6 +18,7 @@ that no longer apply — this manual is the accurate reference.
 - [Notes, Todos, and Follow-up](#notes-todos-and-follow-up)
 - [Viewing a recording's details](#viewing-a-recordings-details)
 - [Topics](#topics)
+- [Books](#books)
 - [Settings](#settings)
 - [Locking, sleep, and battery](#locking-sleep-and-battery)
 - [Shutting down and charging](#shutting-down-and-charging)
@@ -135,6 +136,8 @@ Below that is the main menu, in this order:
 - **Notes** (badge shows how many) — your Note and Idea recordings.
 - **Topics** — browse everything tagged with a given [topic](#topics),
   including Gemini-generated summaries.
+- **Books** — browse and read `.txt` files from the device's [Books
+  folder](#books).
 
 Move between them by tilting the rocker, open one with the Record button
 or Select (pressing the rocker in).
@@ -241,6 +244,26 @@ topics](#manage-topics) for renaming/deleting one). The Home screen's
 
 If a topic has nothing tagged with it yet, you'll see "No entries tagged
 with this topic yet" and no Summarize button.
+
+## Books
+
+The Home screen's **Books** item opens a simple on-device reader for plain
+`.txt` files — copy them onto the SD card's `books` folder (over USB mass
+storage, from Settings > Storage) and they'll show up here.
+
+- Selecting **Books** shows the list of `.txt` files found in that folder.
+  Tilt the rocker to move between them, and select one to open it.
+- In the reading view, tilting the rocker turns the page forward (down) or
+  back (up). Each book remembers the page you last left it on, so leaving
+  and reopening it picks up where you stopped.
+- Hold the rocker's down-tilt to leave the reading view and return to the
+  book list.
+- Paging back only works for pages you've already turned through in the
+  current reading session — once you leave a book and come back later, you
+  can page forward from your saved spot, but not backward past it, until
+  you've paged forward through it again.
+- The reader only looks in that one folder (no subfolders), and only reads
+  `.txt` files — other formats aren't supported.
 
 ## Settings
 

@@ -7,6 +7,17 @@ via `git log`, not backfilled here.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-13
+
+### Added
+
+- On-device `.txt` reader: a new "Books" item on the Home menu browses `.txt`
+  files in a configurable SD card folder (`CONFIG_FOLLOWUP_TEXT_READER_FOLDER`,
+  default `books`) and opens a paginated reading view. Each book remembers its
+  last-read page position in a `<filename>.pos` sidecar next to it on the SD
+  card. Page turns (UP/DOWN tilt) use a partial refresh; long-press DOWN
+  returns to the book list.
+
 ## [0.3.1] - 2026-09-13
 
 ### Fixed

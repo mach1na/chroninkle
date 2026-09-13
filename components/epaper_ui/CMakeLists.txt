@@ -4,6 +4,7 @@ idf_component_register(
          "select_item.cpp" "select_list.cpp" "render_utils.cpp" "generated_epaper_fonts.cpp"
          "bitmap_font.cpp" "font_renderer.cpp" "settings_storage_page.cpp" "settings_todos_page.cpp"
          "settings_topics_page.cpp" "topics_browse_page.cpp" "topic_entries_page.cpp" "topic_summary_page.cpp"
+         "book_list_page.cpp" "book_reader_page.cpp"
     INCLUDE_DIRS "include"
     REQUIRES design_tokens project_assets
 )

@@ -78,6 +78,14 @@ menu "Folloup Settings"
             sleep and light sleep are enabled, this value must be greater than
             or equal to the display sleep timeout.
 
+    config FOLLOWUP_TEXT_READER_FOLDER
+        string "Text reader folder name"
+        default "books"
+        help
+            Subfolder of the SD card root that the on-device .txt reader browses.
+            Flat folder only -- subfolders inside it are not browsed. Created
+            automatically on the SD card if it doesn't already exist.
+
     config FOLLOWUP_TODO_ARCHIVE_AFTER_DAYS
         int "Default todo archive delay (days)"
         range 0 3650
