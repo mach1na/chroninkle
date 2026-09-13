@@ -43,6 +43,8 @@ constexpr const char* kTag = "DisplayService";
 constexpr int kPortraitWidth = WAVESHARE_EPD_HEIGHT;
 constexpr int kPortraitHeight = WAVESHARE_EPD_WIDTH;
 constexpr int kSplashLogoGap = design::spacing::k16;
+constexpr int kSplashAttributionGap = design::spacing::k8;
+constexpr int kSplashBottomMargin = design::spacing::k48;
 constexpr uint32_t kDisplayTaskStackWords = 4096;
 // How long DisplayTask waits for a new command, once EpaperPanel::NeedsGhostingFlush()
 // is true, before treating the gap as "input paused" and running the deferred full
@@ -276,28 +278,51 @@ void DrawPortraitMonoAsset(uint8_t* framebuffer, int x, int y, const EmbeddedIma
     }
 }
 
+void DrawSplashText(uint8_t* framebuffer, int x, int y, std::string_view text, design::TypographyRole role)
+{
+    epaper_ui::DrawText(
+        [&](int px, int py, uint8_t /*color*/) { DrawPortraitPixel(framebuffer, px, py, true); },
+        x,
+        y,
+        text,
+        design::color::kTextPrimary,
+        role);
+}
+
 void DrawSplashScreen(uint8_t* framebuffer)
 {
+    const EmbeddedImageAsset* chroninkle_logo =
+        project_assets::GetLogo(EmbeddedLogoId::kChroninkleLogoStacked);
     const EmbeddedImageAsset* followup_logo =
         project_assets::GetLogo(EmbeddedLogoId::kFollowupLogo);
     const EmbeddedImageAsset* alxv_logo =
         project_assets::GetLogo(EmbeddedLogoId::kAlxvLabsLogo);
-    if (framebuffer == nullptr || followup_logo == nullptr || alxv_logo == nullptr) {
+    if (framebuffer == nullptr || chroninkle_logo == nullptr || followup_logo == nullptr ||
+        alxv_logo == nullptr) {
         return;
     }
 
-    const int content_width = std::max<int>(followup_logo->width, alxv_logo->width);
-    const int content_height = static_cast<int>(followup_logo->height) + kSplashLogoGap +
-                               static_cast<int>(alxv_logo->height);
-    const int content_x = (kPortraitWidth - content_width) / 2;
-    const int content_y = (kPortraitHeight - content_height) / 2;
+    constexpr std::string_view kAttributionLabel = "Based on";
+    const int label_width =
+        epaper_ui::MeasureText(design::TypographyRole::kLabelSmall, kAttributionLabel);
+    const int label_height = epaper_ui::LineHeight(design::TypographyRole::kLabelSmall);
 
-    const int followup_x = content_x + (content_width - followup_logo->width) / 2;
-    const int followup_y = content_y;
+    // Attribution block anchored to the bottom margin: the label, then Followup's own splash
+    // logo and the ALXV logo it was shown with, kept in their original stacked layout.
+    const int alxv_y = kPortraitHeight - kSplashBottomMargin - static_cast<int>(alxv_logo->height);
+    const int alxv_x = (kPortraitWidth - static_cast<int>(alxv_logo->width)) / 2;
+    const int followup_y = alxv_y - kSplashLogoGap - static_cast<int>(followup_logo->height);
+    const int followup_x = (kPortraitWidth - static_cast<int>(followup_logo->width)) / 2;
+    const int label_y = followup_y - kSplashAttributionGap - label_height;
+    const int label_x = (kPortraitWidth - label_width) / 2;
+
+    // The Chroninkle mark gets the rest of the screen, centered above the attribution block.
+    const int hero_y = (label_y - static_cast<int>(chroninkle_logo->height)) / 2;
+    const int hero_x = (kPortraitWidth - static_cast<int>(chroninkle_logo->width)) / 2;
+    DrawPortraitMonoAsset(framebuffer, hero_x, hero_y, chroninkle_logo);
+
+    DrawSplashText(framebuffer, label_x, label_y, kAttributionLabel, design::TypographyRole::kLabelSmall);
     DrawPortraitMonoAsset(framebuffer, followup_x, followup_y, followup_logo);
-
-    const int alxv_x = content_x + (content_width - alxv_logo->width) / 2;
-    const int alxv_y = followup_y + followup_logo->height + kSplashLogoGap;
     DrawPortraitMonoAsset(framebuffer, alxv_x, alxv_y, alxv_logo);
 }
 
