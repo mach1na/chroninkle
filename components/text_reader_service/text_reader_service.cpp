@@ -61,6 +61,15 @@ bool HasTxtExtension(const std::string& name)
     return ext == ".txt";
 }
 
+// Filters out dotfiles: macOS in particular litters any folder it writes to over OTG/USB
+// mass storage with ".DS_Store" and, for every real file it copies onto a non-HFS+ volume
+// like this SD card's FAT32, a same-named "._<file>" AppleDouble resource-fork sidecar --
+// which would otherwise pass HasTxtExtension outright (e.g. "._Dracula.txt").
+bool IsHiddenName(const std::string& name)
+{
+    return !name.empty() && name.front() == '.';
+}
+
 }  // namespace
 
 esp_err_t Init()
@@ -100,7 +109,7 @@ std::vector<BookEntry> ListBooks()
         }
 
         const std::string name = entry->d_name;
-        if (!HasTxtExtension(name)) {
+        if (IsHiddenName(name) || !HasTxtExtension(name)) {
             continue;
         }
 
