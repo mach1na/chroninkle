@@ -9,6 +9,16 @@ via `git log`, not backfilled here.
 
 ### Changed
 
+- The boot splash now leads with the new **Chroninkle** name and mark, in a
+  stacked lockup (`assets/logos/chroninkle-logo-stacked.png`,
+  `EmbeddedLogoId::kChroninkleLogoStacked`), reflecting the project's rename
+  from Followup. A horizontal lockup (`chroninkle-logo.png`) and an
+  icon-only mark (`chroninkle-icon.png`) are generated alongside it for
+  future use. The previous Folloup logo and the ALXV Labs logo it launched
+  under move to a smaller "Based on" attribution line at the bottom of the
+  same splash (75% of their old splash size) rather than disappearing
+  (`display_service::DrawSplashScreen`). No other Followup branding changes
+  yet — this is the first step of the rename.
 - The Record button's quick tap is now a dedicated **Back** button instead of
   a second select/confirm button: it exits an entered list/scroll/control
   (`button_service::IsBackGesture`). The rocker-middle FN button is now the

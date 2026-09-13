@@ -5,6 +5,18 @@
       "symbol": "kAlxvLabsLogo"
     },
     {
+      "path": "assets/logos/chroninkle-icon.png",
+      "symbol": "kChroninkleIcon"
+    },
+    {
+      "path": "assets/logos/chroninkle-logo.png",
+      "symbol": "kChroninkleLogo"
+    },
+    {
+      "path": "assets/logos/chroninkle-logo-stacked.png",
+      "symbol": "kChroninkleLogoStacked"
+    },
+    {
       "path": "assets/logos/folloup-logo.png",
       "symbol": "kFollowupLogo"
     }
