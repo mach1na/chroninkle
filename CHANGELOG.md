@@ -1,6 +1,7 @@
 # Changelog
 
-All notable changes to Followup are documented here. Format follows
+All notable changes to Chroninkle (renamed from Followup at 0.6.0) are
+documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows
 [Semantic Versioning](docs/versioning.md). History prior to 0.2.0 is available
 via `git log`, not backfilled here.

@@ -1,13 +1,18 @@
-# Folloup User Manual
+# Chroninkle User Manual
 
-Folloup is a pocket voice notebook. Press a button, speak your thought, tag
-it, and Folloup keeps it organized — transcribed, summarized, and sorted
+![Chroninkle](../assets/logos/chroninkle-logo.png)
+
+Chroninkle is a pocket voice notebook. Press a button, speak your thought, tag
+it, and Chroninkle keeps it organized — transcribed, summarized, and sorted
 into Notes, Todos, and Follow-ups — on a screen that sips power and stays
 legible even when it's "asleep."
 
 This manual describes the device as it actually behaves today. A couple of
 spots in the on-device onboarding carousel describe older button gestures
-that no longer apply — this manual is the accurate reference.
+that no longer apply — this manual is the accurate reference. Chroninkle was
+renamed from **Followup**; a few things the device actually broadcasts (like
+its Wi-Fi setup hotspot name below) still say Followup until that rename
+reaches the firmware's build settings — called out where it comes up.
 
 ## Contents
 
@@ -26,7 +31,7 @@ that no longer apply — this manual is the accurate reference.
 
 ## At a glance: the buttons
 
-Folloup has three physical controls. There is no touchscreen — everything
+Chroninkle has three physical controls. There is no touchscreen — everything
 is driven by these.
 
 | Control | Quick action | Press and hold |
@@ -53,19 +58,20 @@ A few things worth knowing up front:
 
 ## First-time setup
 
-On first boot, Folloup walks you through a short introduction carousel.
+On first boot, Chroninkle walks you through a short introduction carousel.
 Use the **rocker** to move through it (tilt to move, press in to confirm),
 and close it on the final slide. You can replay this carousel any time from
 **Settings → Manual**.
 
-To actually get set up, Folloup opens its own WiFi hotspot named
-**`Followup-XXXXXX`** (the last few characters are unique to your device)
-whenever it doesn't have saved WiFi credentials yet. Connect a phone or
-laptop to that hotspot — it's open, no password needed — and your device
-should automatically open a setup page (or visit `http://192.168.4.1`
-yourself). From there you can:
+To actually get set up, Chroninkle opens its own WiFi hotspot named
+**`Followup-XXXXXX`** (still the pre-rename name — see the note at the top
+of this manual; the last few characters are unique to your device) whenever
+it doesn't have saved WiFi credentials yet. Connect a phone or laptop to
+that hotspot — it's open, no password needed — and your device should
+automatically open a setup page (or visit `http://192.168.4.1` yourself).
+From there you can:
 
-- **Connect Folloup to your WiFi** — scan for networks, pick yours, enter
+- **Connect Chroninkle to your WiFi** — scan for networks, pick yours, enter
   the password.
 - **Add your Gemini API key** — this is what powers transcription and
   summaries. Without it, recordings still save to the SD card, they just
@@ -84,13 +90,13 @@ This is the core interaction:
 
 1. **Press and hold the Record button.** You'll hear a start cue.
    Recording actually begins fractionally before the cue finishes, so
-   your first word isn't cut off — and Folloup even keeps a rolling
+   your first word isn't cut off — and Chroninkle even keeps a rolling
    one-second buffer while the button is held, so a beat of audio right
    before you "properly" started holding it is still caught.
-2. **Speak.** Recordings are capped at **10 seconds** — Folloup is built
+2. **Speak.** Recordings are capped at **10 seconds** — Chroninkle is built
    for quick captures, not long dictation. If you keep holding past 10
    seconds, it stops automatically.
-3. **Release the Record button.** You'll hear a stop cue, and Folloup
+3. **Release the Record button.** You'll hear a stop cue, and Chroninkle
    immediately plays your recording back to you.
 4. **Choose a tag**, from a menu with five options:
    - **Note** — a general thought.
@@ -98,7 +104,7 @@ This is the core interaction:
      screen — the tag itself is called "Task," even though the screen
      that lists them is called "Todos.")
    - **Idea** — something to mull over later.
-   - **Topic** — doesn't save a note at all. Folloup transcribes what
+   - **Topic** — doesn't save a note at all. Chroninkle transcribes what
      you said, distills it into a short name, and adds it as a new
      [topic](#topics) (e.g. hold Record, say "kitchen renovation," pick
      Topic — that project name now exists as a topic you can tag other
@@ -107,7 +113,7 @@ This is the core interaction:
    - **Discard** — throws the recording away. Nothing is saved to the SD
      card if you pick this — that's exactly why the review-then-tag order
      exists: you get to hear it back before deciding.
-5. If you tagged it Note, Task, or Idea, and Folloup has WiFi and a
+5. If you tagged it Note, Task, or Idea, and Chroninkle has WiFi and a
    Gemini key configured, it transcribes the recording in the
    background — you'll see a brief "Transcribing recording..." message,
    then either a transcript being saved or a note that transcription
@@ -115,13 +121,13 @@ This is the core interaction:
    produce its name (see above), and Discard has nothing to transcribe.
 
 **If you're offline when you record**, the clip still saves to the SD
-card — it just gets marked as pending. The moment Folloup reconnects to
+card — it just gets marked as pending. The moment Chroninkle reconnects to
 WiFi, it automatically retries every pending recording. A small badge on
 the status bar shows how many are waiting.
 
 ## The Home screen
 
-Home is Folloup's dashboard. Near the top you'll see:
+Home is Chroninkle's dashboard. Near the top you'll see:
 
 - A **task tracker** — "`done`/`total` completed" with a progress bar, or
   "No tasks yet" if you haven't tagged anything as a Task.
@@ -188,7 +194,7 @@ it and tilt the rocker to flip between the two views.
 A completed Task doesn't disappear right away — it stays visible (checked
 off) in Current for a while, so you can see what you've gotten done.
 After it's been completed for a configurable number of days (7 by
-default — see [Settings](#settings)), Folloup automatically **archives**
+default — see [Settings](#settings)), Chroninkle automatically **archives**
 it: the audio recording is deleted to free up SD card space, but the
 transcript text is kept, and the item moves to the Archived view where you
 can still read it. You can also archive a completed item immediately with
@@ -291,7 +297,7 @@ back to the Home screen, skipping the hub.
 From the top:
 
 1. **WiFi** — toggle WiFi on or off.
-2. **Access Point** — toggle Folloup's own setup hotspot on or off.
+2. **Access Point** — toggle Chroninkle's own setup hotspot on or off.
 3. A list of nearby networks — each row indicates whether it's open or
    password-protected, its signal strength, and whether it's the one
    you're currently connected to. Select a network, enter its password if
@@ -313,11 +319,11 @@ clock.
    inserted and mounted).
 2. **Enable OTG** — mounts the SD card as a USB drive on a computer you've
    connected via USB-C, so you can pull files off directly. While this is
-   active, the card is unavailable to Folloup itself, and you'll need to
+   active, the card is unavailable to Chroninkle itself, and you'll need to
    explicitly **Disable OTG mode** to get it back (there's no accidental
    way out of this while the cable's connected — that's intentional, so
-   Folloup doesn't touch the card while your computer has it mounted).
-3. **Format SD** — erases the SD card completely. Folloup asks you to
+   Chroninkle doesn't touch the card while your computer has it mounted).
+3. **Format SD** — erases the SD card completely. Chroninkle asks you to
    confirm ("Formatting the SD card will erase everything on the card") —
    there's no undo once you confirm.
 

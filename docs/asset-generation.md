@@ -7,7 +7,11 @@ can use generated monochrome image and bitmap-font assets.
 
 - `assets/icons/`: source PNG icons for fixed-size embedded icon assets.
 - `assets/logos/`: source PNG logos that preserve source aspect ratio.
-- `fonts/`: source Inter TTF files for packed bitmap fonts.
+- `fonts/`: source Inter TTF files for packed bitmap fonts. Inter is
+  licensed under the [SIL Open Font License 1.1](/fonts/OFL.txt)
+  (`fonts/OFL.txt`) — keep that file alongside the TTFs if this directory is
+  ever restructured, since the generated bitmap fonts compiled from it into
+  the firmware are a derivative of the font under that license.
 
 The current scripts are macOS-oriented because they use `sips` for PNG
 conversion and CoreGraphics/CoreText for font rasterization.

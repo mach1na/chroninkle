@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Folloup is an ESP-IDF C++17 firmware application for the [Waveshare
+Chroninkle is an ESP-IDF C++17 firmware application for the [Waveshare
 ESP32-S3-ePaper-3.97](https://docs.waveshare.com/ESP32-S3-ePaper-3.97) (800x480
 mono e-paper, buttons only — no touch controller, ES8311 audio codec + NS4150B
-amp, AXP2101 PMIC, QMI8658 IMU, PCF85063 RTC, microSD over SDMMC). Followup is
-a voice-first thought-capture app: press and hold to record, tag it as
+amp, AXP2101 PMIC, QMI8658 IMU, PCF85063 RTC, microSD over SDMMC). Chroninkle
+is a voice-first thought-capture app: press and hold to record, tag it as
 Idea/To-do/Note, Gemini transcribes/summarizes it over Wi-Fi, everything is
 stored on the SD card, and follow-ups are pinned to the e-paper as stickies.
 
@@ -16,6 +16,15 @@ The codebase began as a port targeting the Seeed reTerminal Sticky (see the
 `folloup-sticky` branch/fork for that target) and parts of the docs still
 describe that lineage where the design rationale carried over, but **Waveshare
 is the only target this firmware builds for today**.
+
+Chroninkle was renamed from **Followup** (2026-09-13, see `docs/todo.md`'s
+"Finish the Followup -> Chroninkle rename" entry for what's left). Docs, the
+README, and the boot splash lead with the new name and logo now, but the
+GitHub repo, the `CMakeLists.txt` project name, all `CONFIG_FOLLOWUP_*`
+Kconfig symbols, and most source comments/log strings still say
+Followup/Folloup until that tracked rename lands — don't assume a doc
+mentioning "Chroninkle" means the matching code identifier has moved too;
+check the actual symbol.
 
 Read `docs/app-architecture.md` before changing firmware architecture,
 component boundaries, AXP2101/PMIC integration, board wiring, partition
