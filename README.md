@@ -126,3 +126,5 @@ Chroninkle is licensed under the [GNU GPLv3](LICENSE).
 Chroninkle was renamed from **Followup**, this project's own name through [version 0.5.0](CHANGELOG.md) — the boot screen still credits that name on a "Based on" line rather than dropping it. Followup was itself a fork of [ALXV's folloup-sticky](https://github.com/alxv2016/folloup-sticky), whose `main` branch targets SeeedStudio's reTerminal Sticky and which also has a `folloup-waveshare` branch porting it to the Waveshare ESP32-S3-ePaper-3.97; this fork built on that Waveshare work and made it the primary target going forward. Thank you to ALXV for the original design and implementation this project builds on.
 
 The rename is still in progress — the GitHub repo, build/config identifiers, and some internal docs still say Followup/Folloup under the hood (tracked in `docs/todo.md`).
+
+The on-device UI's bitmap fonts are generated from [Inter](https://github.com/rsms/inter), © The Inter Project Authors, licensed under the [SIL Open Font License 1.1](fonts/OFL.txt).
