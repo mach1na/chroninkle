@@ -22,7 +22,7 @@ For the full walkthrough of every screen and control, see the [user manual](docs
 
 ### 1. Capture at the Light-Bulb Moment
 
-Press record and speak. Every capture starts as a voice recording, tagged as an **Idea**, a **To-do**, or a **Note**, so you can get the thought down the instant it arrives without stopping to type.
+Press record and speak. Every capture starts as a voice recording, tagged as an **Idea**, a **To-do**, or a **Note**, so you can get the thought down the instant it arrives without stopping to type. You can also speak a **Topic** into existence the same way — say a project name, tag it Topic, and it's ready to attach to other recordings.
 
 ### 2. Gemini Transcription, Plus On-Demand Summaries
 
@@ -50,6 +50,14 @@ Lock the screen — or shut the device down — and the ePaper freezes on a summ
 
 From the Home screen, open your flagged follow-ups as a stack of sticky notes you browse one at a time — a quick way to page back through what you've marked as worth revisiting, whatever it's tagged as.
 
+### 8. Group Anything Under a Topic
+
+Tag a Note, Idea, or Todo with a topic — a project name, say — independent of what type it's tagged as. Browse everything under a topic from the Home screen, and ask Gemini for a written recap of everything ever tagged with it, no matter how long ago it was captured.
+
+### 9. Read Your Own Text Files
+
+Copy plain `.txt` files onto the SD card's `books` folder and read them right on the device. Folloup remembers your page in each book, so picking one back up continues where you left off.
+
 ## Typical Applications
 
 | Application | Description |
@@ -60,7 +68,9 @@ From the Home screen, open your flagged follow-ups as a stack of sticky notes yo
 | Follow-up | Flag the items that matter so they stay top of mind |
 | Lock screen | See your pending todos at a glance whenever the device is locked or shut down |
 | Stickies | Browse your flagged follow-ups one at a time from the Home screen |
-| Summaries | Ask Gemini for a fresh written recap of your Notes or Todos, on demand |
+| Topics | Group Notes, Ideas, and Todos under a shared label and summarize them together |
+| Books | Read plain-text files stored on the SD card, picking up where you left off |
+| Summaries | Ask Gemini for a fresh written recap of your Notes, Todos, or a Topic, on demand |
 
 ## Brief Specifications
 
@@ -78,7 +88,7 @@ Followup runs on the [Waveshare ESP32-S3-ePaper-3.97](https://docs.waveshare.com
 | Audio | ES8311 codec, onboard microphone, NS4150B amplifier, speaker header |
 | Sensors | QMI8658 6-axis IMU, PCF85063 real-time clock |
 | Power | AXP2101 PMIC, 3.7V lithium battery (MX1.25 connector), USB-C charging |
-| Storage | microSD card (recordings, transcripts, summaries) |
+| Storage | microSD card (recordings, transcripts, summaries, `.txt` books) |
 | AI | Gemini (cloud) transcription and summarization, over Wi-Fi |
 
 The board also carries an SHTC3 temperature/humidity sensor on the shared I2C bus. Followup does not currently read it.
@@ -90,9 +100,8 @@ Followup is driven entirely by three physical controls: a rocker, the Record but
 | Control | Action |
 | --- | --- |
 | Rocker, tilt up / down | Move the selection; hold a tilt to keep moving |
-| Rocker, hold down-tilt | Back out of a list, scroll view, or switch you're currently inside |
 | Rocker, press in ("Select") | Select / confirm |
-| Record button, tap | Select / confirm — same as Select |
+| Record button, tap ("Back") | Back out of a list, scroll view, or switch you're currently inside |
 | Record button, press and hold | Record — starts on the hold, stops when you let go |
 | PWR, tap | Lock the screen, or unlock it |
 | PWR, hold ~1s | Open the shutdown confirmation |
