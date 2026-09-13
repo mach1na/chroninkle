@@ -31,20 +31,19 @@ is driven by these.
 
 | Control | Quick action | Press and hold |
 |---|---|---|
-| **Record button** | Select / confirm — same as pressing the rocker | **Record** a thought (see below) |
-| **Rocker** (tilt up / tilt down / press in) | Tilt up or down to move the selection; press the rocker straight in (**Select**) to select/confirm | Hold a tilt to keep moving in that direction; **holding the down-tilt is also the universal "back out" gesture** — it exits whatever you're currently inside (an open list, a scroll view, a switch) |
+| **Record button** | **Back** — exits whatever you're currently inside (an open list, a scroll view, a switch) | **Record** a thought (see below) |
+| **Rocker** (tilt up / tilt down / press in) | Tilt up or down to move the selection; press the rocker straight in (**Select**) to select/confirm | Hold a tilt to keep moving in that direction |
 | **PWR** | Short press: **lock / unlock** the screen | Hold ~1 second: open a **shut down?** confirmation |
 
 A few things worth knowing up front:
 
 - **The rocker is one control, not three buttons.** Tilting it up or down
   moves your selection; pressing it straight in — referred to as
-  **Select** in this manual — selects/confirms, the same as a quick press
-  of the Record button.
-- **The Record button does double duty.** A quick tap selects/confirms,
-  just like Select. Press and *hold* it, and it starts recording instead.
-  You don't need to reach for a different control to navigate menus versus
-  to record.
+  **Select** in this manual — selects/confirms.
+- **The Record button does double duty.** A quick tap is **Back** — it
+  backs out of whatever you're currently inside. Press and *hold* it, and
+  it starts recording instead. You don't need to reach for a different
+  control to back out of a list versus to record.
 - **Holding PWR for a full 6 seconds forces the power off**, no matter what
   the screen is doing. This is a hardware failsafe, not something you
   should need in normal use.
@@ -55,9 +54,9 @@ A few things worth knowing up front:
 ## First-time setup
 
 On first boot, Folloup walks you through a short introduction carousel.
-Use the **rocker** to move through it (tilt to move, press in or tap the
-**Record button** to confirm), and close it on the final slide. You can
-replay this carousel any time from **Settings → Manual**.
+Use the **rocker** to move through it (tilt to move, press in to confirm),
+and close it on the final slide. You can replay this carousel any time from
+**Settings → Manual**.
 
 To actually get set up, Folloup opens its own WiFi hotspot named
 **`Followup-XXXXXX`** (the last few characters are unique to your device)
@@ -139,17 +138,15 @@ Below that is the main menu, in this order:
 - **Books** — browse and read `.txt` files from the device's [Books
   folder](#books).
 
-Move between them by tilting the rocker, open one with the Record button
-or Select (pressing the rocker in).
+Move between them by tilting the rocker and pressing it in to **Select**.
 
 ## Notes, Todos, and Follow-up
 
 These three screens share the same layout: recordings are grouped by the
 day they were made. Select a day to open it, and you'll see the individual
 recordings inside — each showing a snippet of its transcript (or "Audio
-only" if it hasn't been transcribed yet), its time, and its length. Hold
-the rocker's down-tilt to back out of an opened day and return to the
-list of days.
+only" if it hasn't been transcribed yet), its time, and its length. Tap the
+Record button to back out of an opened day and return to the list of days.
 
 What shows up where:
 
@@ -261,8 +258,8 @@ storage, from Settings > Storage) and they'll show up here.
 - In the reading view, tilting the rocker turns the page forward (down) or
   back (up). Each book remembers the page you last left it on, so leaving
   and reopening it picks up where you stopped.
-- Hold the rocker's down-tilt to leave the reading view and return to the
-  book list.
+- Tap the Record button to leave the reading view and return to the book
+  list.
 - You can page back all the way to the start of the book at any time,
   including right after reopening it — not just through pages turned in the
   current session. Reopening a book you've read a long way into may take a

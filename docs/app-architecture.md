@@ -509,16 +509,21 @@ Current app-level button interactions are:
 - `UP` / `DOWN` move roving focus (or scroll an entered control) one step per
   press, with wraparound, on the active screen. Navigation is driven on
   press-down; a plain `UP` / `DOWN` single click (the release event) is inert.
-- `BOOT` and the rocker's middle key (`FN`) both single-click to activate /
-  submit the focused item on the active screen (footer target, page control, or
-  modal action). `button_service::IsPrimaryButton` is what makes the two
-  equivalent.
-- Pressing and **holding** `DOWN` (a long-press) is the app-wide "exit an entered
-  control" gesture, handled per screen: it backs out of a control the user has
-  stepped into -- e.g. an entered scroll container / timeline item list on the
-  Topic Summary / Notes / Todos / Follow-up / Topic Entries pages, the WiFi
-  network list, or the sticky-note transcript scroll. It is a no-op at the app
-  level. (This replaced the former `DOWN` double-click exit.)
+- The rocker's middle key (`FN`) is the dedicated select/confirm button: a
+  single click activates / submits the focused item on the active screen
+  (footer target, page control, or modal action).
+  `button_service::IsSelectButton` gates this.
+- `BOOT` (`ACTION`) is the dedicated back button on a quick tap (a single
+  click): the app-wide "exit an entered control" gesture, handled per screen.
+  It backs out of a control the user has stepped into -- e.g. an entered
+  scroll container / timeline item list on the Topic Summary / Notes / Todos /
+  Follow-up / Topic Entries pages, the WiFi network list, or the sticky-note
+  transcript scroll. It is a no-op at the app level on screens with nothing to
+  back out of. `button_service::IsBackGesture` gates this. (This replaced
+  `BOOT`'s former dual role as a second select/confirm button.) Pressing and
+  **holding** `DOWN` (a long-press) is deliberately *not* part of this gesture
+  -- that hold is reserved for continuous scrolling within an entered control
+  instead of exiting it, and is currently a no-op at the app level.
 - A short press of the `PWR` key toggles the lock screen; a ~1s hold opens the
   shutdown confirmation modal. `PWR` is not a GPIO button: both arrive as AXP2101
   interrupts, decoded by `main/power_key_runtime`. A sustained 6s hold bypasses
@@ -526,14 +531,15 @@ Current app-level button interactions are:
 - The rocker middle key has no double-click or long-press action. Lock and
   shutdown moved to `PWR`; recording is exclusive to `BOOT`.
 - Pressing and holding `BOOT` arms then starts the recording-session flow;
-  releasing stops it. See [Recording Flow](#recording-flow) for what happens
-  between the release and the tag menu.
+  releasing stops it. A quick tap (no hold) is the back gesture above instead.
+  See [Recording Flow](#recording-flow) for what happens between the release
+  and the tag menu.
 - while the select modal is visible, `UP` and `DOWN` press down plus gated
-  hold-repeat move roving focus with wraparound, a primary-button click submits the focused
+  hold-repeat move roving focus with wraparound, a select-button click submits the focused
   item, and touch focuses the touched item on contact before submitting on
   release.
 - while the shutdown modal is visible, `UP` and `DOWN` press down plus gated
-  hold-repeat move roving focus with wraparound, a primary-button click activates the
+  hold-repeat move roving focus with wraparound, a select-button click activates the
   focused action, and touch focuses `Cancel` or `Shut down` on contact before
   activating on release.
 - when no overlay captures input, footer targets participate in the same touch
@@ -1042,16 +1048,23 @@ Current app-shell usage on top of those low-level events is:
 
 - `UP` / `DOWN` press down: move roving focus (wraparound), one step per press.
   A plain `UP` / `DOWN` single click (the release) is inert.
-- `BOOT` or rocker-middle `FN` single click: activate / submit the focused item
-- hold `DOWN` (long-press): app-wide "exit an entered control" gesture, handled
-  per screen (no-op at the app level; replaced the former `DOWN` double-click)
+- rocker-middle `FN` single click: activate / submit the focused item (the
+  dedicated select button)
+- `BOOT` single click: app-wide "exit an entered control" / back gesture,
+  handled per screen (no-op at the app level on screens with nothing to back
+  out of; replaced the former `DOWN` double-click exit, and `BOOT`'s former
+  dual role as a second select button)
+- hold `DOWN` (long-press): deliberately not part of the back gesture above;
+  reserved for continuous scrolling within an entered control, currently a
+  no-op at the app level
 - short `PWR` press: toggle the lock screen (an AXP2101 interrupt, not a GPIO button)
 - ~1s `PWR` hold: open the shutdown confirmation modal
-- hold `BOOT`: arm/start/finish the recording-session flow
+- hold `BOOT`: arm/start/finish the recording-session flow (a quick tap
+  instead is the back gesture above)
 - select modal visible: `UP` and `DOWN` press down plus gated hold-repeat move
-  shared roving focus, and a primary-button click submits
+  shared roving focus, and a select-button click submits
 - shutdown modal visible: `UP` and `DOWN` press down plus gated hold-repeat
-  move shared roving focus, and a primary-button click activates the focused
+  move shared roving focus, and a select-button click activates the focused
   action
 
 The app shell does not own modal focus routing directly. It hands button events
