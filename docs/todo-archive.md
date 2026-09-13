@@ -1479,3 +1479,47 @@ Verified on-device: clean `--strict-warnings` build with zero warnings.
 Craig confirmed "Works great" -- the 4-item dashboard menu, the Summarize
 button appearing only on topics with entries, and the full get/refresh
 summary flow all behaved as expected.
+
+## ~~After a manual shutdown, holding PWR sometimes doesn't power the device back on~~ — resolved
+
+Craig's report: after using manual shutdown (PWR held ~1s -> confirm on the
+shutdown screen), holding PWR again to turn the device back on doesn't always
+work on the first attempt -- it can take a few tries before it powers on.
+Doesn't seem to be a hardware issue (same physical button, same battery).
+
+`power_service::RequestShutdown()` (`components/power_service/power_service.cpp:450-475`)
+clears the PCF85063's alarm/timer interrupts, then calls `Axp2101::PowerOff()`
+(`components/axp2101/axp2101.cc:134-136`), which is a thin wrapper over the
+vendored XPowersLib driver's `Axp2101Driver::shutdown()`
+(`components/axp2101/xpowers_axp2101_driver.cc:181-184`) -- that just sets a
+soft-shutdown bit in the AXP2101's `COMMON_CONFIG` register.
+
+Read the actual AXP2101 datasheet (X-Powers, via Waveshare's mirror) rather
+than guessing. It does *not* document any minimum off-time/cooldown before
+the chip will recognize a fresh PWRON press -- RTCLDO and the bias/comparator
+circuits stay live even "off," and power-on is a pure "hold PWRON longer than
+ONLEVEL" detection (REG27H[1:0], one of 128ms/512ms/1s/2s), independent of
+firmware. That ruled out the "minimum off-time" theory the item started with.
+
+Leading theory instead: ONLEVEL was configured at 1s
+(`waveshare_board.cpp`, `SetPowerKeyPressOnTime`), the second-longest option,
+requiring one *continuous* low level for the whole hold. Mechanical contact
+bounce on the physical key partway through a hold would (per the datasheet's
+framing of the detector) reset that continuous-press timer, so a hold the
+user perceives as "long enough" can silently fall short.
+
+**Fix:** shortened `SetPowerKeyPressOnTime` to `Axp2101::PowerKeyPressOnTime::
+k512Ms` (`components/board/waveshare_board.cpp`), reducing how much
+uninterrupted contact time a single press needs.
+
+Verified on-device: Craig tested repeated shutdown/power-on cycles over
+several sessions and confirmed the power-back-on gesture is reliable now --
+"seems better" after initial testing, then "we should be good to go" after
+further testing before merging.
+
+Also found along the way, and split off as its own open item rather than
+bundled into this resolution: the AXP2101's "Function Select when
+btn_pwroff_en=1" bit (REG22H bit 0) is never explicitly set by Folloup, so
+the emergency 6s hard-cut's power-off-vs-restart behavior rests on an
+unverified factory default. See "Pin the AXP2101's 6s emergency power-off to
+actually power off" in `docs/todo.md`.

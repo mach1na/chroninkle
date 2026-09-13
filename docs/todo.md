@@ -180,65 +180,24 @@ flush. Two things to work out if it's built: which gesture is actually free
 unclaimed slot) and whether it fully replaces the automatic flush or sits
 alongside it as a backstop.
 
-## After a manual shutdown, holding PWR sometimes doesn't power the device back on
+## Pin the AXP2101's 6s emergency power-off to actually power off
 
-Craig's report: after using manual shutdown (PWR held ~1s -> confirm on the
-shutdown screen), holding PWR again to turn the device back on doesn't always
-work on the first attempt -- it can take a few tries before it powers on.
-Doesn't seem to be a hardware issue (same physical button, same battery).
-
-`power_service::RequestShutdown()` (`components/power_service/power_service.cpp:450-475`)
-clears the PCF85063's alarm/timer interrupts, then calls `Axp2101::PowerOff()`
-(`components/axp2101/axp2101.cc:134-136`), which is a thin wrapper over the
-vendored XPowersLib driver's `Axp2101Driver::shutdown()`
-(`components/axp2101/xpowers_axp2101_driver.cc:181-184`) -- that just sets a
-soft-shutdown bit in the AXP2101's `COMMON_CONFIG` register.
-
-**Update (2026-09-11):** read the actual AXP2101 datasheet (X-Powers, via
-Waveshare's mirror) rather than guessing. It does *not* document any minimum
-off-time/cooldown before the chip will recognize a fresh PWRON press -- RTCLDO
-and the bias/comparator circuits stay live even "off," and power-on is a pure
-"hold PWRON longer than ONLEVEL" detection (REG27H[1:0], one of 128ms/512ms/
-1s/2s), independent of firmware. That rules out the "minimum off-time" theory
-as stated.
-
-Leading theory now: ONLEVEL was configured at 1s (`waveshare_board.cpp`,
-`SetPowerKeyPressOnTime`), the second-longest option, requiring one
-*continuous* low level for the whole hold. Mechanical contact bounce on the
-physical key partway through a hold would (per the datasheet's framing of the
-detector) reset that continuous-press timer, so a hold the user perceives as
-"long enough" can silently fall short. Shortened to 512ms
-(`Axp2101::PowerKeyPressOnTime::k512Ms`) to reduce how much uninterrupted
-contact time a single press needs -- unconfirmed without on-device testing,
-since bounce is a per-unit hardware characteristic this session can't
-reproduce. If it doesn't help, revert and fall back to the open questions
-below with fresh data (particularly the battery-vs-USB and
-quick-retry-vs-wait comparisons, which would help separate a bounce theory
-from anything downstream of the soft-shutdown register write).
-
-Also found and worth a separate fix regardless of this bug: the AXP2101's
-"Function Select when btn_pwroff_en=1" bit (REG22H bit 0 -- 0=Power-off,
-1=Restart) is never explicitly set by Folloup (`Axp2101::SetButtonPowerOffRestarts()`
-exists in `components/axp2101/axp2101.h:56` but has zero call sites), so it
-sits at its factory EFUSE default. `waveshare_board.cpp` enables "PWRON >
-OFFLEVEL (6s) as a power-off source" (`SetButtonPowerOffEnabled(true)`), and
+Found while investigating the (now-resolved, see `docs/todo-archive.md`)
+PWR power-back-on flakiness. The AXP2101's "Function Select when
+btn_pwroff_en=1" bit (REG22H bit 0 -- 0=Power-off, 1=Restart) is never
+explicitly set by Folloup (`Axp2101::SetButtonPowerOffRestarts()` exists in
+`components/axp2101/axp2101.h:56` but has zero call sites), so it sits at
+its factory EFUSE default. `waveshare_board.cpp` enables "PWRON > OFFLEVEL
+(6s) as a power-off source" (`SetButtonPowerOffEnabled(true)`), and
 CLAUDE.md documents that 6s hold as "a hardware escape even if firmware is
 wedged" -- but if the EFUSE default for that function-select bit happens to
 be "Restart," the emergency 6s hold would reboot the board instead of cutting
-power, contradicting that guarantee. Should call
-`SetButtonPowerOffRestarts(false)` explicitly in `ConfigurePmicRails` so this
-doesn't depend on an unverified factory default.
+power, contradicting that guarantee.
 
-Open questions for whoever investigates further:
-- Does shortening ONLEVEL actually reduce the failure rate in practice?
-- Does this reproduce identically on battery vs. USB power (the VBUS-present
-  case never actually powers off per the comment in `RequestShutdown`, so if
-  the bug also happens on USB it points away from a PWRON-hold-bounce theory
-  on power-on and toward something else).
-- Is there a difference between a short/quick retry vs. waiting a beat before
-  the next attempt?
-
-Own branch/PR once root-caused.
+Fix: call `SetButtonPowerOffRestarts(false)` explicitly in
+`ConfigurePmicRails` (`components/board/waveshare_board.cpp`) so this
+doesn't depend on an unverified factory default. Low-risk, self-contained --
+worth doing on its own branch rather than folding into unrelated work.
 
 ## Redundant derived state: icon/checked fields duplicate their source bool
 

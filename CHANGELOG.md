@@ -7,6 +7,17 @@ via `git log`, not backfilled here.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-13
+
+### Fixed
+
+- Holding PWR to power the device back on after a manual shutdown sometimes
+  didn't register on the first attempt. Shortened the AXP2101's PWRON
+  power-on hold requirement from 1s to 512ms
+  (`Axp2101::PowerKeyPressOnTime::k512Ms`), reducing how much uninterrupted
+  contact a single press needs against physical key bounce. Confirmed
+  reliable on-device across repeated shutdown/power-on cycles.
+
 ## [0.3.0] - 2026-09-11
 
 ### Changed
