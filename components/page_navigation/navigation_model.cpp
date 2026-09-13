@@ -210,7 +210,7 @@ NavigationModel BuildDashboardPageNavigationModel()
     model.scope = NavigationScope::kDashboard;
 
     // Must match epaper_ui::kDashboardMenuItemCount (dashboard_page.h).
-    for (int index = 0; index < 4; ++index) {
+    for (int index = 0; index < 5; ++index) {
         AddItem(model, NavigationItemSection::kDashboardPageMenu,
                 NavigationItemRole::kDashboardMenuItem, index);
     }
@@ -331,6 +331,20 @@ NavigationModel BuildOnboardingPageNavigationModel()
             NavigationItemRole::kOnboardingPagePrev, 1);
     AddItem(model, NavigationItemSection::kOnboardingPageControls,
             NavigationItemRole::kOnboardingPageNext, 2);
+    return model;
+}
+
+NavigationModel BuildBookListPageNavigationModel(int book_count)
+{
+    NavigationModel model = {};
+    model.scope = NavigationScope::kBookList;
+
+    const int count = book_count > 0 ? book_count : 0;
+    for (int index = 0; index < count; ++index) {
+        AddItem(model, NavigationItemSection::kBookListPageControls,
+                NavigationItemRole::kBookListBookRow, index);
+    }
+    AddFooterItems(model, /*is_home_screen=*/false);
     return model;
 }
 

@@ -1523,3 +1523,65 @@ btn_pwroff_en=1" bit (REG22H bit 0) is never explicitly set by Folloup, so
 the emergency 6s hard-cut's power-off-vs-restart behavior rests on an
 unverified factory default. See "Pin the AXP2101's 6s emergency power-off to
 actually power off" in `docs/todo.md`.
+
+## ~~Add a simple .txt reader~~ -- implemented
+
+Built to the deliberately scoped-down v1 shape from the original entry: a
+new `text_reader_service` component (`ListBooks`/`ReadChunk`/`GetFileSize`/
+`LoadPosition`/`SavePosition`) wraps a single flat SD folder
+(`CONFIG_FOLLOWUP_TEXT_READER_FOLDER`, default `books`, created
+automatically if missing), reading `.txt` files with plain `fopen`/`fseek`/
+`fread` the same way `playback_service` streams a clip -- no new SD-level
+plumbing needed, `SdCard::ReadFromOffset` having already covered the case.
+Per-file reading position is a plain byte offset in a `<filename>.pos`
+sidecar next to the book, clamped against the file's current size on load
+(covers the book having been edited/replaced externally) rather than
+attempting anything cleverer.
+
+Two new screens follow the standard `{runtime, coordinator, interactions}`
+trio pattern: `ScreenId::kBookList` (a flat `SelectList` of `.txt`
+filenames, modeled directly on `TopicsBrowsePageCoordinator` since a flat
+list-to-detail-screen shape already existed) and `ScreenId::kBookReader`
+(paginated body text). The reader's `BookReaderPageCoordinator` needed no
+`NavigationModel`/`RovingFocus` at all -- UP/DOWN tilt turns pages directly
+rather than moving roving focus, matching the vendor-reader precedent noted
+in the original entry, and long-press DOWN (the existing app-wide "exit
+entered control" gesture) returns to the book list since the whole reader
+screen counts as one entered control with no inner level to collapse to
+first.
+
+Pagination is a new `epaper_ui::PaginateBookText` (declared in
+`book_reader_page.h`, so it stays paired with the exact content-area
+geometry `DrawBookReaderPage` draws into) rather than reusing the existing
+`WrapTextToWidth`/`MeasureText` helpers directly from `main/` --
+`render_utils.h` turned out to be a private header of `epaper_ui` (not
+under its public `include/` path), and `WrapTextToWidth` doesn't report how
+many bytes of input it consumed, which the coordinator needs to know where
+the *next* page should start reading from. `PaginateBookText` reimplements
+the same greedy word-wrap loop but tracks the consumed byte offset directly
+and stops once a line budget is hit. `BookReaderPageCoordinator::BuildPageAt`
+reads the book in bounded 4 KB chunks (SdCard streaming, not a whole-file
+load) into a heap-allocated buffer -- not a stack one, since this runs on
+whatever task dispatches button input and that task's stack isn't sized
+with a 4 KB local in mind -- capped at 4 reads per page so a pathological
+file (no whitespace for many kilobytes) can't spin forever.
+
+Backward pagination resolved per the explicit v1 decision: an in-memory
+stack of page-start byte offsets, pushed on forward / popped on back, each
+page re-derived from its offset on demand rather than cached. This means
+paging back before a book's last saved position, right after reopening it,
+isn't possible until you've paged forward through it again this session --
+called out explicitly in `docs/user-manual.md` rather than left as a
+surprise.
+
+Followed the vendor-reader precedent directly rather than treating this as
+blocked on the still-open "full refreshes too frequent" item: page turns
+request `RefreshMode::kPartial`, backstopped by the existing automatic
+ghost-clear flush (`EpaperPanel::NeedsGhostingFlush()`) rather than any new
+anti-ghosting logic.
+
+Home menu placement (Craig's call): a 5th item ("Books"), confirmed
+layout-safe beforehand since the dashboard menu is a vertical
+fixed-item-extent list, not a grid -- and this exact slot count already had
+precedent (see the Topic Summary entry above: the dashboard was at 5 items
+before the standalone Summarize screen was removed down to 4).

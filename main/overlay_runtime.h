@@ -51,6 +51,7 @@ esp_err_t ShowStorageModalUsbNoCable();
 esp_err_t ShowStorageModalUsbError();
 esp_err_t DismissStorageModal();
 esp_err_t ShowTopicsModalConfirmDelete();
+esp_err_t ShowBookListModalConfirmDelete();
 esp_err_t ShowSelectModal(const epaper_ui::SelectModalState& state);
 esp_err_t DismissSelectModal();
 esp_err_t ShowKeyboard(const epaper_ui::KeyboardState& state,

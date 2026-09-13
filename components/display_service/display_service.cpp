@@ -100,6 +100,8 @@ epaper_ui::TodosPageState s_todos_page_state = {};
 epaper_ui::FollowUpPageState s_follow_up_page_state = {};
 epaper_ui::DetailsPageState s_details_page_state = {};
 epaper_ui::OnboardingPageState s_onboarding_page_state = {};
+epaper_ui::BookListPageState s_book_list_page_state = {};
+epaper_ui::BookReaderPageState s_book_reader_page_state = {};
 epaper_ui::LockScreenState s_lock_screen_state = {};
 epaper_ui::KeyboardState s_keyboard_state = {};
 epaper_ui::CardModalState s_card_modal_state = {};
@@ -127,6 +129,8 @@ struct RenderSnapshot {
     epaper_ui::FollowUpPageState follow_up_page = {};
     epaper_ui::DetailsPageState details_page = {};
     epaper_ui::OnboardingPageState onboarding_page = {};
+    epaper_ui::BookListPageState book_list_page = {};
+    epaper_ui::BookReaderPageState book_reader_page = {};
     epaper_ui::LockScreenState lock_screen = {};
     epaper_ui::KeyboardState keyboard = {};
     epaper_ui::CardModalState card_modal = {};
@@ -206,6 +210,8 @@ const RenderSnapshot& CaptureRenderSnapshot()
     snapshot.follow_up_page = s_follow_up_page_state;
     snapshot.details_page = s_details_page_state;
     snapshot.onboarding_page = s_onboarding_page_state;
+    snapshot.book_list_page = s_book_list_page_state;
+    snapshot.book_reader_page = s_book_reader_page_state;
     snapshot.lock_screen = s_lock_screen_state;
     snapshot.keyboard = s_keyboard_state;
     snapshot.card_modal = s_card_modal_state;
@@ -466,6 +472,34 @@ void DrawTopicsBrowseUnderlay(uint8_t* framebuffer, const RenderSnapshot& snapsh
                                     snapshot.topics_browse_page,
                                     snapshot.status_bar,
                                     snapshot.global_footer);
+}
+
+void DrawBookListUnderlay(uint8_t* framebuffer, const RenderSnapshot& snapshot)
+{
+    EpaperPanel& panel = Panel();
+    panel.Clear(true);
+    epaper_ui::DrawBookListPage(framebuffer,
+                                WAVESHARE_EPD_WIDTH,
+                                WAVESHARE_EPD_HEIGHT,
+                                kPortraitWidth,
+                                kPortraitHeight,
+                                snapshot.book_list_page,
+                                snapshot.status_bar,
+                                snapshot.global_footer);
+}
+
+void DrawBookReaderUnderlay(uint8_t* framebuffer, const RenderSnapshot& snapshot)
+{
+    EpaperPanel& panel = Panel();
+    panel.Clear(true);
+    epaper_ui::DrawBookReaderPage(framebuffer,
+                                  WAVESHARE_EPD_WIDTH,
+                                  WAVESHARE_EPD_HEIGHT,
+                                  kPortraitWidth,
+                                  kPortraitHeight,
+                                  snapshot.book_reader_page,
+                                  snapshot.status_bar,
+                                  snapshot.global_footer);
 }
 
 void DrawTopicEntriesUnderlay(uint8_t* framebuffer, const RenderSnapshot& snapshot)
@@ -837,6 +871,44 @@ esp_err_t ApplyTopicsBrowse(RefreshMode refresh_mode)
     return ESP_OK;
 }
 
+esp_err_t ApplyBookList(RefreshMode refresh_mode)
+{
+    const RenderSnapshot& snapshot = CaptureRenderSnapshot();
+    EpaperPanel& panel = Panel();
+    DrawBookListUnderlay(panel.framebuffer(), snapshot);
+    CaptureUnderlaySnapshot(panel.framebuffer());
+    DrawCurrentOverlays(panel.framebuffer(), snapshot);
+
+    s_current_screen.store(ScreenId::kBookList, std::memory_order_relaxed);
+    RefreshBusyGuard refresh_busy;
+    const esp_err_t err = RefreshForMode(panel, refresh_mode);
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    LogMetrics(panel.metrics());
+    return ESP_OK;
+}
+
+esp_err_t ApplyBookReader(RefreshMode refresh_mode)
+{
+    const RenderSnapshot& snapshot = CaptureRenderSnapshot();
+    EpaperPanel& panel = Panel();
+    DrawBookReaderUnderlay(panel.framebuffer(), snapshot);
+    CaptureUnderlaySnapshot(panel.framebuffer());
+    DrawCurrentOverlays(panel.framebuffer(), snapshot);
+
+    s_current_screen.store(ScreenId::kBookReader, std::memory_order_relaxed);
+    RefreshBusyGuard refresh_busy;
+    const esp_err_t err = RefreshForMode(panel, refresh_mode);
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    LogMetrics(panel.metrics());
+    return ESP_OK;
+}
+
 esp_err_t ApplyTopicEntries(RefreshMode refresh_mode)
 {
     const RenderSnapshot& snapshot = CaptureRenderSnapshot();
@@ -1149,6 +1221,12 @@ esp_err_t RefreshCurrentScreenRegionLocked()
         case ScreenId::kLockScreen:
             DrawLockScreenUnderlay(panel.framebuffer(), snapshot);
             break;
+        case ScreenId::kBookList:
+            DrawBookListUnderlay(panel.framebuffer(), snapshot);
+            break;
+        case ScreenId::kBookReader:
+            DrawBookReaderUnderlay(panel.framebuffer(), snapshot);
+            break;
         default:
             DrawHomeUnderlay(panel.framebuffer(), snapshot);
             break;
@@ -1217,6 +1295,10 @@ esp_err_t RefreshCurrentScreenLocked(RefreshMode refresh_mode)
             return ApplyDetails(refresh_mode);
         case ScreenId::kLockScreen:
             return ApplyLockScreen(refresh_mode);
+        case ScreenId::kBookList:
+            return ApplyBookList(refresh_mode);
+        case ScreenId::kBookReader:
+            return ApplyBookReader(refresh_mode);
         default:
             return ApplyHomeScreen(refresh_mode);
     }
@@ -1345,6 +1427,10 @@ void DisplayTask(void*)
                 err = ApplyOnboarding(command.refresh_request.refresh_mode);
             } else if (command.screen == ScreenId::kDetails) {
                 err = ApplyDetails(command.refresh_request.refresh_mode);
+            } else if (command.screen == ScreenId::kBookList) {
+                err = ApplyBookList(command.refresh_request.refresh_mode);
+            } else if (command.screen == ScreenId::kBookReader) {
+                err = ApplyBookReader(command.refresh_request.refresh_mode);
             } else {
                 err = ApplyHomeScreen(command.refresh_request.refresh_mode);
             }
@@ -1615,6 +1701,28 @@ esp_err_t SetNotesPageState(const epaper_ui::NotesPageState& state)
 
     std::lock_guard<std::mutex> lock(s_state_mutex);
     s_notes_page_state = state;
+    return ESP_OK;
+}
+
+esp_err_t SetBookListPageState(const epaper_ui::BookListPageState& state)
+{
+    if (!s_initialized) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    std::lock_guard<std::mutex> lock(s_state_mutex);
+    s_book_list_page_state = state;
+    return ESP_OK;
+}
+
+esp_err_t SetBookReaderPageState(const epaper_ui::BookReaderPageState& state)
+{
+    if (!s_initialized) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    std::lock_guard<std::mutex> lock(s_state_mutex);
+    s_book_reader_page_state = state;
     return ESP_OK;
 }
 

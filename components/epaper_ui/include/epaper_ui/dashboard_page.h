@@ -13,8 +13,8 @@
 
 namespace epaper_ui {
 
-// The dashboard's main menu has four fixed items; Follow up / Notes / Todos can show a badge.
-inline constexpr int kDashboardMenuItemCount = 4;
+// The dashboard's main menu has five fixed items; Follow up / Notes / Todos can show a badge.
+inline constexpr int kDashboardMenuItemCount = 5;
 
 // Fixed slot order of the dashboard menu (must match kMenuLabels in dashboard_page.cpp).
 enum class DashboardMenuItem : int {
@@ -22,6 +22,7 @@ enum class DashboardMenuItem : int {
     kTodos,
     kNotes,
     kTopics,
+    kBooks,
 };
 
 struct DashboardPageMenuState {

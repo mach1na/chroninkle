@@ -8,6 +8,8 @@
 #include <vector>
 
 #include "app_state_service.h"
+#include "book_list_page_runtime.h"
+#include "book_reader_page_runtime.h"
 #include "button_input_runtime.h"
 #include "button_service.h"
 #include "device_sleep_service.h"
@@ -48,6 +50,7 @@
 #include "todos_page_runtime.h"
 #include "storage_service.h"
 #include "summary_service.h"
+#include "text_reader_service.h"
 #include "timezone_service.h"
 #include "topic_service.h"
 #include "transcription_retry_service.h"
@@ -551,6 +554,73 @@ esp_err_t ShowFollowUpScreen(display_service::RefreshMode refresh_mode)
                                              "show_follow_up_screen");
 }
 
+esp_err_t ShowBookListScreen(display_service::RefreshMode refresh_mode)
+{
+    SyncStatusBarState("show_book_list_screen");
+    page_input_runtime::ResetFocusForScreen(display_service::ScreenId::kBookList);
+    footer_runtime::SetLayoutState(FooterLayoutForScreen(display_service::ScreenId::kBookList));
+    footer_runtime::SetProjectionState(page_input_runtime::BuildFooterProjectionForScreen(
+        display_service::ScreenId::kBookList));
+    const esp_err_t footer_err = footer_runtime::UpdateDisplayState();
+    if (footer_err != ESP_OK && footer_err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Footer sync before book list screen failed: %s",
+                 esp_err_to_name(footer_err));
+    }
+    const esp_err_t book_list_err = book_list_page_runtime::UpdateDisplayState();
+    if (book_list_err != ESP_OK && book_list_err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Book list page sync before show failed: %s",
+                 esp_err_to_name(book_list_err));
+    }
+    return display_service::SetCurrentScreen(display_service::ScreenId::kBookList, refresh_mode,
+                                             "show_book_list_screen");
+}
+
+esp_err_t ShowBookReaderScreen(display_service::RefreshMode refresh_mode)
+{
+    SyncStatusBarState("show_book_reader_screen");
+    page_input_runtime::ResetFocusForScreen(display_service::ScreenId::kBookReader);
+    footer_runtime::SetLayoutState(FooterLayoutForScreen(display_service::ScreenId::kBookReader));
+    footer_runtime::SetProjectionState(page_input_runtime::BuildFooterProjectionForScreen(
+        display_service::ScreenId::kBookReader));
+    const esp_err_t footer_err = footer_runtime::UpdateDisplayState();
+    if (footer_err != ESP_OK && footer_err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Footer sync before book reader screen failed: %s",
+                 esp_err_to_name(footer_err));
+    }
+    return display_service::SetCurrentScreen(display_service::ScreenId::kBookReader, refresh_mode,
+                                             "show_book_reader_screen");
+}
+
+// Open the reader for the book selected on the Book list screen.
+void ShowBookReaderScreenIfRequested()
+{
+    const book_list_page_runtime::PendingBookReader pending =
+        book_list_page_runtime::ConsumePendingShowReader();
+    if (!pending.valid) {
+        return;
+    }
+    const esp_err_t open_err = book_reader_page_runtime::OpenBook(pending.filename);
+    if (open_err != ESP_OK && open_err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Open book failed: %s", esp_err_to_name(open_err));
+    }
+    const esp_err_t err = ShowBookReaderScreen(display_service::RefreshMode::kFull);
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Show book reader screen failed: %s", esp_err_to_name(err));
+    }
+}
+
+// Return from the Book reader screen to the Book list screen.
+void HandleBookReaderBackIfRequested()
+{
+    if (!book_reader_page_runtime::ConsumePendingBack()) {
+        return;
+    }
+    const esp_err_t err = ShowBookListScreen(display_service::RefreshMode::kFull);
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Book reader back navigation failed: %s", esp_err_to_name(err));
+    }
+}
+
 // True while onboarding was opened via the Settings "Manual" button (as opposed to first boot). In
 // that mode dismissal returns to Settings and does NOT touch the "onboarded" flag.
 bool s_onboarding_from_settings = false;
@@ -856,6 +926,13 @@ bool HandleDashboardMenuItem(int menu_index, void*)
         const esp_err_t err = ShowTopicsBrowseScreen(display_service::RefreshMode::kFull);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show topics browse screen failed: %s", esp_err_to_name(err));
+        }
+        return true;
+    }
+    if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kBooks)) {
+        const esp_err_t err = ShowBookListScreen(display_service::RefreshMode::kFull);
+        if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+            ESP_LOGW(kTag, "Show book list screen failed: %s", esp_err_to_name(err));
         }
         return true;
     }
@@ -1461,15 +1538,21 @@ void HandleDispatchedButtonEvent(const button_service::ButtonEventInfo& event)
                 overlay_result.select_modal_selected_index) &&
             !settings_topics_page_runtime::HandleItemActionSelection(
                 overlay_result.select_modal_selected_index) &&
+            !book_list_page_runtime::HandleItemActionSelection(
+                overlay_result.select_modal_selected_index) &&
             !details_page_runtime::HandleTopicsSelectionSubmit(
                 overlay_result.select_modal_checked_items)) {
             (void)recording_session_service::SubmitTagSelection(
                 overlay_result.select_modal_selected_index);
         }
         ShowDetailsScreenIfRequested();
+        ShowBookReaderScreenIfRequested();
     }
     if (overlay_result.request_delete_topic) {
         (void)settings_topics_page_runtime::DeleteConfirmedTopic();
+    }
+    if (overlay_result.request_delete_book) {
+        (void)book_list_page_runtime::DeleteConfirmedBook();
     }
     if (overlay_result.request_format_sd_card) {
         const esp_err_t err = storage_service::RequestFormatSdCard();
@@ -1566,6 +1649,8 @@ void HandleDispatchedButtonEvent(const button_service::ButtonEventInfo& event)
         HandleTopicEntriesBackIfRequested();
         ShowTopicSummaryScreenIfRequested();
         HandleTopicSummaryBackIfRequested();
+        ShowBookReaderScreenIfRequested();
+        HandleBookReaderBackIfRequested();
         FlushOverlayFeedback();
         return;
     }
@@ -1886,6 +1971,14 @@ void InitTopicService()
     }
 }
 
+void InitTextReaderService()
+{
+    const esp_err_t err = text_reader_service::Init();
+    if (err != ESP_OK) {
+        ESP_LOGW(kTag, "Text reader service init failed: %s", esp_err_to_name(err));
+    }
+}
+
 void InitGeminiService()
 {
     gemini_service::SetEventHandler(HandleGeminiEvent, nullptr);
@@ -2068,6 +2161,7 @@ void Run()
     // delayed by SD detect/mount latency.
     InitDisplayService();
     InitStorageService();
+    InitTextReaderService();
     InitUiRefreshRuntime();
     InitLockScreenRuntime();
     InitOverlayRuntime();

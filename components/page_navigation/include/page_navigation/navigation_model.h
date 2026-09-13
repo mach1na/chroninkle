@@ -23,6 +23,7 @@ enum class NavigationScope : uint8_t {
     kSettingsStorage,
     kSettingsTodos,
     kSettingsTopics,
+    kBookList,
 };
 
 enum class NavigationItemSection : uint8_t {
@@ -45,6 +46,7 @@ enum class NavigationItemSection : uint8_t {
     kSettingsStoragePageControls,
     kSettingsTodosPageControls,
     kSettingsTopicsPageControls,
+    kBookListPageControls,
 };
 
 enum class NavigationItemRole : uint8_t {
@@ -104,6 +106,7 @@ enum class NavigationItemRole : uint8_t {
     kOnboardingPageClose,
     kOnboardingPagePrev,
     kOnboardingPageNext,
+    kBookListBookRow,
 };
 
 struct NavigationItemDescriptor {
@@ -142,6 +145,7 @@ NavigationModel BuildFollowUpPageNavigationModel(int timeline_group_count);
 // have no transcript yet); when false the page has just the Back button.
 NavigationModel BuildDetailsPageNavigationModel(bool with_transcribe = false);
 NavigationModel BuildOnboardingPageNavigationModel();
+NavigationModel BuildBookListPageNavigationModel(int book_count);
 
 }  // namespace page_navigation
 
