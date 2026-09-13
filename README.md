@@ -121,7 +121,7 @@ Ideas get a vibe check so you only carry forward what still matters. Tasks and n
 
 ## License and Attribution
 
-Chroninkle is licensed under the [GNU GPLv3](LICENSE).
+Chroninkle is licensed under the [GNU GPLv3](LICENSE): Copyright (C) 2026 Alex Vong ([ALXV](https://github.com/alxv2016)), Copyright (C) 2026 Craig Richards ([mach1na](https://github.com/mach1na)).
 
 Chroninkle was renamed from **Followup**, this project's own name through [version 0.5.0](CHANGELOG.md) — the boot screen still credits that name on a "Based on" line rather than dropping it. Followup was itself a fork of [ALXV's folloup-sticky](https://github.com/alxv2016/folloup-sticky), whose `main` branch targets SeeedStudio's reTerminal Sticky and which also has a `folloup-waveshare` branch porting it to the Waveshare ESP32-S3-ePaper-3.97; this fork built on that Waveshare work and made it the primary target going forward. Thank you to ALXV for the original design and implementation this project builds on.
 
