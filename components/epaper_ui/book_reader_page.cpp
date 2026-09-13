@@ -70,10 +70,10 @@ size_t FindNextBreak(const std::string& text, size_t from)
 }  // namespace
 
 BookReaderPageLayout PaginateBookText(int portrait_width, int portrait_height,
-                                      const std::string& text)
+                                      const std::string& raw_text)
 {
     BookReaderPageLayout result = {};
-    if (text.empty()) {
+    if (raw_text.empty()) {
         result.text_exhausted = true;
         return result;
     }
@@ -85,6 +85,19 @@ BookReaderPageLayout PaginateBookText(int portrait_width, int portrait_height,
         result.text_exhausted = true;
         return result;
     }
+
+    // This is a reflowing reader -- original line breaks are not preserved -- so hard-wrapped
+    // source newlines (every .txt file exported from Project Gutenberg et al. hard-wraps at
+    // ~70-80 columns) are normalized to spaces up front. Byte-for-byte length-preserving, so
+    // consumed_bytes below still lines up with offsets in the original file. Without this,
+    // epaper_font::MeasureText (which deliberately stops at the first '\r'/'\n', a safety
+    // behavior other single-line UI callers rely on) silently under-reports the width of any
+    // multi-word span that has a source newline in it -- which is nearly every span in a real
+    // book -- so the "is this line too wide yet" check never trips and the algorithm swallows
+    // the entire input buffer into one unbreakable "line".
+    std::string text = raw_text;
+    std::replace(text.begin(), text.end(), '\r', ' ');
+    std::replace(text.begin(), text.end(), '\n', ' ');
 
     size_t start = 0;
     while (start < text.size() && static_cast<int>(result.lines.size()) < max_lines) {
