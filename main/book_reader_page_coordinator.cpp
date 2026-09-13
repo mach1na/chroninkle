@@ -52,8 +52,27 @@ void BookReaderPageCoordinator::Show(const std::string& filename, int portrait_w
 {
     filename_ = filename;
     back_stack_.clear();
-    page_number_ = 1;
     page_start_offset_ = text_reader_service::LoadPosition(filename);
+
+    // Rebuild the back-stack for pages already read (0 .. saved position) by re-deriving each
+    // one the same deterministic way a fresh read would, so paging backward works immediately
+    // after reopening a book -- not just for pages turned this session. No persisted index:
+    // pagination only depends on the fixed font/screen geometry, so replaying it here always
+    // reproduces the same page-start offsets a prior session landed on. Cost is one-time on
+    // open and scales with how far into the book the reader has actually gotten, not with the
+    // book's total size.
+    page_number_ = 1;
+    size_t offset = 0;
+    while (offset < page_start_offset_) {
+        back_stack_.push_back(offset);
+        BuildPageAt(offset, portrait_width, portrait_height);
+        if (next_page_start_offset_ <= offset) {
+            break;  // no forward progress -- stop rather than loop forever
+        }
+        offset = next_page_start_offset_;
+        page_number_ += 1;
+    }
+
     BuildPageAt(page_start_offset_, portrait_width, portrait_height);
 }
 

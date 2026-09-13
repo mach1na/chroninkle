@@ -258,10 +258,10 @@ storage, from Settings > Storage) and they'll show up here.
   and reopening it picks up where you stopped.
 - Hold the rocker's down-tilt to leave the reading view and return to the
   book list.
-- Paging back only works for pages you've already turned through in the
-  current reading session — once you leave a book and come back later, you
-  can page forward from your saved spot, but not backward past it, until
-  you've paged forward through it again.
+- You can page back all the way to the start of the book at any time,
+  including right after reopening it — not just through pages turned in the
+  current session. Reopening a book you've read a long way into may take a
+  moment to open while it re-figures out where earlier pages started.
 - The reader only looks in that one folder (no subfolders), and only reads
   `.txt` files — other formats aren't supported.
 

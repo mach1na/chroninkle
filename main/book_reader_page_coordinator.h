@@ -11,10 +11,12 @@
 // one screen's worth of lines (BookReaderContentBounds/PaginateBookText), reading the file in
 // chunks off SD via text_reader_service rather than loading the whole book into RAM. Only
 // page-start byte offsets are kept, as an in-memory back-stack pushed on forward / popped on
-// back -- a page is re-derived from its start offset on demand rather than cached, which is why
-// paging back before the book's last saved position, right after reopening it, isn't possible
-// until you've paged forward through it again this session (see docs/todo.md's txt-reader entry
-// for why that's the deliberate v1 scope, not an oversight).
+// back -- a page is re-derived from its start offset on demand rather than cached. Show()
+// rebuilds the back-stack for pages already read (0 .. the saved position) by replaying
+// pagination up to that point, so paging back works right after reopening a book too, not just
+// for pages turned in the current session -- see docs/todo-archive.md's txt-reader entry for
+// why that replay (rather than a persisted index) is enough: pagination is a pure function of
+// the fixed font/screen geometry, so it always reproduces the same page-start offsets.
 class BookReaderPageCoordinator {
 public:
     BookReaderPageCoordinator();
