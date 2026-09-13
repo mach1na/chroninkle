@@ -8,6 +8,7 @@
 #include <cstring>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "esp_log.h"
 #include "sdkconfig.h"
@@ -179,6 +180,26 @@ void SavePosition(const std::string& filename, size_t offset)
     }
     std::fprintf(file, "%zu\n", offset);
     std::fclose(file);
+}
+
+bool DeleteBook(const std::string& filename)
+{
+    // Sidecar first: if the process is interrupted between the two removals, leaving a
+    // stray .pos behind is harmless (ListBooks only ever looks at .txt files), whereas
+    // leaving the book behind with its position already gone is a worse partial state.
+    errno = 0;
+    if (unlink(PositionSidecarPath(filename).c_str()) != 0 && errno != ENOENT) {
+        ESP_LOGW(kTag, "Delete position sidecar for %s failed: errno=%d (%s)", filename.c_str(),
+                 errno, std::strerror(errno));
+    }
+
+    errno = 0;
+    if (unlink(BookPath(filename).c_str()) != 0 && errno != ENOENT) {
+        ESP_LOGW(kTag, "Delete book %s failed: errno=%d (%s)", filename.c_str(), errno,
+                 std::strerror(errno));
+        return false;
+    }
+    return true;
 }
 
 }  // namespace text_reader_service

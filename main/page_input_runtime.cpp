@@ -1078,8 +1078,8 @@ ButtonResult ApplyBookListActivateResult(
     callbacks.show_home = [&result]() {
         result.footer_item = footer_runtime::FooterFocusItem::kHome;
     };
-    callbacks.select_book = []() {
-        book_list_page_runtime::RequestShowReaderForFocusedBook();
+    callbacks.open_book_actions = []() {
+        (void)book_list_page_runtime::ShowItemActionsModal();
     };
     book_list_page_interactions::ApplyPrimaryActivateResult(activation, callbacks);
     if (result.footer_item != footer_runtime::FooterFocusItem::kNone) {

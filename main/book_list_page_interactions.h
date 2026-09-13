@@ -12,8 +12,9 @@ namespace book_list_page_interactions {
 enum class ActivateIntent : uint8_t {
     kNone = 0,
     kShowHome,
-    // Opens the reader at the focused book.
-    kSelectBook,
+    // Opens the actions menu (Continue reading / Start from the beginning / Delete) for the
+    // focused book.
+    kOpenBookActions,
 };
 
 struct ActivateResult {
@@ -26,7 +27,7 @@ using FocusMoveResult = page_actions::FocusMoveOutcome;
 
 struct ActivateCallbacks {
     std::function<void()> show_home;
-    std::function<void()> select_book;
+    std::function<void()> open_book_actions;
 };
 
 ActivateResult HandlePrimaryActivate(const BookListPageCoordinator& coordinator);

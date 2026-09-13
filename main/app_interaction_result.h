@@ -24,6 +24,8 @@ struct InputResult {
     bool request_exit_usb_mode = false;
     // Set by the Topics delete-confirm modal's "Delete" action.
     bool request_delete_topic = false;
+    // Set by the Book list delete-confirm modal's "Delete" action.
+    bool request_delete_book = false;
     bool select_modal_submitted = false;
     int select_modal_selected_index = -1;
     // Populated only when the submitted modal was multi_select -- the final checked state of

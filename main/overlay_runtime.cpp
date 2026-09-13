@@ -33,6 +33,7 @@ enum class CardModalPurpose : uint8_t {
     kStorageFormatSuccess,
     kStorageFormatError,
     kTopicsConfirmDelete,
+    kBookListConfirmDelete,
 };
 
 std::mutex s_state_mutex;
@@ -125,6 +126,12 @@ epaper_ui::CardModalState BuildCardModalState(CardModalPurpose purpose)
             state.title_text = "Delete topic?";
             state.body_text = "This topic will be removed. Entries already tagged with it keep "
                               "their other topics.";
+            state.action_labels = {"Cancel", "Delete"};
+            break;
+        case CardModalPurpose::kBookListConfirmDelete:
+            state.title_text = "Delete book?";
+            state.body_text = "This book and your saved reading position will be removed. "
+                              "There's no undo.";
             state.action_labels = {"Cancel", "Delete"};
             break;
         case CardModalPurpose::kNone:
@@ -658,6 +665,11 @@ esp_err_t ShowTopicsModalConfirmDelete()
     return ShowCardModal(CardModalPurpose::kTopicsConfirmDelete, "topics_confirm_delete");
 }
 
+esp_err_t ShowBookListModalConfirmDelete()
+{
+    return ShowCardModal(CardModalPurpose::kBookListConfirmDelete, "book_list_confirm_delete");
+}
+
 esp_err_t DismissStorageModal()
 {
     return DismissCardModal();
@@ -1023,6 +1035,13 @@ app_interaction::InputResult HandleButtonEvent(const button_service::ButtonEvent
                             case CardModalPurpose::kTopicsConfirmDelete:
                                 if (index == 1) {
                                     result.request_delete_topic = true;
+                                } else {
+                                    play_click = true;
+                                }
+                                break;
+                            case CardModalPurpose::kBookListConfirmDelete:
+                                if (index == 1) {
+                                    result.request_delete_book = true;
                                 } else {
                                     play_click = true;
                                 }

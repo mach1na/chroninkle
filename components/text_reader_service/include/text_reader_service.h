@@ -40,6 +40,10 @@ uint64_t GetFileSize(const std::string& filename);
 size_t LoadPosition(const std::string& filename);
 void SavePosition(const std::string& filename, size_t offset);
 
+// Removes the book and its position sidecar (if any) from the configured folder. Returns
+// true if the book file was removed or was already gone; false on an actual I/O error.
+bool DeleteBook(const std::string& filename);
+
 }  // namespace text_reader_service
 
 #endif  // TEXT_READER_SERVICE_H_

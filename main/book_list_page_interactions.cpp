@@ -14,7 +14,7 @@ ActivateResult HandlePrimaryActivate(const BookListPageCoordinator& coordinator)
     if (coordinator.IsRoleFocused(NavigationItemRole::kBookListBookRow)) {
         result.handled = true;
         result.play_activate_cue = true;
-        result.intent = ActivateIntent::kSelectBook;
+        result.intent = ActivateIntent::kOpenBookActions;
         return result;
     }
     if (coordinator.IsRoleFocused(NavigationItemRole::kFooterHome)) {
@@ -35,9 +35,9 @@ void ApplyPrimaryActivateResult(const ActivateResult& result, const ActivateCall
                 callbacks.show_home();
             }
             break;
-        case ActivateIntent::kSelectBook:
-            if (callbacks.select_book) {
-                callbacks.select_book();
+        case ActivateIntent::kOpenBookActions:
+            if (callbacks.open_book_actions) {
+                callbacks.open_book_actions();
             }
             break;
         case ActivateIntent::kNone:

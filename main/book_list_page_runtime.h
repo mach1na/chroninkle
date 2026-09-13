@@ -25,13 +25,23 @@ page_actions::FocusUpdateOutcome FocusFooterItem(footer_runtime::FooterFocusItem
 // Re-lists the configured folder off the SD card and resets focus. Called on page entry.
 void ResetFocus();
 
-// Called when a book row is activated. Stashes the filename for the deferred screen transition
-// (app_shell polls ConsumePendingShowReader after input dispatch returns).
-void RequestShowReaderForFocusedBook();
+// Called when a book row is activated: opens its actions menu (Continue reading / Start
+// from the beginning / Delete). Returns false if no book is focused.
+bool ShowItemActionsModal();
+// Routes a select_modal submission back to whichever action was chosen. Returns false if
+// this page didn't open the modal, so app_shell's submit chain can try the next page.
+bool HandleItemActionSelection(int selected_index);
+// Deletes whichever book "Delete" was confirmed for (stashed by HandleItemActionSelection
+// when the confirm modal was shown) and refreshes the list. Returns false if nothing was
+// pending -- mirrors settings_topics_page_runtime::DeleteConfirmedTopic().
+bool DeleteConfirmedBook();
+
 struct PendingBookReader {
     bool valid = false;
     std::string filename = {};
 };
+// Consumed by app_shell after input dispatch, same deferred-screen-transition idiom used
+// throughout main/ -- set by HandleItemActionSelection's Continue/Start-over actions.
 PendingBookReader ConsumePendingShowReader();
 
 }  // namespace book_list_page_runtime

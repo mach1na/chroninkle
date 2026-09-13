@@ -4,6 +4,9 @@
 #include <vector>
 
 #include "book_list_page_coordinator.h"
+#include "epaper_ui/select_modal.h"
+#include "esp_log.h"
+#include "overlay_runtime.h"
 #include "page_navigation/navigation_model.h"
 #include "page_navigation/page_focus_projection.h"
 #include "text_reader_service.h"
@@ -11,6 +14,15 @@
 
 namespace book_list_page_runtime {
 namespace {
+
+constexpr const char* kTag = "BookListPageRuntime";
+
+enum class ItemAction : uint8_t {
+    kContinueReading,
+    kStartFromBeginning,
+    kDelete,
+    kClose,
+};
 
 std::mutex s_mutex;
 BookListPageCoordinator s_coordinator = {};
@@ -20,6 +32,24 @@ BookListPageCoordinator s_coordinator = {};
 std::vector<text_reader_service::BookEntry> s_books = {};
 bool s_pending_reader = false;
 std::string s_pending_filename;
+
+// The item-actions modal is a shared select_modal; track the selection so the app_shell submit
+// chain can route it back here, mirroring notes_page_runtime's ItemAction pattern.
+bool s_item_actions_pending = false;
+std::string s_item_actions_filename;
+std::vector<ItemAction> s_item_actions;
+// Stashed between the item-actions modal's "Delete" and the confirm modal's "Delete" --
+// mirrors settings_topics_page_runtime's s_pending_delete_topic_id.
+std::string s_pending_delete_filename;
+
+// Stashes `filename` for the deferred screen transition (app_shell polls
+// ConsumePendingShowReader after input dispatch returns).
+void RequestShowReader(const std::string& filename)
+{
+    std::lock_guard<std::mutex> lock(s_mutex);
+    s_pending_filename = filename;
+    s_pending_reader = true;
+}
 
 footer_runtime::FooterFocusItem FooterItemForSelectedIndex(int selected_index)
 {
@@ -156,15 +186,101 @@ void ResetFocus()
     footer_runtime::SetProjectionState(projection);
 }
 
-void RequestShowReaderForFocusedBook()
+bool ShowItemActionsModal()
 {
-    std::lock_guard<std::mutex> lock(s_mutex);
-    const int index = s_coordinator.FocusedBookIndex();
-    if (index < 0 || index >= static_cast<int>(s_books.size())) {
-        return;
+    epaper_ui::SelectModalState modal = {};
+    {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        const int index = s_coordinator.FocusedBookIndex();
+        if (index < 0 || index >= static_cast<int>(s_books.size())) {
+            return false;
+        }
+        s_item_actions_filename = s_books[static_cast<size_t>(index)].filename;
+        s_item_actions.clear();
+        modal.title_text = s_item_actions_filename;
+        modal.items.push_back({"Continue reading"});
+        s_item_actions.push_back(ItemAction::kContinueReading);
+        modal.items.push_back({"Start from the beginning"});
+        s_item_actions.push_back(ItemAction::kStartFromBeginning);
+        modal.items.push_back({"Delete"});
+        s_item_actions.push_back(ItemAction::kDelete);
+        modal.items.push_back({"Close"});
+        s_item_actions.push_back(ItemAction::kClose);
+        modal.selected_index = 0;
+        s_item_actions_pending = true;
     }
-    s_pending_filename = s_books[static_cast<size_t>(index)].filename;
-    s_pending_reader = true;
+    const esp_err_t err = overlay_runtime::ShowSelectModal(modal);
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        s_item_actions_pending = false;
+        ESP_LOGW(kTag, "Show book actions modal failed: %s", esp_err_to_name(err));
+        return false;
+    }
+    return true;
+}
+
+bool HandleItemActionSelection(int selected_index)
+{
+    ItemAction action = ItemAction::kClose;
+    std::string filename;
+    {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        if (!s_item_actions_pending) {
+            return false;
+        }
+        s_item_actions_pending = false;
+        filename = s_item_actions_filename;
+        if (selected_index < 0 || selected_index >= static_cast<int>(s_item_actions.size())) {
+            return true;  // dismissed without a valid selection
+        }
+        action = s_item_actions[static_cast<size_t>(selected_index)];
+    }
+    if (filename.empty()) {
+        return true;
+    }
+
+    switch (action) {
+        case ItemAction::kContinueReading:
+            RequestShowReader(filename);
+            break;
+        case ItemAction::kStartFromBeginning:
+            // OpenBook() always resumes the saved position, so force it to the start here
+            // rather than teaching the reader coordinator a second open mode for what is a
+            // one-off menu choice.
+            text_reader_service::SavePosition(filename, 0);
+            RequestShowReader(filename);
+            break;
+        case ItemAction::kDelete: {
+            std::lock_guard<std::mutex> lock(s_mutex);
+            s_pending_delete_filename = filename;
+            const esp_err_t err = overlay_runtime::ShowBookListModalConfirmDelete();
+            if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+                ESP_LOGW(kTag, "Show book delete-confirm modal failed: %s", esp_err_to_name(err));
+                s_pending_delete_filename.clear();
+            }
+            break;
+        }
+        case ItemAction::kClose:
+        default:
+            break;
+    }
+    return true;
+}
+
+bool DeleteConfirmedBook()
+{
+    std::string filename;
+    {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        filename.swap(s_pending_delete_filename);
+    }
+    if (filename.empty()) {
+        return false;
+    }
+    const bool deleted = text_reader_service::DeleteBook(filename);
+    ResetFocus();
+    (void)UpdateDisplayStateAndRequestRefresh(display_service::RefreshMode::kFull);
+    return deleted;
 }
 
 PendingBookReader ConsumePendingShowReader()

@@ -252,7 +252,12 @@ The Home screen's **Books** item opens a simple on-device reader for plain
 storage, from Settings > Storage) and they'll show up here.
 
 - Selecting **Books** shows the list of `.txt` files found in that folder.
-  Tilt the rocker to move between them, and select one to open it.
+  Tilt the rocker to move between them, and select one to open a menu with:
+  - **Continue reading** — opens the book at the page you last left it on.
+  - **Start from the beginning** — opens the book at page one, overwriting
+    your saved position.
+  - **Delete** — removes the book (and your saved position for it) from the
+    SD card, after a confirmation. There's no undo.
 - In the reading view, tilting the rocker turns the page forward (down) or
   back (up). Each book remembers the page you last left it on, so leaving
   and reopening it picks up where you stopped.
