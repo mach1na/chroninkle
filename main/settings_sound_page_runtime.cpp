@@ -1,23 +1,33 @@
-#include "settings_page_runtime.h"
+#include "settings_sound_page_runtime.h"
 
-#include <atomic>
+#include <cstddef>
 #include <mutex>
 
+#include "audio_settings_service.h"
+#include "overlay_runtime.h"
 #include "page_navigation/navigation_model.h"
 #include "page_navigation/page_focus_projection.h"
-#include "settings_page_coordinator.h"
-#include "settings_page_interactions.h"
+#include "settings_sound_page_coordinator.h"
+#include "settings_sound_page_interactions.h"
 #include "ui_refresh_runtime.h"
 
-namespace settings_page_runtime {
+namespace settings_sound_page_runtime {
 namespace {
 
+// Fixed choices offered by the "Volume" picker, mirroring the Todos page's archive-after-days
+// SelectModal pattern rather than free-form numeric entry.
+struct VolumeOption {
+    const char* label;
+    int percent;
+};
+constexpr VolumeOption kVolumeOptions[] = {
+    {"Mute", 0},  {"10%", 10},  {"20%", 20},  {"30%", 30},  {"40%", 40},  {"50%", 50},
+    {"60%", 60},  {"70%", 70},  {"80%", 80},  {"90%", 90},  {"100%", 100},
+};
+
 std::mutex s_mutex;
-SettingsPageCoordinator s_coordinator = {};
-std::atomic<bool> s_pending_show_storage = false;
-std::atomic<bool> s_pending_show_todos = false;
-std::atomic<bool> s_pending_show_topics = false;
-std::atomic<bool> s_pending_show_sound = false;
+SettingsSoundPageCoordinator s_coordinator = {};
+bool s_volume_modal_active = false;
 
 footer_runtime::FooterFocusItem FooterItemForSelectedIndex(int selected_index)
 {
@@ -60,12 +70,9 @@ page_navigation::NavigationItemRole FooterRoleForFooterItem(footer_runtime::Foot
 
 footer_runtime::ProjectionState BuildFooterProjectionStateLocked()
 {
-    const page_navigation::PageFocusProjection projection =
-        page_navigation::ProjectPageFocus(s_coordinator.navigation_model(),
-                                          page_navigation::NavigationItemSection::kSettingsPageMenu,
-                                          s_coordinator.focus().index(),
-                                          -1,
-                                          -1);
+    const page_navigation::PageFocusProjection projection = page_navigation::ProjectPageFocus(
+        s_coordinator.navigation_model(), page_navigation::NavigationItemSection::kNone,
+        s_coordinator.focus().index(), -1, -1);
     footer_runtime::ProjectionState state = {};
     state.focused_item = FooterItemForSelectedIndex(projection.footer_selected_index);
     return state;
@@ -73,25 +80,19 @@ footer_runtime::ProjectionState BuildFooterProjectionStateLocked()
 
 bool FooterProjectionChangedForFocusIndexes(int old_focus_index, int new_focus_index)
 {
-    const page_navigation::PageFocusProjection old_projection =
-        page_navigation::ProjectPageFocus(s_coordinator.navigation_model(),
-                                          page_navigation::NavigationItemSection::kSettingsPageMenu,
-                                          old_focus_index,
-                                          -1,
-                                          -1);
-    const page_navigation::PageFocusProjection new_projection =
-        page_navigation::ProjectPageFocus(s_coordinator.navigation_model(),
-                                          page_navigation::NavigationItemSection::kSettingsPageMenu,
-                                          new_focus_index,
-                                          -1,
-                                          -1);
+    const page_navigation::PageFocusProjection old_projection = page_navigation::ProjectPageFocus(
+        s_coordinator.navigation_model(), page_navigation::NavigationItemSection::kNone,
+        old_focus_index, -1, -1);
+    const page_navigation::PageFocusProjection new_projection = page_navigation::ProjectPageFocus(
+        s_coordinator.navigation_model(), page_navigation::NavigationItemSection::kNone,
+        new_focus_index, -1, -1);
     return FooterItemForSelectedIndex(old_projection.footer_selected_index) !=
            FooterItemForSelectedIndex(new_projection.footer_selected_index);
 }
 
-epaper_ui::SettingsPageState BuildStateLocked()
+epaper_ui::SettingsSoundPageState BuildStateLocked()
 {
-    return s_coordinator.BuildState();
+    return s_coordinator.BuildState(audio_settings_service::GetOutputVolumePercent());
 }
 
 }  // namespace
@@ -99,21 +100,20 @@ epaper_ui::SettingsPageState BuildStateLocked()
 esp_err_t UpdateDisplayState()
 {
     std::lock_guard<std::mutex> lock(s_mutex);
-    return display_service::SetSettingsPageState(BuildStateLocked());
+    return display_service::SetSettingsSoundPageState(BuildStateLocked());
 }
 
 esp_err_t UpdateDisplayStateAndRequestRefresh(display_service::RefreshMode refresh_mode)
 {
-    return UpdateDisplayStateAndRequestRefresh(display_service::RefreshRequest{
-        .refresh_mode = refresh_mode,
-    });
+    return UpdateDisplayStateAndRequestRefresh(
+        display_service::RefreshRequest{.refresh_mode = refresh_mode});
 }
 
 esp_err_t UpdateDisplayStateAndRequestRefresh(
     const display_service::RefreshRequest& refresh_request)
 {
-    return ui_refresh_runtime::Schedule(
-        ui_refresh_runtime::SurfaceKey::kSettingsPage, &UpdateDisplayState, refresh_request);
+    return ui_refresh_runtime::Schedule(ui_refresh_runtime::SurfaceKey::kSettingsSoundPage,
+                                        &UpdateDisplayState, refresh_request);
 }
 
 page_actions::FocusMoveOutcome MoveFocus(int delta)
@@ -124,7 +124,7 @@ page_actions::FocusMoveOutcome MoveFocus(int delta)
     {
         std::lock_guard<std::mutex> lock(s_mutex);
         old_focus_index = s_coordinator.focus().index();
-        result = settings_page_interactions::HandleMoveFocus(s_coordinator, delta);
+        result = settings_sound_page_interactions::HandleMoveFocus(s_coordinator, delta);
         if (!result.handled) {
             return result;
         }
@@ -136,10 +136,10 @@ page_actions::FocusMoveOutcome MoveFocus(int delta)
     return result;
 }
 
-settings_page_interactions::ActivateResult ActivateFocusedItem()
+settings_sound_page_interactions::ActivateResult ActivateFocusedItem()
 {
     std::lock_guard<std::mutex> lock(s_mutex);
-    return settings_page_interactions::HandlePrimaryActivate(s_coordinator);
+    return settings_sound_page_interactions::HandlePrimaryActivate(s_coordinator);
 }
 
 footer_runtime::ProjectionState BuildFooterProjectionState()
@@ -151,8 +151,7 @@ footer_runtime::ProjectionState BuildFooterProjectionState()
 page_actions::FocusUpdateOutcome FocusFooterItem(footer_runtime::FooterFocusItem item)
 {
     page_actions::FocusUpdateOutcome result = {};
-    const page_navigation::NavigationItemRole role =
-        FooterRoleForFooterItem(item);
+    const page_navigation::NavigationItemRole role = FooterRoleForFooterItem(item);
     if (role == page_navigation::NavigationItemRole::kUnknown) {
         return result;
     }
@@ -190,44 +189,49 @@ void ResetFocus()
     footer_runtime::SetProjectionState(projection);
 }
 
-void RequestShowStorage()
+esp_err_t ShowVolumeModal()
 {
-    s_pending_show_storage.store(true, std::memory_order_relaxed);
+    epaper_ui::SelectModalState state = {};
+    {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        state.visible = true;
+        state.title_text = "Volume";
+        const int current_percent = audio_settings_service::GetOutputVolumePercent();
+        state.selected_index = 0;
+        for (size_t index = 0; index < std::size(kVolumeOptions); ++index) {
+            state.items.push_back({.label_text = kVolumeOptions[index].label});
+            if (kVolumeOptions[index].percent == current_percent) {
+                state.selected_index = static_cast<int>(index);
+            }
+        }
+        s_volume_modal_active = true;
+    }
+    return overlay_runtime::ShowSelectModal(state);
 }
 
-bool ConsumePendingShowStorage()
+bool HandleSelectModalSubmit(int selected_index)
 {
-    return s_pending_show_storage.exchange(false, std::memory_order_relaxed);
+    bool was_active = false;
+    {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        was_active = s_volume_modal_active;
+        s_volume_modal_active = false;
+    }
+    if (!was_active) {
+        return false;
+    }
+    if (selected_index >= 0 && selected_index < static_cast<int>(std::size(kVolumeOptions))) {
+        (void)audio_settings_service::SetOutputVolumePercent(
+            kVolumeOptions[selected_index].percent);
+    }
+    (void)UpdateDisplayStateAndRequestRefresh(display_service::RefreshMode::kPartial);
+    return true;
 }
 
-void RequestShowTodos()
+void ClearPendingSelectModal()
 {
-    s_pending_show_todos.store(true, std::memory_order_relaxed);
+    std::lock_guard<std::mutex> lock(s_mutex);
+    s_volume_modal_active = false;
 }
 
-bool ConsumePendingShowTodos()
-{
-    return s_pending_show_todos.exchange(false, std::memory_order_relaxed);
-}
-
-void RequestShowTopics()
-{
-    s_pending_show_topics.store(true, std::memory_order_relaxed);
-}
-
-bool ConsumePendingShowTopics()
-{
-    return s_pending_show_topics.exchange(false, std::memory_order_relaxed);
-}
-
-void RequestShowSound()
-{
-    s_pending_show_sound.store(true, std::memory_order_relaxed);
-}
-
-bool ConsumePendingShowSound()
-{
-    return s_pending_show_sound.exchange(false, std::memory_order_relaxed);
-}
-
-}  // namespace settings_page_runtime
+}  // namespace settings_sound_page_runtime

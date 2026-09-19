@@ -96,4 +96,14 @@ menu "Folloup Settings"
             archiving ("Never"). Overridden by a runtime NVS setting once
             changed from the Settings page.
 
+    config FOLLOWUP_DEFAULT_VOLUME_PERCENT
+        int "Default audio output volume (percent)"
+        range 0 100
+        default 70
+        help
+            Codec output volume (cue sounds and clip playback) applied at
+            first boot, as a percent of the codec's full-scale output.
+            Overridden by a runtime NVS setting once changed from the
+            Settings > Sound page.
+
 endmenu

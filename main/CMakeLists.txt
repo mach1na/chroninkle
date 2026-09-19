@@ -16,6 +16,9 @@ idf_component_register(SRCS "onboarding_page_runtime.cpp" "onboarding_page_inter
                             "settings_todos_page_runtime.cpp"
                             "settings_todos_page_interactions.cpp"
                             "settings_todos_page_coordinator.cpp"
+                            "settings_sound_page_runtime.cpp"
+                            "settings_sound_page_interactions.cpp"
+                            "settings_sound_page_coordinator.cpp"
                             "settings_topics_page_runtime.cpp"
                             "settings_topics_page_interactions.cpp"
                             "settings_topics_page_coordinator.cpp"
@@ -31,7 +34,7 @@ idf_component_register(SRCS "onboarding_page_runtime.cpp" "onboarding_page_inter
                             "book_reader_page_runtime.cpp"
                             "book_reader_page_coordinator.cpp"
                        INCLUDE_DIRS "."
-                       REQUIRES app_state_service app_update axp2101 board button_service display_service
+                       REQUIRES app_state_service app_update audio_settings_service axp2101 board button_service display_service
                                 feedback_service
                                 device_sleep_service epaper_ui esp_driver_gpio
                                 esp_hw_support esp_partition gemini_service imu_service power_service

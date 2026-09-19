@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "app_state_service.h"
+#include "audio_settings_service.h"
 #include "book_list_page_runtime.h"
 #include "book_reader_page_runtime.h"
 #include "button_input_runtime.h"
@@ -40,6 +41,7 @@
 #include "recording_service.h"
 #include "sdkconfig.h"
 #include "settings_page_runtime.h"
+#include "settings_sound_page_runtime.h"
 #include "settings_storage_page_runtime.h"
 #include "settings_todos_page_runtime.h"
 #include "settings_topics_page_runtime.h"
@@ -310,6 +312,28 @@ esp_err_t ShowSettingsTodosScreen(display_service::RefreshMode refresh_mode)
                                              refresh_mode, "show_settings_todos_screen");
 }
 
+esp_err_t ShowSettingsSoundScreen(display_service::RefreshMode refresh_mode)
+{
+    SyncStatusBarState("show_settings_sound_screen");
+    page_input_runtime::ResetFocusForScreen(display_service::ScreenId::kSettingsSound);
+    footer_runtime::SetLayoutState(
+        FooterLayoutForScreen(display_service::ScreenId::kSettingsSound));
+    footer_runtime::SetProjectionState(page_input_runtime::BuildFooterProjectionForScreen(
+        display_service::ScreenId::kSettingsSound));
+    const esp_err_t footer_err = footer_runtime::UpdateDisplayState();
+    if (footer_err != ESP_OK && footer_err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Footer sync before settings sound screen failed: %s",
+                 esp_err_to_name(footer_err));
+    }
+    const esp_err_t sound_err = settings_sound_page_runtime::UpdateDisplayState();
+    if (sound_err != ESP_OK && sound_err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Settings sound page sync before show failed: %s",
+                 esp_err_to_name(sound_err));
+    }
+    return display_service::SetCurrentScreen(display_service::ScreenId::kSettingsSound,
+                                             refresh_mode, "show_settings_sound_screen");
+}
+
 esp_err_t ShowSettingsTopicsScreen(display_service::RefreshMode refresh_mode)
 {
     SyncStatusBarState("show_settings_topics_screen");
@@ -356,6 +380,13 @@ void ShowSettingsSubPageIfRequested()
         const esp_err_t err = ShowSettingsTopicsScreen(display_service::RefreshMode::kFull);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show settings topics screen failed: %s", esp_err_to_name(err));
+        }
+        return;
+    }
+    if (settings_page_runtime::ConsumePendingShowSound()) {
+        const esp_err_t err = ShowSettingsSoundScreen(display_service::RefreshMode::kFull);
+        if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+            ESP_LOGW(kTag, "Show settings sound screen failed: %s", esp_err_to_name(err));
         }
     }
 }
@@ -1144,6 +1175,7 @@ void HandleRecordingSessionEvent(const recording_session_service::Event& event, 
         case recording_session_service::Phase::kAwaitingTagSelection: {
             time_page_runtime::ClearPendingSelectModal();
             settings_todos_page_runtime::ClearPendingSelectModal();
+            settings_sound_page_runtime::ClearPendingSelectModal();
             const esp_err_t err =
                 overlay_runtime::ShowSelectModal(BuildRecordingTagSelectModalState());
             FlushOverlayFeedback();
@@ -1537,6 +1569,8 @@ void HandleDispatchedButtonEvent(const button_service::ButtonEventInfo& event)
                 overlay_result.select_modal_selected_index) &&
             !settings_todos_page_runtime::HandleSelectModalSubmit(
                 overlay_result.select_modal_selected_index) &&
+            !settings_sound_page_runtime::HandleSelectModalSubmit(
+                overlay_result.select_modal_selected_index) &&
             !settings_topics_page_runtime::HandleItemActionSelection(
                 overlay_result.select_modal_selected_index) &&
             !book_list_page_runtime::HandleItemActionSelection(
@@ -1813,6 +1847,14 @@ void InitFeedbackService()
     if (err != ESP_OK) {
         ESP_LOGW(kTag, "Feedback service init failed: %s", esp_err_to_name(err));
         return;
+    }
+}
+
+void InitAudioSettingsService()
+{
+    const esp_err_t err = audio_settings_service::Init();
+    if (err != ESP_OK) {
+        ESP_LOGW(kTag, "Audio settings service init failed: %s", esp_err_to_name(err));
     }
 }
 
@@ -2184,6 +2226,7 @@ void Run()
     // before feedback/storage/display/Wi-Fi/audio have a chance to fragment the heap.
     InitGeminiService();
     InitFeedbackService();
+    InitAudioSettingsService();
     // The e-paper panel owns a dedicated SPI3 bus (no bus arbitration with the
     // SD card, which is on SDMMC) and its Init() does the synchronous startup
     // splash refresh -- bring it up before the SD mount so that refresh isn't

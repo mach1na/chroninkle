@@ -91,6 +91,7 @@ epaper_ui::SettingsPageState s_settings_page_state = {};
 epaper_ui::SettingsStoragePageState s_settings_storage_page_state = {};
 epaper_ui::SettingsTodosPageState s_settings_todos_page_state = {};
 epaper_ui::SettingsTopicsPageState s_settings_topics_page_state = {};
+epaper_ui::SettingsSoundPageState s_settings_sound_page_state = {};
 epaper_ui::WifiPageState s_wifi_page_state = {};
 epaper_ui::TimePageState s_time_page_state = {};
 epaper_ui::DashboardPageState s_dashboard_page_state = {};
@@ -120,6 +121,7 @@ struct RenderSnapshot {
     epaper_ui::SettingsStoragePageState settings_storage_page = {};
     epaper_ui::SettingsTodosPageState settings_todos_page = {};
     epaper_ui::SettingsTopicsPageState settings_topics_page = {};
+    epaper_ui::SettingsSoundPageState settings_sound_page = {};
     epaper_ui::WifiPageState wifi_page = {};
     epaper_ui::TimePageState time_page = {};
     epaper_ui::DashboardPageState dashboard_page = {};
@@ -201,6 +203,7 @@ const RenderSnapshot& CaptureRenderSnapshot()
     snapshot.settings_storage_page = s_settings_storage_page_state;
     snapshot.settings_todos_page = s_settings_todos_page_state;
     snapshot.settings_topics_page = s_settings_topics_page_state;
+    snapshot.settings_sound_page = s_settings_sound_page_state;
     snapshot.wifi_page = s_wifi_page_state;
     snapshot.time_page = s_time_page_state;
     snapshot.dashboard_page = s_dashboard_page_state;
@@ -439,6 +442,20 @@ void DrawSettingsTodosUnderlay(uint8_t* framebuffer, const RenderSnapshot& snaps
                                      kPortraitWidth,
                                      kPortraitHeight,
                                      snapshot.settings_todos_page,
+                                     snapshot.status_bar,
+                                     snapshot.global_footer);
+}
+
+void DrawSettingsSoundUnderlay(uint8_t* framebuffer, const RenderSnapshot& snapshot)
+{
+    EpaperPanel& panel = Panel();
+    panel.Clear(true);
+    epaper_ui::DrawSettingsSoundPage(framebuffer,
+                                     WAVESHARE_EPD_WIDTH,
+                                     WAVESHARE_EPD_HEIGHT,
+                                     kPortraitWidth,
+                                     kPortraitHeight,
+                                     snapshot.settings_sound_page,
                                      snapshot.status_bar,
                                      snapshot.global_footer);
 }
@@ -795,6 +812,25 @@ esp_err_t ApplySettingsTodos(RefreshMode refresh_mode)
     DrawCurrentOverlays(panel.framebuffer(), snapshot);
 
     s_current_screen.store(ScreenId::kSettingsTodos, std::memory_order_relaxed);
+    RefreshBusyGuard refresh_busy;
+    const esp_err_t err = RefreshForMode(panel, refresh_mode);
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    LogMetrics(panel.metrics());
+    return ESP_OK;
+}
+
+esp_err_t ApplySettingsSound(RefreshMode refresh_mode)
+{
+    const RenderSnapshot& snapshot = CaptureRenderSnapshot();
+    EpaperPanel& panel = Panel();
+    DrawSettingsSoundUnderlay(panel.framebuffer(), snapshot);
+    CaptureUnderlaySnapshot(panel.framebuffer());
+    DrawCurrentOverlays(panel.framebuffer(), snapshot);
+
+    s_current_screen.store(ScreenId::kSettingsSound, std::memory_order_relaxed);
     RefreshBusyGuard refresh_busy;
     const esp_err_t err = RefreshForMode(panel, refresh_mode);
     if (err != ESP_OK) {
@@ -1210,6 +1246,9 @@ esp_err_t RefreshCurrentScreenRegionLocked()
         case ScreenId::kSettingsTodos:
             DrawSettingsTodosUnderlay(panel.framebuffer(), snapshot);
             break;
+        case ScreenId::kSettingsSound:
+            DrawSettingsSoundUnderlay(panel.framebuffer(), snapshot);
+            break;
         case ScreenId::kSettingsTopics:
             DrawSettingsTopicsUnderlay(panel.framebuffer(), snapshot);
             break;
@@ -1296,6 +1335,8 @@ esp_err_t RefreshCurrentScreenLocked(RefreshMode refresh_mode)
             return ApplySettingsStorage(refresh_mode);
         case ScreenId::kSettingsTodos:
             return ApplySettingsTodos(refresh_mode);
+        case ScreenId::kSettingsSound:
+            return ApplySettingsSound(refresh_mode);
         case ScreenId::kSettingsTopics:
             return ApplySettingsTopics(refresh_mode);
         case ScreenId::kWifi:
@@ -1432,6 +1473,8 @@ void DisplayTask(void*)
                 err = ApplySettingsStorage(command.refresh_request.refresh_mode);
             } else if (command.screen == ScreenId::kSettingsTodos) {
                 err = ApplySettingsTodos(command.refresh_request.refresh_mode);
+            } else if (command.screen == ScreenId::kSettingsSound) {
+                err = ApplySettingsSound(command.refresh_request.refresh_mode);
             } else if (command.screen == ScreenId::kSettingsTopics) {
                 err = ApplySettingsTopics(command.refresh_request.refresh_mode);
             } else if (command.screen == ScreenId::kTime) {
@@ -1627,6 +1670,17 @@ esp_err_t SetSettingsStoragePageState(const epaper_ui::SettingsStoragePageState&
 
     std::lock_guard<std::mutex> lock(s_state_mutex);
     s_settings_storage_page_state = state;
+    return ESP_OK;
+}
+
+esp_err_t SetSettingsSoundPageState(const epaper_ui::SettingsSoundPageState& state)
+{
+    if (!s_initialized) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    std::lock_guard<std::mutex> lock(s_state_mutex);
+    s_settings_sound_page_state = state;
     return ESP_OK;
 }
 

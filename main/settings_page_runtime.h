@@ -30,6 +30,8 @@ void RequestShowTodos();
 bool ConsumePendingShowTodos();
 void RequestShowTopics();
 bool ConsumePendingShowTopics();
+void RequestShowSound();
+bool ConsumePendingShowSound();
 
 }  // namespace settings_page_runtime
 

@@ -24,6 +24,7 @@ enum class NavigationScope : uint8_t {
     kSettingsTodos,
     kSettingsTopics,
     kBookList,
+    kSettingsSound,
 };
 
 enum class NavigationItemSection : uint8_t {
@@ -47,6 +48,7 @@ enum class NavigationItemSection : uint8_t {
     kSettingsTodosPageControls,
     kSettingsTopicsPageControls,
     kBookListPageControls,
+    kSettingsSoundPageControls,
 };
 
 enum class NavigationItemRole : uint8_t {
@@ -61,6 +63,7 @@ enum class NavigationItemRole : uint8_t {
     kSettingsMenuStorage,
     kSettingsMenuTodos,
     kSettingsMenuTopics,
+    kSettingsMenuSound,
     kSettingsManualOnboardingButton,
     kWifiPageWifiToggle,
     kWifiPageEnableApToggle,
@@ -107,6 +110,8 @@ enum class NavigationItemRole : uint8_t {
     kOnboardingPagePrev,
     kOnboardingPageNext,
     kBookListBookRow,
+    kSettingsSoundVolumeInput,
+    kSettingsSoundBackButton,
 };
 
 struct NavigationItemDescriptor {
@@ -130,6 +135,7 @@ NavigationModel BuildWifiPageNavigationModel();
 NavigationModel BuildTimePageNavigationModel();
 NavigationModel BuildSettingsStoragePageNavigationModel();
 NavigationModel BuildSettingsTodosPageNavigationModel();
+NavigationModel BuildSettingsSoundPageNavigationModel();
 NavigationModel BuildSettingsTopicsPageNavigationModel(int topic_count);
 NavigationModel BuildDashboardPageNavigationModel();
 NavigationModel BuildTopicsBrowsePageNavigationModel(int topic_count);

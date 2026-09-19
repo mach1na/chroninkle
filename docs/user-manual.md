@@ -275,7 +275,7 @@ storage, from Settings > Storage) and they'll show up here.
 
 ## Settings
 
-Settings is a hub, like a phone's settings app: five headings, each
+Settings is a hub, like a phone's settings app: six headings, each
 opening its own page, plus one action below them:
 
 - **Network** — WiFi and Access Point.
@@ -283,6 +283,7 @@ opening its own page, plus one action below them:
 - **Storage** — SD card status and management.
 - **Todos** — todo archiving.
 - **Topics** — create, rename, and delete topics.
+- **Sound** — output volume for cue sounds and playback.
 - **Manual** — replays the first-time onboarding carousel. This one isn't
   a heading — it's a direct action, since there's nothing to configure on
   it.
@@ -334,6 +335,12 @@ active list before auto-archiving (see [Archiving completed
 Todos](#archiving-completed-todos)). Choices are 7, 14, 30, 60, or 90
 days, or **Never** to turn off automatic archiving entirely (you can
 still archive individual items manually). Default is 7 days.
+
+### Sound
+
+**Volume** — output level for sound cues and recording playback, shared
+by both. Choices are Mute, or 10% through 100% in steps of 10. Default is
+70%.
 
 ### Manage topics
 
