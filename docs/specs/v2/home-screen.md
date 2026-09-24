@@ -25,8 +25,10 @@ Home is the first and most visible surface this affects.
   date.
 - Either a first-capture invitation banner (empty archive) or a "Task
   tracker" progress bar (`done/total` completed todos).
-- A feature menu: Notes / Todos / FollowUp, each with a text label and
-  badge count.
+- A feature menu: Follow up / Todos / Notes / Topics / Books
+  (`components/epaper_ui/dashboard_page.cpp` `kMenuLabels`), each a
+  full-width, single-column text row (`menu_item::kHeight` = 72px), some
+  with badge counts.
 - Footer on Home shows Settings + Sticky (see [footer-redesign.md](footer-redesign.md)).
 
 ## Goals
@@ -41,10 +43,31 @@ Home is the first and most visible surface this affects.
 
 ## Proposed Design
 
-TBD — needs a design conversation. Open items: does the date/progress
-information (first-capture banner, task-tracker bar) survive in some
-graphical form, or go away with the text copy? What replaces badge counts
-visually?
+**Layout:** a 3-column icon grid replaces the single-column text menu,
+with vertical scrolling for additional rows beyond what fits on screen.
+
+Screen geometry (logical portrait canvas, 480×800): today's dashboard uses
+16px side margins → 448px usable width, status bar is 44px, footer band is
+~74px (58px button + 16px bottom padding) → roughly 680px usable height
+once the welcome-message block above the menu is removed.
+
+3-column candidates across 448px usable width (symmetric, no extra outer
+margin beyond the existing 16px side margins):
+
+| Icon size | Gap between icons |
+| --- | --- |
+| 96px | 32px |
+| 112px | 16px |
+
+Both are a new size tier — bigger than the existing `assets/icons/` 36px/
+44px fixed sizes — so this isn't a reuse of the current icon catalog as-is.
+
+**Focus navigation:** confirmed left-to-right, then top-to-bottom — i.e.
+`DOWN` steps through each row's cells left→right, then continues onto the
+next row's leftmost cell (not an alternating/boustrophedon snake); `UP`
+reverses. This matches how the single-column list traverses today, just
+wrapping every 3 cells instead of every 1 — no new button/gesture needed,
+this board only has `UP`/`DOWN` for roving focus (no left/right).
 
 ## Open Questions
 
@@ -53,7 +76,13 @@ visually?
 - Does the "Task tracker" progress bar concept carry over graphically, or
   is it dropped along with the motivational copy?
 - Final V2 feature set on Home depends on [followup-rework.md](followup-rework.md)'s
-  outcome (FollowUp may not exist as a menu item).
+  outcome (FollowUp may not exist as a menu item) — affects row count.
+- Final icon size (96px/32px gap vs. 112px/16px gap vs. another option) —
+  not chosen yet.
+- Do icons carry a text caption underneath (affects row height and how
+  many rows fit before scrolling), or are they icon-only?
+- Do badge counts (e.g. unread/pending counts) still render on top of/
+  beside a grid icon, and if so how, visually?
 
 ## Acceptance Criteria
 
