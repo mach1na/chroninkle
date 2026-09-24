@@ -79,6 +79,13 @@ void ConfigurePmicRails(Axp2101* pmic)
     pmic->SetPowerKeyPressOnTime(Axp2101::PowerKeyPressOnTime::k512Ms);
     pmic->SetIrqLevelTime(Axp2101::IrqLevelTime::k1S);
     pmic->SetButtonPowerOffEnabled(true);
+    // REG22H bit 0 (0=power off, 1=restart) selects what the 6s PWRON hold above actually
+    // does once it fires. Pin it to power-off explicitly rather than trust the factory EFUSE
+    // default, or the "hardware escape even if firmware is wedged" comment above could be a
+    // reboot instead. (Note: Axp2101Driver::setLongPressPowerOFF(), not the similarly-named
+    // SetButtonPowerOffRestarts() above, which is a different register/feature entirely --
+    // REG10H bit 3, the PWROK pin pull-low function.)
+    pmic->setLongPressPowerOFF();
 
     // Power-key IRQs only. VBUS insert/remove is deliberately excluded: nothing consumes
     // those events, and the PMIC IRQ line is a light-sleep wake source, so enabling them

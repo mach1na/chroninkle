@@ -53,7 +53,6 @@ public:
     void SetPowerKeyPressOnTime(PowerKeyPressOnTime time);
     void SetIrqLevelTime(IrqLevelTime time);
     void SetButtonPowerOffEnabled(bool enabled);
-    void SetButtonPowerOffRestarts(bool enabled);
     void EnablePowerKeyIrq(bool include_vbus = true);
     void ClearIrqStatus();
     uint64_t GetIrqStatus();
