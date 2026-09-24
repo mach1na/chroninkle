@@ -5,6 +5,38 @@ list scannable. Full history — investigation notes, what was fixed, and
 on-device verification — is preserved here in original order. See
 `docs/todo.md` for what's still open.
 
+## ~~Pin the AXP2101's 6s emergency power-off to actually power off~~ — resolved
+
+Found while investigating the (now-resolved, see below) PWR power-back-on
+flakiness. The AXP2101's "Function Select when btn_pwroff_en=1" bit
+(REG22H bit 0 -- 0=Power-off, 1=Restart) was never explicitly set, so it
+sat at its factory EFUSE default. `waveshare_board.cpp` enables "PWRON >
+OFFLEVEL (6s) as a power-off source" (`SetButtonPowerOffEnabled(true)`),
+and CLAUDE.md documents that 6s hold as "a hardware escape even if
+firmware is wedged" -- but if the EFUSE default for that function-select
+bit happened to be "Restart," the emergency 6s hold would reboot the board
+instead of cutting power, contradicting that guarantee.
+
+**Important correction found during the fix:** the originally-proposed fix
+(`Axp2101::SetButtonPowerOffRestarts(false)`) was wrong. That wrapper
+doesn't touch REG22H at all -- tracing it down to the underlying
+`Axp2101Driver` calls (`enablePwrOkPinPullLow()`/`disablePwrOkPinPullLow()`,
+register 0x10 bit 3) showed it controls an unrelated "PWROK pin pull-low"
+feature. Its name was simply misleading. The actual REG22H bit 0
+function-select is `Axp2101Driver::setLongPressRestart()` /
+`setLongPressPowerOFF()` (both already public via `Axp2101`'s inheritance
+from `Axp2101Driver`, just never called).
+
+Fix: call `pmic->setLongPressPowerOFF()` explicitly in `ConfigurePmicRails`
+(`components/board/waveshare_board.cpp`), and delete the unused, misleading
+`SetButtonPowerOffRestarts()` wrapper entirely (zero call sites, and it had
+already led one investigation to the wrong register). Verified: clean
+`idf.py build` and a real device flash/boot with no errors in PMIC init.
+The specific "firmware is genuinely wedged and PWR is held 6s" scenario
+itself is inherently impractical to test without deliberately crashing the
+device, so that end-to-end path relies on the register-level trace above
+rather than an on-device repro.
+
 ## ~~Finish the Followup -> Chroninkle rename~~ — resolved
 
 Craig decided (2026-09-13) to rename the project from Followup to

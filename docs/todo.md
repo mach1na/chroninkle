@@ -94,25 +94,6 @@ flush. Two things to work out if it's built: which gesture is actually free
 unclaimed slot) and whether it fully replaces the automatic flush or sits
 alongside it as a backstop.
 
-## Pin the AXP2101's 6s emergency power-off to actually power off
-
-Found while investigating the (now-resolved, see `docs/todo-archive.md`)
-PWR power-back-on flakiness. The AXP2101's "Function Select when
-btn_pwroff_en=1" bit (REG22H bit 0 -- 0=Power-off, 1=Restart) is never
-explicitly set by Folloup (`Axp2101::SetButtonPowerOffRestarts()` exists in
-`components/axp2101/axp2101.h:56` but has zero call sites), so it sits at
-its factory EFUSE default. `waveshare_board.cpp` enables "PWRON > OFFLEVEL
-(6s) as a power-off source" (`SetButtonPowerOffEnabled(true)`), and
-CLAUDE.md documents that 6s hold as "a hardware escape even if firmware is
-wedged" -- but if the EFUSE default for that function-select bit happens to
-be "Restart," the emergency 6s hold would reboot the board instead of cutting
-power, contradicting that guarantee.
-
-Fix: call `SetButtonPowerOffRestarts(false)` explicitly in
-`ConfigurePmicRails` (`components/board/waveshare_board.cpp`) so this
-doesn't depend on an unverified factory default. Low-risk, self-contained --
-worth doing on its own branch rather than folding into unrelated work.
-
 ## Redundant derived state: icon/checked fields duplicate their source bool
 
 `TimelineEntry` (in `notes_page_coordinator.h:16-21` and mirrored in

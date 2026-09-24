@@ -24,6 +24,18 @@ via `git log`, not backfilled here.
   copy, the `webserver/` setup portal, and the internal docs. Only the
   GitHub repository name remains, tracked separately in `docs/todo.md`.
 
+### Fixed
+
+- The AXP2101's emergency 6-second PWR hold now explicitly forces
+  power-off (`Axp2101Driver::setLongPressPowerOFF()`, register 0x22 bit 0)
+  instead of relying on the chip's unverified factory default, which could
+  have been "restart" instead of "power off" — silently breaking the
+  documented "hardware escape even if firmware is wedged" guarantee.
+  Also removed `Axp2101::SetButtonPowerOffRestarts()`, an unused and
+  misleadingly-named wrapper (it actually toggled an unrelated PWROK
+  pin-pull-low feature on register 0x10, not this one) that had led a
+  previous investigation to the wrong fix.
+
 ## [0.6.1] - 2026-09-18
 
 ### Fixed

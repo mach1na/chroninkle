@@ -104,14 +104,6 @@ void Axp2101::SetButtonPowerOffEnabled(bool enabled) {
     }
 }
 
-void Axp2101::SetButtonPowerOffRestarts(bool enabled) {
-    if (enabled) {
-        enablePwrOkPinPullLow();
-    } else {
-        disablePwrOkPinPullLow();
-    }
-}
-
 void Axp2101::EnablePowerKeyIrq(bool include_vbus) {
     disableIRQ(XPOWERS_AXP2101_ALL_IRQ);
     uint64_t irq_mask = XPOWERS_AXP2101_PKEY_SHORT_IRQ | XPOWERS_AXP2101_PKEY_LONG_IRQ |
