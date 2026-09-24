@@ -301,23 +301,19 @@ body {
 }
 
 /* App.css - Global styles */
-.followup-logo {
+.brand-logo {
   position: relative;
-  width: auto;
-  height: 48px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--color-logo);
   flex-shrink: 0;
   margin-bottom: var(--spacing-2xl);
 }
 
-.followup-logo svg {
-  width: auto;
-  height: 100%;
-}
-
 @media (min-width: 768px) {
-  .followup-logo {
-    height: 64px;
+  .brand-logo {
+    font-size: 2rem;
   }
 }
 

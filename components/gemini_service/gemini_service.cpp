@@ -20,7 +20,7 @@
 #include "esp_http_client.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "nvs.h"
@@ -121,9 +121,9 @@ void EnsureWorkerStarted()
         kWorkerTaskName,
         kWorkerTaskStackWords,
         nullptr,
-        followup_task_config::kPriorityGemini,
+        chroninkle_task_config::kPriorityGemini,
         &s_worker_task,
-        followup_task_config::kSystemCore);
+        chroninkle_task_config::kSystemCore);
     if (created != pdPASS || s_worker_task == nullptr) {
         ESP_LOGW(kTag, "Failed to start Gemini worker task; will retry on next job");
         s_worker_task = nullptr;
@@ -300,8 +300,8 @@ bool ClearStoredApiKeyFromNvs()
 
 std::string GetSdkConfigApiKey()
 {
-#if defined(CONFIG_FOLLOWUP_GEMINI_API_KEY)
-    return TrimCopy(CONFIG_FOLLOWUP_GEMINI_API_KEY);
+#if defined(CONFIG_CHRONINKLE_GEMINI_API_KEY)
+    return TrimCopy(CONFIG_CHRONINKLE_GEMINI_API_KEY);
 #else
     return {};
 #endif

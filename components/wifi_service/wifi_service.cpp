@@ -18,7 +18,7 @@
 #include "esp_netif.h"
 #include "esp_timer.h"
 #include "esp_wifi.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -219,7 +219,7 @@ std::string BuildApSsid()
 
     char ssid[64] = {};
     std::snprintf(ssid, sizeof(ssid), "%s-%02X%02X%02X",
-                  CONFIG_FOLLOWUP_WIFI_AP_PREFIX,
+                  CONFIG_CHRONINKLE_WIFI_AP_PREFIX,
                   mac[3],
                   mac[4],
                   mac[5]);
@@ -335,8 +335,8 @@ void ReloadSavedCredentials()
     }
 
     if (!credentials.valid()) {
-        credentials.ssid = CONFIG_FOLLOWUP_WIFI_STA_SSID;
-        credentials.password = CONFIG_FOLLOWUP_WIFI_STA_PASSWORD;
+        credentials.ssid = CONFIG_CHRONINKLE_WIFI_STA_SSID;
+        credentials.password = CONFIG_CHRONINKLE_WIFI_STA_PASSWORD;
     }
 
     std::lock_guard<std::mutex> lock(s_state_mutex);
@@ -694,7 +694,7 @@ void StartCaptiveDns()
 
     s_dns_stop.store(false, std::memory_order_relaxed);
     if (xTaskCreate(CaptiveDnsTask, "captive_dns", 3072, nullptr,
-                    followup_task_config::kPriorityCaptiveDns, &s_dns_task) != pdPASS) {
+                    chroninkle_task_config::kPriorityCaptiveDns, &s_dns_task) != pdPASS) {
         ESP_LOGW(kTag, "Captive DNS task create failed");
         close(s_dns_socket);
         s_dns_socket = -1;
@@ -1456,7 +1456,7 @@ void HandleTransitionRequest(TransitionRequest request)
             StartNetworkScanNow();
             break;
         case TransitionRequest::kStart:
-#if CONFIG_FOLLOWUP_WIFI_START_IN_AP_MODE
+#if CONFIG_CHRONINKLE_WIFI_START_IN_AP_MODE
             EnterAccessPointModeNow();
 #else
             StartStationAttempt(true);
@@ -1698,9 +1698,9 @@ esp_err_t Init()
                                 "wifi_transition",
                                 kTransitionTaskStackWords,
                                 nullptr,
-                                followup_task_config::kPriorityWifiTransition,
+                                chroninkle_task_config::kPriorityWifiTransition,
                                 &s_transition_task,
-                                followup_task_config::kSystemCore) != pdPASS) {
+                                chroninkle_task_config::kSystemCore) != pdPASS) {
         s_transition_task = nullptr;
         return ESP_ERR_NO_MEM;
     }
@@ -1709,9 +1709,9 @@ esp_err_t Init()
                                 "wifi_callbacks",
                                 kCallbackTaskStackWords,
                                 nullptr,
-                                followup_task_config::kPriorityWifiCallbacks,
+                                chroninkle_task_config::kPriorityWifiCallbacks,
                                 &s_callback_task,
-                                followup_task_config::kSystemCore) != pdPASS) {
+                                chroninkle_task_config::kSystemCore) != pdPASS) {
         s_callback_task = nullptr;
         return ESP_ERR_NO_MEM;
     }

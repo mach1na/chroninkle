@@ -14,7 +14,7 @@
 #include "esp_log.h"
 #include "esp_sleep.h"
 #include "esp_timer.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -536,9 +536,9 @@ esp_err_t StartAutoSleepTask()
         "app_sleep",
         kAutoSleepTaskStackWords,
         nullptr,
-        followup_task_config::kPriorityAppSleep,
+        chroninkle_task_config::kPriorityAppSleep,
         &s_auto_sleep_task,
-        followup_task_config::kAppCore);
+        chroninkle_task_config::kAppCore);
     if (created != pdPASS) {
         s_auto_sleep_task = nullptr;
         ESP_LOGW(kTag, "Failed to create auto-sleep task");
@@ -734,9 +734,9 @@ esp_err_t StartMotionPolling()
         "sleep_motion",
         kMotionTaskStackWords,
         nullptr,
-        followup_task_config::kPrioritySleepMotion,
+        chroninkle_task_config::kPrioritySleepMotion,
         &s_motion_task,
-        followup_task_config::kAppCore);
+        chroninkle_task_config::kAppCore);
     if (created != pdPASS) {
         s_motion_task = nullptr;
         ESP_LOGW(kTag, "Failed to create motion polling task");

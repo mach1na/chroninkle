@@ -1,6 +1,6 @@
 # Gemini Service
 
-This document describes the current Gemini integration used by the Followup
+This document describes the current Gemini integration used by the Chroninkle
 firmware.
 
 `components/gemini_service/` currently owns:
@@ -50,7 +50,7 @@ product-facing reactions.
 
 ## Internal Layout
 
-Followup currently uses a single-file Gemini service implementation:
+Chroninkle currently uses a single-file Gemini service implementation:
 
 - [`components/gemini_service/include/gemini_service.h`](/Users/tieuvong/Development/folloup-sticky/components/gemini_service/include/gemini_service.h)
 - [`components/gemini_service/gemini_service.cpp`](/Users/tieuvong/Development/folloup-sticky/components/gemini_service/gemini_service.cpp)
@@ -64,15 +64,15 @@ Current internal responsibilities inside that component:
 - auth task lifecycle and stale-result protection
 - backend JSON request/response handling
 
-Followup does not yet split this into separate `client`, `worker`, and
-`settings_storage` files the way Followup does.
+Chroninkle does not yet split this into separate `client`, `worker`, and
+`settings_storage` files the way upstream Followup does.
 
 ## API Key Sources
 
 Current API key precedence:
 
 1. NVS-stored key saved through the backend API
-2. built-in `CONFIG_FOLLOWUP_GEMINI_API_KEY`
+2. built-in `CONFIG_CHRONINKLE_GEMINI_API_KEY`
 3. no key configured
 
 Resetting Gemini settings clears only the stored NVS key. It does not clear the
@@ -80,9 +80,9 @@ built-in sdkconfig fallback key.
 
 ## Build-Time Configuration
 
-The build-time Gemini setting lives under `Folloup Settings`:
+The build-time Gemini setting lives under `Chroninkle Settings`:
 
-- `CONFIG_FOLLOWUP_GEMINI_API_KEY`
+- `CONFIG_CHRONINKLE_GEMINI_API_KEY`
 
 This is intended for development and bench testing. A key saved through the
 backend API takes precedence over the built-in key.
@@ -93,7 +93,7 @@ The reproducible default is set in:
 
 Current default:
 
-- `CONFIG_FOLLOWUP_GEMINI_API_KEY=""`
+- `CONFIG_CHRONINKLE_GEMINI_API_KEY=""`
 
 ## Startup And Readiness Flow
 
@@ -119,7 +119,7 @@ Authentication is skipped when:
 - Wi-Fi is not connected
 - Wi-Fi is in access-point mode
 
-Followup currently treats `ready` as:
+Chroninkle currently treats `ready` as:
 
 - `configured == true`
 - `authenticated == true`
@@ -137,7 +137,7 @@ The current auth path is intentionally minimal:
 The current implementation uses ESP-IDF's `esp_http_client` with the CRT bundle
 for TLS validation.
 
-Followup does not yet implement:
+Chroninkle does not yet implement:
 
 - Gemini file upload
 - transcription prompts
@@ -315,7 +315,7 @@ Common current error codes:
 
 ## UI Integration
 
-Followup currently uses Gemini readiness in two product-facing ways:
+Chroninkle currently uses Gemini readiness in two product-facing ways:
 
 - the status bar shows the star icon when Wi-Fi is connected and Gemini is
   authenticated

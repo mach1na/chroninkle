@@ -232,10 +232,10 @@ are not, by themselves, evidence that the SD format path is being interrupted.
 
 ## Configuration
 
-The build-time settings live under `Folloup Settings`:
+The build-time settings live under `Chroninkle Settings`:
 
-- `CONFIG_FOLLOWUP_AUTO_SLEEP_DISPLAY_SLEEP_TIMEOUT_SECONDS`
-- `CONFIG_FOLLOWUP_AUTO_SLEEP_LIGHT_SLEEP_TIMEOUT_SECONDS`
+- `CONFIG_CHRONINKLE_AUTO_SLEEP_DISPLAY_SLEEP_TIMEOUT_SECONDS`
+- `CONFIG_CHRONINKLE_AUTO_SLEEP_LIGHT_SLEEP_TIMEOUT_SECONDS`
 
 Current defaults:
 

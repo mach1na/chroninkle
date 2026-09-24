@@ -8,7 +8,7 @@
 #include <string>
 
 #include "esp_log.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "gemini_service.h"
@@ -315,7 +315,7 @@ bool StartClipPlayback(const recording_service::RecordedClipPtr& clip)
 
     auto* clip_copy = new recording_service::RecordedClipPtr(clip);
     if (xTaskCreate(&PlaybackWorker, "clip_playback", kPlaybackWorkerStackWords, clip_copy,
-                    followup_task_config::kPriorityStorage, nullptr) != pdPASS) {
+                    chroninkle_task_config::kPriorityStorage, nullptr) != pdPASS) {
         delete clip_copy;
         s_playback_worker_active.store(false, std::memory_order_release);
         ESP_LOGW(kTag, "Failed to start clip playback worker");

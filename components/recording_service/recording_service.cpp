@@ -10,7 +10,7 @@
 
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "audio_codec.h"
@@ -553,9 +553,9 @@ esp_err_t Init()
             "record_capture",
             kCaptureTaskStackWords,
             nullptr,
-            followup_task_config::kPriorityRecordCapture,
+            chroninkle_task_config::kPriorityRecordCapture,
             &s_capture_task,
-            followup_task_config::kAppCore);
+            chroninkle_task_config::kAppCore);
         if (created != pdPASS) {
             s_capture_task = nullptr;
             std::lock_guard<std::mutex> lock(s_mutex);

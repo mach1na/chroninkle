@@ -17,8 +17,8 @@ struct Slide {
 };
 
 constexpr std::array<Slide, 6> kSlides = {{
-    {"Welcome to Folloup",
-     "Your pocket voice notebook. Capture thoughts out loud and let Folloup keep them organized.",
+    {"Welcome to Chroninkle",
+     "Your pocket voice notebook. Capture thoughts out loud and let Chroninkle keep them organized.",
      EmbeddedImageId::kSlide1},
     {"Capture in a tap",
      "Hold Record to capture a note, idea, or task -- saved straight to the SD card. A quick "
@@ -32,7 +32,7 @@ constexpr std::array<Slide, 6> kSlides = {{
      "confirmation.",
      EmbeddedImageId::kSlide4},
     {"Summaries with Gemini",
-     "Connect Gemini and let Folloup transcribe your recordings and summarize your day for you.",
+     "Connect Gemini and let Chroninkle transcribe your recordings and summarize your day for you.",
      EmbeddedImageId::kSlide5},
     {"Notes, Todos & Follow-ups",
      "Recordings are grouped by day. Browse them as Notes, mark tasks as Todos, and pin anything as "

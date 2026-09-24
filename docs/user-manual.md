@@ -10,9 +10,8 @@ legible even when it's "asleep."
 This manual describes the device as it actually behaves today. A couple of
 spots in the on-device onboarding carousel describe older button gestures
 that no longer apply — this manual is the accurate reference. Chroninkle was
-renamed from **Followup**; a few things the device actually broadcasts (like
-its Wi-Fi setup hotspot name below) still say Followup until that rename
-reaches the firmware's build settings — called out where it comes up.
+renamed from **Followup**; a device already running older firmware still
+broadcasts its Wi-Fi setup hotspot under the old name until it's reflashed.
 
 ## Contents
 
@@ -64,9 +63,8 @@ and close it on the final slide. You can replay this carousel any time from
 **Settings → Manual**.
 
 To actually get set up, Chroninkle opens its own WiFi hotspot named
-**`Followup-XXXXXX`** (still the pre-rename name — see the note at the top
-of this manual; the last few characters are unique to your device) whenever
-it doesn't have saved WiFi credentials yet. Connect a phone or laptop to
+**`Chroninkle-XXXXXX`** (the last few characters are unique to your device)
+whenever it doesn't have saved WiFi credentials yet. Connect a phone or laptop to
 that hotspot — it's open, no password needed — and your device should
 automatically open a setup page (or visit `http://192.168.4.1` yourself).
 From there you can:
@@ -275,7 +273,7 @@ storage, from Settings > Storage) and they'll show up here.
 
 ## Settings
 
-Settings is a hub, like a phone's settings app: five headings, each
+Settings is a hub, like a phone's settings app: six headings, each
 opening its own page, plus one action below them:
 
 - **Network** — WiFi and Access Point.
@@ -283,6 +281,7 @@ opening its own page, plus one action below them:
 - **Storage** — SD card status and management.
 - **Todos** — todo archiving.
 - **Topics** — create, rename, and delete topics.
+- **About** — firmware version and acknowledgments.
 - **Manual** — replays the first-time onboarding carousel. This one isn't
   a heading — it's a direct action, since there's nothing to configure on
   it.
@@ -334,6 +333,11 @@ active list before auto-archiving (see [Archiving completed
 Todos](#archiving-completed-todos)). Choices are 7, 14, 30, 60, or 90
 days, or **Never** to turn off automatic archiving entirely (you can
 still archive individual items manually). Default is 7 days.
+
+### About
+
+Shows the installed firmware version and an acknowledgment: Chroninkle
+began as a fork of Followup, created by ALXV Labs.
 
 ### Manage topics
 

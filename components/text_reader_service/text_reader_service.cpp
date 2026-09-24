@@ -36,7 +36,7 @@ std::string JoinPath(const std::string& left, const std::string& right)
 
 std::string FolderPath()
 {
-    return JoinPath(storage_service::MountPoint(), CONFIG_FOLLOWUP_TEXT_READER_FOLDER);
+    return JoinPath(storage_service::MountPoint(), CONFIG_CHRONINKLE_TEXT_READER_FOLDER);
 }
 
 std::string BookPath(const std::string& filename)

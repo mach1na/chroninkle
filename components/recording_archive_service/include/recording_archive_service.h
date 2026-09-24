@@ -169,7 +169,7 @@ bool SaveTranscriptionFailure(const std::string& recording_id, const std::string
 bool MarkRecordingArchived(const std::string& recording_id, bool archived);
 
 // Days after completion before a completed todo is automatically archived by the next archive
-// scan (0 = never). Falls back to CONFIG_FOLLOWUP_TODO_ARCHIVE_AFTER_DAYS until overridden.
+// scan (0 = never). Falls back to CONFIG_CHRONINKLE_TODO_ARCHIVE_AFTER_DAYS until overridden.
 int GetArchiveAfterDays();
 // Persists a new archive-after-days threshold (0-3650, 0 = never) and triggers an immediate
 // re-scan so lowering it is reflected right away. Returns false for an out-of-range value.

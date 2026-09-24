@@ -8,6 +8,22 @@ via `git log`, not backfilled here.
 
 ## [Unreleased]
 
+### Added
+
+- A new **About** page under Settings, showing the installed firmware
+  version and an acknowledgment of the original Followup project (by ALXV
+  Labs) this device builds on.
+
+### Changed
+
+- Finished the in-repo Followup → Chroninkle rename: the ESP-IDF project
+  name, the `CONFIG_FOLLOWUP_*` → `CONFIG_CHRONINKLE_*` Kconfig namespace
+  (including the Wi-Fi setup hotspot's default name, now
+  `Chroninkle-XXXXXX`), the `followup_task_config` → `chroninkle_task_config`
+  FreeRTOS task table, remaining source comments/log strings/onboarding
+  copy, the `webserver/` setup portal, and the internal docs. Only the
+  GitHub repository name remains, tracked separately in `docs/todo.md`.
+
 ## [0.6.1] - 2026-09-18
 
 ### Fixed

@@ -70,7 +70,7 @@ uint32_t DashboardPageCoordinator::WelcomePeriodsSinceEpoch()
     }
     constexpr int64_t kSecondsPerHour = 3600;
     const int64_t period_seconds =
-        static_cast<int64_t>(CONFIG_FOLLOWUP_WELCOME_MESSAGE_ROTATE_HOURS) * kSecondsPerHour;
+        static_cast<int64_t>(CONFIG_CHRONINKLE_WELCOME_MESSAGE_ROTATE_HOURS) * kSecondsPerHour;
     return static_cast<uint32_t>(now / period_seconds);
 }
 

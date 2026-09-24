@@ -20,6 +20,8 @@
 #include "todos_page_runtime.h"
 #include "settings_page_interactions.h"
 #include "settings_page_runtime.h"
+#include "settings_about_page_interactions.h"
+#include "settings_about_page_runtime.h"
 #include "settings_storage_page_interactions.h"
 #include "settings_storage_page_runtime.h"
 #include "settings_todos_page_interactions.h"
@@ -393,6 +395,114 @@ ButtonResult HandleSettingsStorageButtonEvent(const button_service::ButtonEventI
     }
 }
 
+void ApplySettingsAboutPageStateUpdate(const display_service::RefreshRequest& refresh_request)
+{
+    (void)settings_about_page_runtime::UpdateDisplayStateAndRequestRefresh(refresh_request);
+}
+
+esp_err_t ApplySettingsAboutPageAndFooterDisplayState()
+{
+    const esp_err_t page_err = settings_about_page_runtime::UpdateDisplayState();
+    if (page_err != ESP_OK && page_err != ESP_ERR_INVALID_STATE) {
+        return page_err;
+    }
+    const esp_err_t footer_err = footer_runtime::UpdateDisplayState();
+    if (footer_err != ESP_OK && footer_err != ESP_ERR_INVALID_STATE) {
+        return footer_err;
+    }
+    return page_err != ESP_OK ? page_err : footer_err;
+}
+
+void ApplySettingsAboutFocusUpdate(const page_actions::FocusUpdateOutcome& outcome)
+{
+    if (!outcome.handled) {
+        return;
+    }
+    if (outcome.sync_footer_projection) {
+        footer_runtime::SetProjectionState(settings_about_page_runtime::BuildFooterProjectionState());
+    }
+    if (outcome.apply_page_state) {
+        const display_service::RefreshRequest refresh_request = {
+            .refresh_mode = display_service::RefreshMode::kPartial,
+            .scope = display_service::RefreshScope::kRegion,
+        };
+        if (outcome.sync_footer_projection) {
+            (void)ui_refresh_runtime::Schedule(ui_refresh_runtime::SurfaceKey::kSettingsAboutPage,
+                                               &ApplySettingsAboutPageAndFooterDisplayState,
+                                               refresh_request);
+            return;
+        }
+        ApplySettingsAboutPageStateUpdate(refresh_request);
+    }
+}
+
+ButtonResult ApplySettingsAboutActivateResult(
+    const settings_about_page_interactions::ActivateResult& activation)
+{
+    ButtonResult result = {};
+    if (!activation.handled) {
+        return result;
+    }
+
+    result.handled = true;
+    result.interaction_result = MakeConsumedResult(activation.play_activate_cue);
+
+    settings_about_page_interactions::ActivateCallbacks callbacks = {};
+    callbacks.show_home = [&result]() {
+        result.footer_item = footer_runtime::FooterFocusItem::kHome;
+    };
+    callbacks.show_settings = [&result]() {
+        result.footer_item = footer_runtime::FooterFocusItem::kSettings;
+    };
+    settings_about_page_interactions::ApplyPrimaryActivateResult(activation, callbacks);
+    if (result.footer_item != footer_runtime::FooterFocusItem::kNone) {
+        result.interaction_result.play_feedback = false;
+        result.interaction_result.feedback_cue = app_interaction::FeedbackCue::kNone;
+    }
+    return result;
+}
+
+FocusMoveResult ApplySettingsAboutMoveResult(const page_actions::FocusMoveOutcome& outcome)
+{
+    FocusMoveResult result = {};
+    if (!outcome.handled) {
+        return result;
+    }
+    result.handled = true;
+    result.interaction_result = MakeConsumedResult(outcome.play_navigation_cue);
+    ApplySettingsAboutFocusUpdate({
+        .handled = outcome.handled,
+        .apply_page_state = outcome.apply_page_state,
+        .sync_footer_projection = outcome.sync_footer_projection,
+    });
+    return result;
+}
+
+ButtonResult HandleSettingsAboutButtonEvent(const button_service::ButtonEventInfo& event)
+{
+    ButtonResult result = {};
+    if (!button_service::IsSelectButton(event.button)) {
+        return result;
+    }
+
+    switch (event.event) {
+        case button_service::ButtonEvent::kSingleClick:
+            return ApplySettingsAboutActivateResult(
+                settings_about_page_runtime::ActivateFocusedItem());
+        case button_service::ButtonEvent::kPressDown:
+        case button_service::ButtonEvent::kPressUp:
+        case button_service::ButtonEvent::kPressRepeat:
+        case button_service::ButtonEvent::kLongPressStart:
+        case button_service::ButtonEvent::kLongPressUp:
+            result.handled = true;
+            result.interaction_result.consumed = true;
+            return result;
+        case button_service::ButtonEvent::kDoubleClick:
+        default:
+            return result;
+    }
+}
+
 void ApplySettingsTodosPageStateUpdate(const display_service::RefreshRequest& refresh_request)
 {
     (void)settings_todos_page_runtime::UpdateDisplayStateAndRequestRefresh(refresh_request);
@@ -645,6 +755,11 @@ ButtonResult ApplySettingsActivateResult(const settings_page_interactions::Activ
     };
     callbacks.show_todos = []() { settings_page_runtime::RequestShowTodos(); };
     callbacks.show_topics = []() { settings_page_runtime::RequestShowTopics(); };
+    callbacks.show_about = []() {
+        // Deferred so the screen change happens after input dispatch; app_shell polls for it,
+        // same pattern as Storage/Todos/Topics above.
+        settings_page_runtime::RequestShowAbout();
+    };
     callbacks.show_onboarding = []() {
         // Deferred so the screen change happens after input dispatch; app_shell polls for it.
         onboarding_page_runtime::RequestManualLaunch();
@@ -2161,6 +2276,8 @@ footer_runtime::ProjectionState BuildFooterProjectionForScreen(display_service::
             return settings_todos_page_runtime::BuildFooterProjectionState();
         case display_service::ScreenId::kSettingsTopics:
             return settings_topics_page_runtime::BuildFooterProjectionState();
+        case display_service::ScreenId::kSettingsAbout:
+            return settings_about_page_runtime::BuildFooterProjectionState();
         case display_service::ScreenId::kWifi:
             return wifi_page_runtime::BuildFooterProjectionState();
         case display_service::ScreenId::kTime:
@@ -2205,6 +2322,9 @@ void ResetFocusForScreen(display_service::ScreenId screen)
             return;
         case display_service::ScreenId::kSettingsTopics:
             settings_topics_page_runtime::ResetFocus();
+            return;
+        case display_service::ScreenId::kSettingsAbout:
+            settings_about_page_runtime::ResetFocus();
             return;
         case display_service::ScreenId::kWifi:
             wifi_page_runtime::ResetFocus();
@@ -2262,6 +2382,8 @@ FocusMoveResult MoveFocusForCurrentScreen(int delta, bool page_jump)
             return ApplySettingsTodosMoveResult(settings_todos_page_runtime::MoveFocus(delta));
         case display_service::ScreenId::kSettingsTopics:
             return ApplySettingsTopicsMoveResult(settings_topics_page_runtime::MoveFocus(delta));
+        case display_service::ScreenId::kSettingsAbout:
+            return ApplySettingsAboutMoveResult(settings_about_page_runtime::MoveFocus(delta));
         case display_service::ScreenId::kWifi:
             return ApplyWifiMoveResult(wifi_page_runtime::MoveFocus(delta, page_jump));
         case display_service::ScreenId::kTime:
@@ -2306,6 +2428,8 @@ ButtonResult HandleButtonEventForScreen(display_service::ScreenId screen,
             return HandleSettingsTodosButtonEvent(event);
         case display_service::ScreenId::kSettingsTopics:
             return HandleSettingsTopicsButtonEvent(event);
+        case display_service::ScreenId::kSettingsAbout:
+            return HandleSettingsAboutButtonEvent(event);
         case display_service::ScreenId::kWifi:
             return HandleWifiButtonEvent(event);
         case display_service::ScreenId::kTime:

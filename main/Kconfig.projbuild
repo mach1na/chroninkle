@@ -1,48 +1,48 @@
-menu "Folloup Settings"
+menu "Chroninkle Settings"
 
-    config FOLLOWUP_WIFI_AP_PREFIX
+    config CHRONINKLE_WIFI_AP_PREFIX
         string "Wi-Fi AP prefix"
-        default "Followup"
+        default "Chroninkle"
         help
             Prefix used when the device enters Wi-Fi access-point setup mode.
             The full AP SSID appends the last three Wi-Fi MAC bytes.
 
-    config FOLLOWUP_WIFI_STA_SSID
+    config CHRONINKLE_WIFI_STA_SSID
         string "Built-in Wi-Fi SSID"
         default ""
         help
             Optional built-in station SSID. Runtime-saved NVS credentials take
             precedence when present.
 
-    config FOLLOWUP_WIFI_STA_PASSWORD
+    config CHRONINKLE_WIFI_STA_PASSWORD
         string "Built-in Wi-Fi password"
         default ""
         help
             Optional built-in station password paired with
-            FOLLOWUP_WIFI_STA_SSID.
+            CHRONINKLE_WIFI_STA_SSID.
 
-    config FOLLOWUP_WIFI_START_IN_AP_MODE
+    config CHRONINKLE_WIFI_START_IN_AP_MODE
         bool "Start Wi-Fi in AP setup mode"
         default n
         help
             Start the Wi-Fi backend in access-point setup mode on boot instead
             of first attempting saved or built-in station credentials.
 
-    config FOLLOWUP_TIME_SYNC_DEFAULT_ENABLED
+    config CHRONINKLE_TIME_SYNC_DEFAULT_ENABLED
         bool "Enable clock sync by default"
         default y
         help
             When enabled, the timezone service attempts SNTP sync after Wi-Fi
             connects using the configured default timezone.
 
-    config FOLLOWUP_DEFAULT_TIMEZONE_NAME
+    config CHRONINKLE_DEFAULT_TIMEZONE_NAME
         string "Default timezone name"
         default "North_America_Eastern"
         help
             Default timezone catalog entry used before a runtime timezone
             setting has been saved in NVS.
 
-    config FOLLOWUP_WELCOME_MESSAGE_ROTATE_HOURS
+    config CHRONINKLE_WELCOME_MESSAGE_ROTATE_HOURS
         int "Dashboard welcome message rotation interval (hours)"
         range 1 720
         default 1
@@ -52,7 +52,7 @@ menu "Folloup Settings"
             one step every interval, so it changes over time without being
             tied to the calendar.
 
-    config FOLLOWUP_GEMINI_API_KEY
+    config CHRONINKLE_GEMINI_API_KEY
         string "Built-in Gemini API key"
         default ""
         help
@@ -60,7 +60,7 @@ menu "Folloup Settings"
             Gemini API key stored through the backend portal takes precedence
             when present.
 
-    config FOLLOWUP_AUTO_SLEEP_DISPLAY_SLEEP_TIMEOUT_SECONDS
+    config CHRONINKLE_AUTO_SLEEP_DISPLAY_SLEEP_TIMEOUT_SECONDS
         int "Display sleep timeout"
         range 0 86400
         default 180
@@ -68,7 +68,7 @@ menu "Folloup Settings"
             Seconds of IMU-detected inactivity before the e-paper panel enters
             display sleep. Set to 0 to disable the display-sleep stage.
 
-    config FOLLOWUP_AUTO_SLEEP_LIGHT_SLEEP_TIMEOUT_SECONDS
+    config CHRONINKLE_AUTO_SLEEP_LIGHT_SLEEP_TIMEOUT_SECONDS
         int "Light sleep timeout"
         range 0 86400
         default 1800
@@ -78,7 +78,7 @@ menu "Folloup Settings"
             sleep and light sleep are enabled, this value must be greater than
             or equal to the display sleep timeout.
 
-    config FOLLOWUP_TEXT_READER_FOLDER
+    config CHRONINKLE_TEXT_READER_FOLDER
         string "Text reader folder name"
         default "books"
         help
@@ -86,7 +86,7 @@ menu "Folloup Settings"
             Flat folder only -- subfolders inside it are not browsed. Created
             automatically on the SD card if it doesn't already exist.
 
-    config FOLLOWUP_TODO_ARCHIVE_AFTER_DAYS
+    config CHRONINKLE_TODO_ARCHIVE_AFTER_DAYS
         int "Default todo archive delay (days)"
         range 0 3650
         default 7

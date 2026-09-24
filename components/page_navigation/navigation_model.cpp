@@ -69,7 +69,7 @@ NavigationModel BuildSettingsPageNavigationModel()
     NavigationModel model = {};
     model.scope = NavigationScope::kSettings;
 
-    // Settings is a hub: 4 headings that navigate to a dedicated sub-page, plus Manual (replay
+    // Settings is a hub: 5 headings that navigate to a dedicated sub-page, plus Manual (replay
     // onboarding) as a direct action rather than a heading -- it's a one-shot action, not
     // something to configure.
     AddItem(model, NavigationItemSection::kSettingsPageMenu,
@@ -82,10 +82,12 @@ NavigationModel BuildSettingsPageNavigationModel()
             NavigationItemRole::kSettingsMenuTodos, 3);
     AddItem(model, NavigationItemSection::kSettingsPageMenu,
             NavigationItemRole::kSettingsMenuTopics, 4);
+    AddItem(model, NavigationItemSection::kSettingsPageMenu,
+            NavigationItemRole::kSettingsMenuAbout, 5);
     AddItem(model,
             NavigationItemSection::kSettingsPageMenu,
             NavigationItemRole::kSettingsManualOnboardingButton,
-            5);
+            6);
     AddFooterItems(model, /*is_home_screen=*/false);
     return model;
 }
@@ -169,6 +171,17 @@ NavigationModel BuildSettingsStoragePageNavigationModel()
             NavigationItemRole::kSettingsStorageFormatSdButton, 1);
     AddItem(model, NavigationItemSection::kSettingsStoragePageControls,
             NavigationItemRole::kSettingsStorageBackButton, 2);
+    AddFooterItems(model, /*is_home_screen=*/false);
+    return model;
+}
+
+NavigationModel BuildSettingsAboutPageNavigationModel()
+{
+    NavigationModel model = {};
+    model.scope = NavigationScope::kSettingsAbout;
+
+    AddItem(model, NavigationItemSection::kSettingsAboutPageControls,
+            NavigationItemRole::kSettingsAboutBackButton, 0);
     AddFooterItems(model, /*is_home_screen=*/false);
     return model;
 }
