@@ -310,10 +310,15 @@ esp_err_t HideImpl(bool waking)
     // SetCurrentScreen: the panel is still asleep at this point, and SetCurrentScreen's
     // change would just queue behind the separate wake call with no ordering guarantee
     // between the two, risking a redundant full refresh of the lock screen first.
+    // WakeDisplayToScreen always does its own full refresh regardless (recovering a physically
+    // slept panel needs it); for the still-awake unlock path, only Home gets a full refresh --
+    // same rule as every other screen transition.
+    const display_service::RefreshMode restore_refresh_mode =
+        restore_screen == display_service::ScreenId::kHome ? display_service::RefreshMode::kFull
+                                                            : display_service::RefreshMode::kPartial;
     const esp_err_t err =
         waking ? display_service::WakeDisplayToScreen(restore_screen)
-              : display_service::SetCurrentScreen(restore_screen,
-                                                   display_service::RefreshMode::kFull,
+              : display_service::SetCurrentScreen(restore_screen, restore_refresh_mode,
                                                    "lock_screen_hide");
     if (err != ESP_OK) {
         std::lock_guard<std::mutex> lock(s_mutex);

@@ -362,28 +362,28 @@ esp_err_t ShowSettingsAboutScreen(display_service::RefreshMode refresh_mode)
 void ShowSettingsSubPageIfRequested()
 {
     if (settings_page_runtime::ConsumePendingShowStorage()) {
-        const esp_err_t err = ShowSettingsStorageScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowSettingsStorageScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show settings storage screen failed: %s", esp_err_to_name(err));
         }
         return;
     }
     if (settings_page_runtime::ConsumePendingShowTodos()) {
-        const esp_err_t err = ShowSettingsTodosScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowSettingsTodosScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show settings todos screen failed: %s", esp_err_to_name(err));
         }
         return;
     }
     if (settings_page_runtime::ConsumePendingShowTopics()) {
-        const esp_err_t err = ShowSettingsTopicsScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowSettingsTopicsScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show settings topics screen failed: %s", esp_err_to_name(err));
         }
         return;
     }
     if (settings_page_runtime::ConsumePendingShowAbout()) {
-        const esp_err_t err = ShowSettingsAboutScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowSettingsAboutScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show settings about screen failed: %s", esp_err_to_name(err));
         }
@@ -445,7 +445,7 @@ void ShowTopicEntriesScreenIfRequested()
         return;
     }
     topic_entries_page_runtime::QueueShow(pending.topic_id, pending.topic_name);
-    const esp_err_t err = ShowTopicEntriesScreen(display_service::RefreshMode::kFull);
+    const esp_err_t err = ShowTopicEntriesScreen(display_service::RefreshMode::kPartial);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Show topic entries screen failed: %s", esp_err_to_name(err));
     }
@@ -457,7 +457,7 @@ void HandleTopicEntriesBackIfRequested()
     if (!topic_entries_page_runtime::ConsumePendingBack()) {
         return;
     }
-    const esp_err_t err = ShowTopicsBrowseScreen(display_service::RefreshMode::kFull);
+    const esp_err_t err = ShowTopicsBrowseScreen(display_service::RefreshMode::kPartial);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Topic entries back navigation failed: %s", esp_err_to_name(err));
     }
@@ -498,7 +498,7 @@ void ShowTopicSummaryScreenIfRequested()
         return;
     }
     topic_summary_page_runtime::QueueShow(pending.topic_id, pending.topic_name);
-    const esp_err_t err = ShowTopicSummaryScreen(display_service::RefreshMode::kFull);
+    const esp_err_t err = ShowTopicSummaryScreen(display_service::RefreshMode::kPartial);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Show topic summary screen failed: %s", esp_err_to_name(err));
     }
@@ -511,7 +511,7 @@ void HandleTopicSummaryBackIfRequested()
     if (!topic_summary_page_runtime::ConsumePendingBack()) {
         return;
     }
-    const esp_err_t err = ShowTopicEntriesScreen(display_service::RefreshMode::kFull);
+    const esp_err_t err = ShowTopicEntriesScreen(display_service::RefreshMode::kPartial);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Topic summary back navigation failed: %s", esp_err_to_name(err));
     }
@@ -634,7 +634,7 @@ void ShowBookReaderScreenIfRequested()
     if (open_err != ESP_OK && open_err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Open book failed: %s", esp_err_to_name(open_err));
     }
-    const esp_err_t err = ShowBookReaderScreen(display_service::RefreshMode::kFull);
+    const esp_err_t err = ShowBookReaderScreen(display_service::RefreshMode::kPartial);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Show book reader screen failed: %s", esp_err_to_name(err));
     }
@@ -646,7 +646,7 @@ void HandleBookReaderBackIfRequested()
     if (!book_reader_page_runtime::ConsumePendingBack()) {
         return;
     }
-    const esp_err_t err = ShowBookListScreen(display_service::RefreshMode::kFull);
+    const esp_err_t err = ShowBookListScreen(display_service::RefreshMode::kPartial);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Book reader back navigation failed: %s", esp_err_to_name(err));
     }
@@ -682,7 +682,7 @@ void ShowOnboardingFromSettingsIfRequested()
         return;
     }
     s_onboarding_from_settings = true;
-    const esp_err_t err = ShowOnboardingScreen(display_service::RefreshMode::kFull);
+    const esp_err_t err = ShowOnboardingScreen(display_service::RefreshMode::kPartial);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Manual onboarding launch failed: %s", esp_err_to_name(err));
     }
@@ -697,7 +697,7 @@ void HandleOnboardingDismissIfRequested()
     }
     if (s_onboarding_from_settings) {
         s_onboarding_from_settings = false;
-        const esp_err_t err = ShowSettingsScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowSettingsScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Onboarding dismiss -> settings failed: %s", esp_err_to_name(err));
         }
@@ -753,7 +753,7 @@ void ShowDetailsScreenIfRequested()
         return;
     }
     const esp_err_t err =
-        ShowDetailsScreen(recording_id, source, display_service::RefreshMode::kFull);
+        ShowDetailsScreen(recording_id, source, display_service::RefreshMode::kPartial);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Show details screen failed: %s", esp_err_to_name(err));
     }
@@ -768,16 +768,16 @@ void HandleDetailsBackIfRequested()
     esp_err_t err = ESP_OK;
     switch (details_page_runtime::SourcePage()) {
         case DetailsPageSource::kNotes:
-            err = ShowNotesScreen(display_service::RefreshMode::kFull);
+            err = ShowNotesScreen(display_service::RefreshMode::kPartial);
             break;
         case DetailsPageSource::kTodos:
-            err = ShowTodosScreen(display_service::RefreshMode::kFull);
+            err = ShowTodosScreen(display_service::RefreshMode::kPartial);
             break;
         case DetailsPageSource::kFollowUp:
-            err = ShowFollowUpScreen(display_service::RefreshMode::kFull);
+            err = ShowFollowUpScreen(display_service::RefreshMode::kPartial);
             break;
         case DetailsPageSource::kTopicEntries:
-            err = ShowTopicEntriesScreen(display_service::RefreshMode::kFull);
+            err = ShowTopicEntriesScreen(display_service::RefreshMode::kPartial);
             break;
         default:
             err = ShowHomeScreen(display_service::RefreshMode::kFull);
@@ -918,17 +918,17 @@ app_interaction::InputResult HandleFooterActivate(footer_runtime::FooterFocusIte
         case footer_runtime::FooterFocusItem::kSettings:
             result.play_feedback = true;
             result.feedback_cue = app_interaction::FeedbackCue::kClick;
-            err = ShowSettingsScreen(display_service::RefreshMode::kFull);
+            err = ShowSettingsScreen(display_service::RefreshMode::kPartial);
             break;
         case footer_runtime::FooterFocusItem::kWifi:
             result.play_feedback = true;
             result.feedback_cue = app_interaction::FeedbackCue::kClick;
-            err = ShowWifiScreen(display_service::RefreshMode::kFull);
+            err = ShowWifiScreen(display_service::RefreshMode::kPartial);
             break;
         case footer_runtime::FooterFocusItem::kTime:
             result.play_feedback = true;
             result.feedback_cue = app_interaction::FeedbackCue::kClick;
-            err = ShowTimeScreen(display_service::RefreshMode::kFull);
+            err = ShowTimeScreen(display_service::RefreshMode::kPartial);
             break;
         case footer_runtime::FooterFocusItem::kSticky:
             // Opens the follow-up sticky overlay (or a nudge toast). The overlay owns its own
@@ -954,35 +954,35 @@ app_interaction::InputResult HandleFooterActivate(footer_runtime::FooterFocusIte
 bool HandleDashboardMenuItem(int menu_index, void*)
 {
     if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kTopics)) {
-        const esp_err_t err = ShowTopicsBrowseScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowTopicsBrowseScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show topics browse screen failed: %s", esp_err_to_name(err));
         }
         return true;
     }
     if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kBooks)) {
-        const esp_err_t err = ShowBookListScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowBookListScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show book list screen failed: %s", esp_err_to_name(err));
         }
         return true;
     }
     if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kNotes)) {
-        const esp_err_t err = ShowNotesScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowNotesScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show notes screen failed: %s", esp_err_to_name(err));
         }
         return true;
     }
     if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kTodos)) {
-        const esp_err_t err = ShowTodosScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowTodosScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show todos screen failed: %s", esp_err_to_name(err));
         }
         return true;
     }
     if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kFollowUp)) {
-        const esp_err_t err = ShowFollowUpScreen(display_service::RefreshMode::kFull);
+        const esp_err_t err = ShowFollowUpScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show follow-up screen failed: %s", esp_err_to_name(err));
         }
