@@ -5,6 +5,49 @@ list scannable. Full history — investigation notes, what was fixed, and
 on-device verification — is preserved here in original order. See
 `docs/todo.md` for what's still open.
 
+## ~~Finish the Followup -> Chroninkle rename~~ — resolved
+
+Craig decided (2026-09-13) to rename the project from Followup to
+**Chroninkle**. The in-repo pass landed 2026-09-24 (own branch,
+`rename-followup-to-chroninkle`, PR #59): `CMakeLists.txt` project name
+(`folloup_sticky` -> `chroninkle`), the Kconfig namespace (`CONFIG_FOLLOWUP_*`
+-> `CONFIG_CHRONINKLE_*` in `main/Kconfig.projbuild`/`sdkconfig.defaults`/
+every reading `.cpp`, including the Wi-Fi AP prefix default which now
+broadcasts `Chroninkle-XXXXXX`), the `followup_task_config` namespace/header
+(-> `chroninkle_task_config.h`), remaining source comments/log strings/
+onboarding copy, the `webserver/` setup portal (title, copy, `package.json`
+name, a logo-asset cleanup -- see note below), and the internal docs
+(`app-architecture.md`, `gemini-service.md`, `auto-sleep.md`,
+`versioning.md`, `user-manual.md`, `CLAUDE.md`, `AGENTS.md`). Verified with a
+clean `idf.py build` and a real device flash/boot (project name, version,
+AP SSID all confirmed), then merged to `main` and live field-tested.
+
+The `kFollowupLogo` asset symbol and its `assets/logos/folloup-logo.png`
+source were deliberately kept, not renamed -- that's the actual original
+Followup wordmark, shown on the boot splash's "Based on" attribution line
+alongside the ALXV Labs logo. Likewise a few doc mentions of "Followup"/
+"Folloup" are intentional upstream/historical references (e.g.
+`gemini-service.md`'s "Deferred Followup Features", `app-architecture.md`'s
+"Not yet ported from Folloup") describing the original upstream project this
+was forked from, not this codebase's old name -- those correctly stay as-is.
+
+Note: the `webserver/` setup portal previously showed an inline vector
+Followup wordmark (`src/assets/followup_logo.svg`, using `currentColor` for
+light/dark theming). No equivalent Chroninkle vector logo exists yet -- only
+a raster `assets/logos/chroninkle-logo.png` (used by the firmware splash and
+`README.md`), which can't reuse the `currentColor` theming trick and isn't a
+transcription of the old wordmark's path data. Rather than fabricate a vector
+logo or use a wrongly-themed raster one, the portal now shows a plain text
+"Chroninkle" wordmark (`.brand-logo` in `portal.css`) as a placeholder. A
+real vector Chroninkle wordmark (matching the on-device brand) would be a
+nice follow-up, own branch -- still open, not tracked elsewhere yet.
+
+**GitHub repo (2026-09-24):** renamed `mach1na/folloup` -> `mach1na/chroninkle`
+via `gh repo rename`. Repo description updated (the stale "A Folloup port for
+SeeedStudio's Sticky" was replaced). Local `origin` remote repointed
+explicitly to the new URL rather than relying on GitHub's redirect. This was
+the last piece of the rename -- the whole effort is now complete.
+
 ## ~~Defer the ghosting flush to idle instead of firing mid-interaction~~ — resolved
 
 The SSD1677 driver used to force a full-waveform refresh inline the moment
