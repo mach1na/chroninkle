@@ -254,6 +254,41 @@ Do the Kconfig/CMake/source-comment pass as its own branch with a full
 build+flash verification before merging, since it touches identifiers other
 code and anyone's saved `sdkconfig` depend on.
 
+## v2: visible notification when a queued transcription retry gives up
+
+Found during live field testing (2026-09-24): a recording that's queued for
+automatic retry (`pending_transcription=true` in its archive metadata --
+this only happens for a recording saved while Gemini wasn't ready, e.g. no
+Wi-Fi at record time) gets exactly **one** automatic retry attempt the next
+time Gemini reconnects (`transcription_retry_service::RetryOne()`,
+triggered by `RetryPending()` off a Gemini ready-edge in
+`main/app_shell.cpp`'s `HandleGeminiEvent`). If that one attempt fails for
+*any* reason -- including a plainly transient one, like the
+`http=503 code=UNAVAILABLE "This model is currently experiencing high
+demand"` error hit during testing today -- `RetryOne()` calls
+`recording_archive_service::ClearPendingTranscription()` unconditionally
+and gives up for good. The recording is left with a saved audio clip, no
+transcript, and a `transcription_error` string in its metadata, but nothing
+about it is surfaced anywhere in the UI beyond the Details page's own
+status text for that one recording -- there's no dashboard/status-bar
+indicator that says "N recordings need a manual retry." The only way to
+notice is opening that specific recording's Details page and using the
+manual **Transcribe** button (`with_transcribe` in
+`BuildDetailsPageNavigationModel`).
+
+Craig wants a visible, at-a-glance notification for this in v2 (deferred,
+not an immediate fix) -- something like a status-bar badge or dashboard
+callout showing "N recordings failed to transcribe" so a transient failure
+like today's doesn't silently strand a recording without transcript
+indefinitely.
+
+Related but separate: whether `RetryOne()`'s one-shot-then-give-up policy
+itself should change (e.g. distinguish a transient error -- 5xx, timeout,
+network -- from a permanent one -- bad API key, malformed request -- and
+only clear `pending_transcription` on the latter, keeping transient
+failures queued for the next reconnect) is its own decision, not yet made;
+raised in conversation the same day but intentionally not resolved here.
+
 ## v2: complete front-end rewrite (drop optimistic phrases, go icon-based)
 
 Craig wants to start planning a v2 (2026-09-24): a complete rewrite of the
