@@ -84,7 +84,19 @@ UI code should include `project_assets.h` and use
 
 All PNG files in `assets/icons/` are currently embedded as fixed `36x36`
 monochrome e-paper icon assets through `EmbeddedIconId` and
-`project_assets::GetIcon(...)`.
+`project_assets::GetIcon(...)`. Footer icons work the same way at a fixed
+`44x44` (see `generate_epaper_footer_icons.py`).
+
+**Pixel-art sources smaller than the target size are upscaled
+automatically**, nearest-neighbor, by `build_bitmaps` in
+`generate_epaper_assets_common.py` — this keeps pixel-art edges crisp
+instead of letting `sips`'s smooth resize blur them before the 1-bit
+threshold. This only kicks in when the source is smaller than the target
+and requires an exact integer scale factor (e.g. a 16x16 or 32x32 source
+for a 96x96 target); a source size that doesn't evenly divide the target
+fails the generator with a clear error rather than silently blurring. A
+source at or above the target size still goes through the original
+`sips`-based resize path unchanged.
 
 To add a new icon:
 
