@@ -7,7 +7,7 @@
 
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "recording_archive_service.h"
@@ -220,7 +220,7 @@ bool RetryPending()
 
     const BaseType_t created = xTaskCreatePinnedToCore(
         RetryTaskEntry, kRetryTaskName, kRetryTaskStackWords, nullptr,
-        followup_task_config::kPriorityTranscriptionRetry, nullptr, followup_task_config::kAppCore);
+        chroninkle_task_config::kPriorityTranscriptionRetry, nullptr, chroninkle_task_config::kAppCore);
     if (created != pdPASS) {
         ESP_LOGW(kTag, "Retry batch task creation failed");
         s_batch_in_flight.store(false, std::memory_order_release);

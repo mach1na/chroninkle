@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "esp_log.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "playback_service.h"
@@ -48,7 +48,7 @@ bool PlayFileAsync(const std::string& path)
     auto* path_arg = new std::string(path);
     const BaseType_t created = xTaskCreatePinnedToCore(
         PlaybackWorker, "clip_play", kWorkerStackWords, path_arg,
-        followup_task_config::kPriorityRecordCapture, nullptr, followup_task_config::kAppCore);
+        chroninkle_task_config::kPriorityRecordCapture, nullptr, chroninkle_task_config::kAppCore);
     if (created != pdPASS) {
         delete path_arg;
         s_worker_active.store(false, std::memory_order_release);

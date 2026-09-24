@@ -14,7 +14,7 @@
 #include "esp_check.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "recording_archive_service.h"
@@ -417,9 +417,9 @@ esp_err_t RefreshTodoSummary()
                                                            "lockscr_todos",
                                                            kTodoSummaryTaskStackWords,
                                                            nullptr,
-                                                           followup_task_config::kPriorityStorage,
+                                                           chroninkle_task_config::kPriorityStorage,
                                                            nullptr,
-                                                           followup_task_config::kSystemCore);
+                                                           chroninkle_task_config::kSystemCore);
         if (created != pdPASS) {
             s_todo_summary_refresh_in_flight.store(false, std::memory_order_relaxed);
             ESP_LOGW(kTag, "Failed to start todo summary refresh task");

@@ -16,7 +16,7 @@
 #include "cJSON.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "nvs.h"
@@ -64,7 +64,7 @@ EventHandler s_event_handler = nullptr;
 void* s_event_context = nullptr;
 std::atomic<bool> s_refresh_in_flight{false};
 // 0 = automatic archiving disabled ("Never"). Guarded by s_mutex.
-int s_archive_after_days = CONFIG_FOLLOWUP_TODO_ARCHIVE_AFTER_DAYS;
+int s_archive_after_days = CONFIG_CHRONINKLE_TODO_ARCHIVE_AFTER_DAYS;
 
 struct WavHeader {
     char riff[4];
@@ -1242,7 +1242,7 @@ void SaveSnapshotToNvs(const Snapshot& snapshot)
 // LoadSettingsFromStorage/SaveSettingsToStorageLocked shape.
 void LoadArchiveConfigFromStorage()
 {
-    int32_t days = CONFIG_FOLLOWUP_TODO_ARCHIVE_AFTER_DAYS;
+    int32_t days = CONFIG_CHRONINKLE_TODO_ARCHIVE_AFTER_DAYS;
     nvs_handle_t handle = 0;
     if (nvs_open(kArchiveConfigNvsNamespace, NVS_READONLY, &handle) == ESP_OK) {
         (void)nvs_get_i32(handle, kArchiveAfterDaysNvsKey, &days);
@@ -1463,8 +1463,8 @@ void RefreshAsync()
     }
     const BaseType_t created =
         xTaskCreatePinnedToCore(RefreshWorkerTask, "arc_refresh", 4096, nullptr,
-                                followup_task_config::kPriorityStorage, nullptr,
-                                followup_task_config::kSystemCore);
+                                chroninkle_task_config::kPriorityStorage, nullptr,
+                                chroninkle_task_config::kSystemCore);
     if (created != pdPASS) {
         s_refresh_in_flight.store(false, std::memory_order_release);
         ESP_LOGW(kTag, "Failed to start archive refresh worker");

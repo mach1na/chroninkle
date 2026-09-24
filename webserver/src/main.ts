@@ -12,7 +12,6 @@ import {
   defineToast,
 } from './components';
 
-import followupLogo from './assets/followup_logo.svg?raw';
 import wifiIcon from './assets/wifi.svg?raw';
 import wifiSecureIcon from './assets/wifi_secure.svg?raw';
 import wifi1BarIcon from './assets/wifi_1bar.svg?raw';
@@ -51,7 +50,6 @@ import {
   formatTimezoneLabel,
   isSwitchChecked,
   setFieldError,
-  setIcon,
   setSwitchChecked,
   svgWithClass,
 } from './portal/uiHelpers';
@@ -85,7 +83,7 @@ const setNotification = createLiveRegionNotifier(dom.wifiSettingsNotification);
 const setGeminiNotification = createCardNotifier(dom.geminiCard);
 const setTimezoneLocationNotification = createCardNotifier(dom.timezoneLocationCard);
 
-// Detached stand-ins for the byte90-only "talking clock" time controls, which Followup does not
+// Detached stand-ins for the byte90-only "talking clock" time controls, which Chroninkle does not
 // use. They let the shared time controller keep its (now inert) clock-mode/wakeup/bedtime paths
 // without those elements existing in the DOM.
 const noopTimeInput = () => document.createElement('input') as unknown as ValidatableField;
@@ -196,7 +194,6 @@ function updatePageFade() {
 }
 
 function initialize() {
-  setIcon(dom.followupLogoEl, followupLogo, 'followup-logo');
   dom.wifiStatusCard.iconSvg = wifiIcon;
   dom.geminiCard.iconSvg = apiKeyIcon;
   dom.timezoneLocationCard.iconSvg = clockIcon;

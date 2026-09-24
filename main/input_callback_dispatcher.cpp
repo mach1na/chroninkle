@@ -7,7 +7,7 @@
 
 #include "esp_err.h"
 #include "esp_log.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -83,9 +83,9 @@ void InputCallbackDispatcher::Initialize() {
         kTaskName,
         kTaskStackWords,
         nullptr,
-        followup_task_config::kPriorityTouch,
+        chroninkle_task_config::kPriorityTouch,
         &s_task,
-        followup_task_config::kAppCore);
+        chroninkle_task_config::kAppCore);
     if (created != pdPASS || s_task == nullptr) {
         ESP_LOGW(kTag, "Failed to start input callback dispatcher task; will retry on next dispatch");
         s_task = nullptr;

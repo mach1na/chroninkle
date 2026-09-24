@@ -23,7 +23,7 @@
 #include "esp_system.h"
 #include "feedback_service.h"
 #include "footer_runtime.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "gemini_service.h"
@@ -40,6 +40,7 @@
 #include "recording_service.h"
 #include "sdkconfig.h"
 #include "settings_page_runtime.h"
+#include "settings_about_page_runtime.h"
 #include "settings_storage_page_runtime.h"
 #include "settings_todos_page_runtime.h"
 #include "settings_topics_page_runtime.h"
@@ -73,9 +74,9 @@ namespace {
 constexpr const char* kTag = "AppShell";
 constexpr bool kEnablePowerButtonShutdown = true;
 constexpr uint32_t kAutoSleepDisplaySleepTimeoutSeconds =
-    CONFIG_FOLLOWUP_AUTO_SLEEP_DISPLAY_SLEEP_TIMEOUT_SECONDS;
+    CONFIG_CHRONINKLE_AUTO_SLEEP_DISPLAY_SLEEP_TIMEOUT_SECONDS;
 constexpr uint32_t kAutoSleepLightSleepTimeoutSeconds =
-    CONFIG_FOLLOWUP_AUTO_SLEEP_LIGHT_SLEEP_TIMEOUT_SECONDS;
+    CONFIG_CHRONINKLE_AUTO_SLEEP_LIGHT_SLEEP_TIMEOUT_SECONDS;
 constexpr uint32_t kShutdownTaskStackWords = 3072;
 constexpr TickType_t kPowerButtonReleaseSettleDelay = pdMS_TO_TICKS(500);
 
@@ -332,9 +333,31 @@ esp_err_t ShowSettingsTopicsScreen(display_service::RefreshMode refresh_mode)
                                              refresh_mode, "show_settings_topics_screen");
 }
 
-// Polls the deferred storage/todos/topics-heading requests from the Settings hub (set by
-// page_input_runtime's show_storage/show_todos/show_topics callbacks) -- deferred so the screen
-// change happens after input dispatch, not mid-dispatch, same reasoning as
+esp_err_t ShowSettingsAboutScreen(display_service::RefreshMode refresh_mode)
+{
+    SyncStatusBarState("show_settings_about_screen");
+    page_input_runtime::ResetFocusForScreen(display_service::ScreenId::kSettingsAbout);
+    footer_runtime::SetLayoutState(
+        FooterLayoutForScreen(display_service::ScreenId::kSettingsAbout));
+    footer_runtime::SetProjectionState(page_input_runtime::BuildFooterProjectionForScreen(
+        display_service::ScreenId::kSettingsAbout));
+    const esp_err_t footer_err = footer_runtime::UpdateDisplayState();
+    if (footer_err != ESP_OK && footer_err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Footer sync before settings about screen failed: %s",
+                 esp_err_to_name(footer_err));
+    }
+    const esp_err_t about_err = settings_about_page_runtime::UpdateDisplayState();
+    if (about_err != ESP_OK && about_err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Settings about page sync before show failed: %s",
+                 esp_err_to_name(about_err));
+    }
+    return display_service::SetCurrentScreen(display_service::ScreenId::kSettingsAbout,
+                                             refresh_mode, "show_settings_about_screen");
+}
+
+// Polls the deferred storage/todos/topics/about-heading requests from the Settings hub (set by
+// page_input_runtime's show_storage/show_todos/show_topics/show_about callbacks) -- deferred so
+// the screen change happens after input dispatch, not mid-dispatch, same reasoning as
 // ShowOnboardingFromSettingsIfRequested below.
 void ShowSettingsSubPageIfRequested()
 {
@@ -356,6 +379,13 @@ void ShowSettingsSubPageIfRequested()
         const esp_err_t err = ShowSettingsTopicsScreen(display_service::RefreshMode::kFull);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
             ESP_LOGW(kTag, "Show settings topics screen failed: %s", esp_err_to_name(err));
+        }
+        return;
+    }
+    if (settings_page_runtime::ConsumePendingShowAbout()) {
+        const esp_err_t err = ShowSettingsAboutScreen(display_service::RefreshMode::kFull);
+        if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+            ESP_LOGW(kTag, "Show settings about screen failed: %s", esp_err_to_name(err));
         }
     }
 }
@@ -1790,9 +1820,9 @@ void StartShutdownTask()
         "app_shutdown",
         kShutdownTaskStackWords,
         nullptr,
-        followup_task_config::kPriorityAppShutdown,
+        chroninkle_task_config::kPriorityAppShutdown,
         &s_shutdown_task,
-        followup_task_config::kAppCore);
+        chroninkle_task_config::kAppCore);
     if (created != pdPASS) {
         s_shutdown_task = nullptr;
         ESP_LOGW(kTag, "Failed to create shutdown task");
@@ -2168,7 +2198,7 @@ const char* ResetReasonName(esp_reset_reason_t reason)
 
 void Run()
 {
-    ESP_LOGI(kTag, "Followup firmware version %s", esp_app_get_description()->version);
+    ESP_LOGI(kTag, "Chroninkle firmware version %s", esp_app_get_description()->version);
     // Logged first thing on every boot: without it, a reset that happens between two
     // normal-looking boot logs is indistinguishable from a deliberate restart, which is
     // what made the input_callbacks stack overflow take a whole session to pin down.

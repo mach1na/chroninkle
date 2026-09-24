@@ -3,7 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "sdkconfig.h"
 
-namespace followup_task_config {
+namespace chroninkle_task_config {
 
 inline constexpr BaseType_t kSystemCore = 0;
 
@@ -37,4 +37,4 @@ inline constexpr UBaseType_t kPriorityTranscriptionRetry = 2;
 // bus activity simply retries on the next cycle without ever blocking a refresh.
 inline constexpr UBaseType_t kPrioritySensorPoll = 2;
 
-}  // namespace followup_task_config
+}  // namespace chroninkle_task_config

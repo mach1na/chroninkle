@@ -17,7 +17,7 @@
 #include "esp_log.h"
 #include "esp_sntp.h"
 #include "esp_timer.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -290,8 +290,8 @@ void LoadSettingsFromStorage()
     nvs_handle_t handle = 0;
     esp_err_t err = nvs_open(kNvsNamespace, NVS_READONLY, &handle);
     if (err != ESP_OK) {
-        s_enabled = CONFIG_FOLLOWUP_TIME_SYNC_DEFAULT_ENABLED;
-        s_timezone_name = CONFIG_FOLLOWUP_DEFAULT_TIMEZONE_NAME;
+        s_enabled = CONFIG_CHRONINKLE_TIME_SYNC_DEFAULT_ENABLED;
+        s_timezone_name = CONFIG_CHRONINKLE_DEFAULT_TIMEZONE_NAME;
         s_location.clear();
         return;
     }
@@ -300,12 +300,12 @@ void LoadSettingsFromStorage()
     if (nvs_get_u8(handle, kEnabledKey, &enabled) == ESP_OK) {
         s_enabled = enabled != 0;
     } else {
-        s_enabled = CONFIG_FOLLOWUP_TIME_SYNC_DEFAULT_ENABLED;
+        s_enabled = CONFIG_CHRONINKLE_TIME_SYNC_DEFAULT_ENABLED;
     }
 
     LoadString(handle, kTimezoneNameKey, &s_timezone_name);
     if (s_timezone_name.empty()) {
-        s_timezone_name = CONFIG_FOLLOWUP_DEFAULT_TIMEZONE_NAME;
+        s_timezone_name = CONFIG_CHRONINKLE_DEFAULT_TIMEZONE_NAME;
     }
     LoadString(handle, kLocationKey, &s_location);
     nvs_close(handle);
@@ -851,9 +851,9 @@ esp_err_t Init()
                 "timezone_sync",
                 kSyncTaskStackWords,
                 nullptr,
-                followup_task_config::kPriorityTimezoneSync,
+                chroninkle_task_config::kPriorityTimezoneSync,
                 &s_sync_task,
-                followup_task_config::kSystemCore);
+                chroninkle_task_config::kSystemCore);
         if (created != pdPASS) {
             s_sync_task = nullptr;
             return ESP_ERR_NO_MEM;

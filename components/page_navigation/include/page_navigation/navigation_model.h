@@ -23,6 +23,7 @@ enum class NavigationScope : uint8_t {
     kSettingsStorage,
     kSettingsTodos,
     kSettingsTopics,
+    kSettingsAbout,
     kBookList,
 };
 
@@ -46,6 +47,7 @@ enum class NavigationItemSection : uint8_t {
     kSettingsStoragePageControls,
     kSettingsTodosPageControls,
     kSettingsTopicsPageControls,
+    kSettingsAboutPageControls,
     kBookListPageControls,
 };
 
@@ -61,6 +63,7 @@ enum class NavigationItemRole : uint8_t {
     kSettingsMenuStorage,
     kSettingsMenuTodos,
     kSettingsMenuTopics,
+    kSettingsMenuAbout,
     kSettingsManualOnboardingButton,
     kWifiPageWifiToggle,
     kWifiPageEnableApToggle,
@@ -87,6 +90,7 @@ enum class NavigationItemRole : uint8_t {
     kSettingsTopicsTopicRow,
     kSettingsTopicsNewTopicButton,
     kSettingsTopicsBackButton,
+    kSettingsAboutBackButton,
     kDashboardMenuItem,
     kTopicsBrowseTopicRow,
     kTopicEntriesTimelineGroup,
@@ -131,6 +135,7 @@ NavigationModel BuildTimePageNavigationModel();
 NavigationModel BuildSettingsStoragePageNavigationModel();
 NavigationModel BuildSettingsTodosPageNavigationModel();
 NavigationModel BuildSettingsTopicsPageNavigationModel(int topic_count);
+NavigationModel BuildSettingsAboutPageNavigationModel();
 NavigationModel BuildDashboardPageNavigationModel();
 NavigationModel BuildTopicsBrowsePageNavigationModel(int topic_count);
 // with_summarize adds a focusable Summarize button (shown only once the topic has at least one

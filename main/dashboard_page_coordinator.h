@@ -24,7 +24,7 @@ public:
     epaper_ui::DashboardPageState BuildState() const;
 
     // Number of rotation intervals elapsed since the epoch (0 before the clock is valid).
-    // The interval length is CONFIG_FOLLOWUP_WELCOME_MESSAGE_ROTATE_HOURS. Used both to pick
+    // The interval length is CONFIG_CHRONINKLE_WELCOME_MESSAGE_ROTATE_HOURS. Used both to pick
     // the current greeting and to detect when it should roll over.
     static uint32_t WelcomePeriodsSinceEpoch();
 

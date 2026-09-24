@@ -17,14 +17,14 @@ The codebase began as a port targeting the Seeed reTerminal Sticky (see the
 describe that lineage where the design rationale carried over, but **Waveshare
 is the only target this firmware builds for today**.
 
-Chroninkle was renamed from **Followup** (2026-09-13, see `docs/todo.md`'s
-"Finish the Followup -> Chroninkle rename" entry for what's left). Docs, the
-README, and the boot splash lead with the new name and logo now, but the
-GitHub repo, the `CMakeLists.txt` project name, all `CONFIG_FOLLOWUP_*`
-Kconfig symbols, and most source comments/log strings still say
-Followup/Folloup until that tracked rename lands — don't assume a doc
-mentioning "Chroninkle" means the matching code identifier has moved too;
-check the actual symbol.
+Chroninkle was renamed from **Followup** (2026-09-13). Docs, the README, the
+boot splash, the `CMakeLists.txt` project name, the `CONFIG_CHRONINKLE_*`
+Kconfig namespace, and source comments/log strings all lead with the new name
+now (see `docs/todo-archive.md` for that pass). The **GitHub repo** is the one
+piece still deliberately deferred — it's still `mach1na/folloup`, tracked in
+`docs/todo.md`. The `kFollowupLogo` asset symbol is an intentional exception:
+it's the actual original Followup wordmark, kept for the boot splash's "Based
+on" attribution line, not a stale identifier to rename.
 
 Read `docs/app-architecture.md` before changing firmware architecture,
 component boundaries, AXP2101/PMIC integration, board wiring, partition
@@ -67,7 +67,7 @@ Equivalent raw commands (target is `esp32s3`):
 idf.py build
 idf.py -p <PORT> -b 460800 flash
 idf.py monitor
-idf.py menuconfig   # project options live under "Folloup Settings"
+idf.py menuconfig   # project options live under "Chroninkle Settings"
 ```
 
 Asset regeneration (icons/logos/fonts are generated C++ compiled into
@@ -227,7 +227,7 @@ the AXP2101 holds rails across `esp_light_sleep_start()` on its own.
 ### Task/core mapping
 
 App FreeRTOS tasks use the shared table in
-`components/task_config/include/followup_task_config.h`. CPU0 = system/network
+`components/task_config/include/chroninkle_task_config.h`. CPU0 = system/network
 (Wi-Fi, timezone sync — alongside ESP-IDF's own main task/esp_timer/Wi-Fi
 driver); CPU1 = product hardware/UI (audio capture, storage, sound feedback,
 sleep-driven display transitions, PMIC IRQ servicing). Add new tasks to
@@ -267,11 +267,28 @@ and `summary_service` are separate components (not nested inside
 
 Runtime settings persist under service-owned NVS namespaces: `wifi`
 (`ssid`, `password`), `timezone` (`enabled`, `tz_name`, `location`, `time_src`,
-`ntp_sync`, `ntp_epoch`). Build-time defaults live under `Folloup Settings`
-(`idf.py menuconfig`): `CONFIG_FOLLOWUP_WIFI_*`, `CONFIG_FOLLOWUP_TIME_SYNC_DEFAULT_ENABLED`,
-`CONFIG_FOLLOWUP_DEFAULT_TIMEZONE_NAME`, `CONFIG_FOLLOWUP_GEMINI_API_KEY`,
-`CONFIG_FOLLOWUP_AUTO_SLEEP_*_TIMEOUT_SECONDS`. Saved NVS Wi-Fi credentials
+`ntp_sync`, `ntp_epoch`). Build-time defaults live under `Chroninkle Settings`
+(`idf.py menuconfig`): `CONFIG_CHRONINKLE_WIFI_*`, `CONFIG_CHRONINKLE_TIME_SYNC_DEFAULT_ENABLED`,
+`CONFIG_CHRONINKLE_DEFAULT_TIMEZONE_NAME`, `CONFIG_CHRONINKLE_GEMINI_API_KEY`,
+`CONFIG_CHRONINKLE_AUTO_SLEEP_*_TIMEOUT_SECONDS`. Saved NVS Wi-Fi credentials
 always take precedence over built-in sdkconfig credentials.
+
+**Local test builds vs. release builds**: the project-root `sdkconfig` (gitignored, tied to
+the default `build/` directory) is a personal dev config -- it's fine to hand-edit real
+Wi-Fi/Gemini values directly into its `CONFIG_CHRONINKLE_WIFI_STA_SSID`/`_PASSWORD`/
+`GEMINI_API_KEY` lines (or set them via `idf.py menuconfig`) so a test flash doesn't need
+the on-device setup portal every time. **Never carry those into a release build.** Build
+release artifacts into a separate directory with their own config path so they only ever
+trace back to the tracked `sdkconfig.defaults` (empty credential fields), e.g.:
+
+```bash
+rm -f sdkconfig.release   # force a fresh regenerate from sdkconfig.defaults, not a stale one
+idf.py -B build-release -D SDKCONFIG=sdkconfig.release set-target esp32s3
+idf.py -B build-release -D SDKCONFIG=sdkconfig.release build
+```
+
+This never touches the local dev `sdkconfig`, so there's no risk of forgetting to restore
+personal credentials afterward, and no risk of a release accidentally shipping them.
 
 ## Working conventions
 
@@ -301,7 +318,7 @@ always take precedence over built-in sdkconfig credentials.
   stack unrelated work onto an existing branch or work directly on `main`
   (the user-manual and todo-cleanup docs-only pushes are the narrow,
   explicitly-requested exception, not the default).
-- Followup uses Semantic Versioning — see `docs/versioning.md`. Every fix or
+- Chroninkle uses Semantic Versioning — see `docs/versioning.md`. Every fix or
   feature branch that changes firmware/webapp behavior bumps `version.txt`
   (MINOR for a feature, PATCH for a bug fix) and adds a `CHANGELOG.md` entry
   under `## [Unreleased]` as part of that same change.

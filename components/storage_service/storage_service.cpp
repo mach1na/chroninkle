@@ -11,7 +11,7 @@
 
 #include "esp_check.h"
 #include "esp_log.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -595,9 +595,9 @@ esp_err_t Init()
             "storage_service",
             kWorkerTaskStackWords,
             nullptr,
-            followup_task_config::kPriorityStorage,
+            chroninkle_task_config::kPriorityStorage,
             &s_worker_task,
-            followup_task_config::kAppCore);
+            chroninkle_task_config::kAppCore);
         if (created != pdPASS) {
             s_worker_task = nullptr;
             return ESP_ERR_NO_MEM;

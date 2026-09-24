@@ -1,4 +1,4 @@
-# Followup App Architecture
+# Chroninkle App Architecture
 
 This project is an ESP-IDF C++17 firmware application for the
 [Waveshare ESP32-S3-ePaper-3.97](https://docs.waveshare.com/ESP32-S3-ePaper-3.97).
@@ -239,7 +239,7 @@ edit generated asset source files. See `docs/asset-generation.md`.
 
 This header-only component owns shared product UI constants. It is intentionally
 named `design_tokens`, not e-paper design tokens, because the values describe
-the Folloup UI language rather than the SSD1677 display driver.
+the Chroninkle UI language rather than the SSD1677 display driver.
 
 Current scope:
 
@@ -784,7 +784,7 @@ inactivity timer would otherwise keep counting through the clip.
 ## Task Mapping
 
 App-owned FreeRTOS tasks use the shared mapping in
-`components/task_config/include/followup_task_config.h`. The app is optimized
+`components/task_config/include/chroninkle_task_config.h`. The app is optimized
 around a simple split:
 
 - CPU0 is the system/network side. ESP-IDF already runs the main task,
@@ -839,17 +839,17 @@ Runtime-persisted settings live in service-owned NVS namespaces:
   deliberately a separate namespace from `recording_archive_service`'s own internal
   `rec_archive`/`counts` cached-counts blob, which isn't a user setting)
 
-The build-time Wi-Fi/time defaults live under `Folloup Settings`:
+The build-time Wi-Fi/time defaults live under `Chroninkle Settings`:
 
-- `CONFIG_FOLLOWUP_WIFI_AP_PREFIX`
-- `CONFIG_FOLLOWUP_WIFI_STA_SSID`
-- `CONFIG_FOLLOWUP_WIFI_STA_PASSWORD`
-- `CONFIG_FOLLOWUP_WIFI_START_IN_AP_MODE`
-- `CONFIG_FOLLOWUP_TIME_SYNC_DEFAULT_ENABLED`
-- `CONFIG_FOLLOWUP_DEFAULT_TIMEZONE_NAME`
+- `CONFIG_CHRONINKLE_WIFI_AP_PREFIX`
+- `CONFIG_CHRONINKLE_WIFI_STA_SSID`
+- `CONFIG_CHRONINKLE_WIFI_STA_PASSWORD`
+- `CONFIG_CHRONINKLE_WIFI_START_IN_AP_MODE`
+- `CONFIG_CHRONINKLE_TIME_SYNC_DEFAULT_ENABLED`
+- `CONFIG_CHRONINKLE_DEFAULT_TIMEZONE_NAME`
 
 Saved NVS Wi-Fi credentials take precedence over built-in sdkconfig
-credentials. If neither exists, or if `CONFIG_FOLLOWUP_WIFI_START_IN_AP_MODE`
+credentials. If neither exists, or if `CONFIG_CHRONINKLE_WIFI_START_IN_AP_MODE`
 is enabled, `wifi_service` enters open AP setup mode and serves backend routes
 at the SoftAP URL, normally `http://192.168.4.1`. The backend serves both the
 JSON/form API and the setup portal frontend (embedded from
@@ -1532,11 +1532,11 @@ Configuration is file-based and should stay reproducible:
 - `sdkconfig` captures the resolved ESP-IDF configuration.
 - `partitions.csv` defines the OTA partition table.
 
-Project-specific Kconfig options live under `Folloup Settings`. Auto-sleep
+Project-specific Kconfig options live under `Chroninkle Settings`. Auto-sleep
 currently exposes reproducible build-time defaults for display sleep and light
 sleep timeout seconds; `0` disables the corresponding stage, and a nonzero light
 sleep timeout must be greater than or equal to the display sleep timeout.
-`CONFIG_FOLLOWUP_TODO_ARCHIVE_AFTER_DAYS` similarly seeds the default "archive a
+`CONFIG_CHRONINKLE_TODO_ARCHIVE_AFTER_DAYS` similarly seeds the default "archive a
 completed todo after N days" delay (`0` disables automatic archiving); unlike
 the auto-sleep timeouts, this one has a runtime NVS override (`rec_archive_cfg`
 above) that the Settings page's "Archive todos after" picker can change without

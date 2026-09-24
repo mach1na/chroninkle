@@ -7,7 +7,7 @@
 
 #include "esp_check.h"
 #include "esp_log.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "overlay_runtime.h"
@@ -27,7 +27,7 @@ struct PendingSurface {
     bool pending = false;
 };
 
-constexpr size_t kSurfaceCount = 21;
+constexpr size_t kSurfaceCount = 22;
 
 std::mutex s_mutex;
 std::array<PendingSurface, kSurfaceCount> s_pending = {};
@@ -79,6 +79,8 @@ size_t SurfaceIndex(SurfaceKey key)
             return 19;
         case SurfaceKey::kBookReaderPage:
             return 20;
+        case SurfaceKey::kSettingsAboutPage:
+            return 21;
         default:
             return 0;
     }
@@ -129,6 +131,8 @@ const char* SurfaceName(SurfaceKey key)
             return "book_list_page";
         case SurfaceKey::kBookReaderPage:
             return "book_reader_page";
+        case SurfaceKey::kSettingsAboutPage:
+            return "settings_about_page";
         default:
             return "unknown";
     }
@@ -350,9 +354,9 @@ esp_err_t Init()
                                                        "ui_refresh",
                                                        kUiRefreshTaskStackWords,
                                                        nullptr,
-                                                       followup_task_config::kPriorityUiRefresh,
+                                                       chroninkle_task_config::kPriorityUiRefresh,
                                                        &s_task,
-                                                       followup_task_config::kAppCore);
+                                                       chroninkle_task_config::kAppCore);
     if (created != pdPASS) {
         s_task = nullptr;
         return ESP_ERR_NO_MEM;

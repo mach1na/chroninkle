@@ -82,10 +82,6 @@ export function svgWithClass(svg: string, className: string): string {
   return svg.replace('<svg', `<svg class="${className}"`);
 }
 
-export function setIcon(target: HTMLElement, svg: string, className: string) {
-  target.innerHTML = svgWithClass(svg, className);
-}
-
 export function normalizeModuleId(id?: string): ModuleId | '' {
   switch (id) {
     case 'core':

@@ -15,6 +15,7 @@ enum class SurfaceKey {
     kSettingsStoragePage,
     kSettingsTodosPage,
     kSettingsTopicsPage,
+    kSettingsAboutPage,
     kWifiPage,
     kTimePage,
     kDashboardPage,

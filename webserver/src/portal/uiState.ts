@@ -75,7 +75,7 @@ export function updatePortalUiState(deps: UpdatePortalUiStateDeps) {
   dom.timezoneLocationClearBtn.disabled =
     timeConfigBusy || dom.timezoneSelect.value.trim().length === 0;
 
-  // --- Gemini API key (always available on Followup) ---
+  // --- Gemini API key (always available on Chroninkle) ---
   const geminiBusy = controllers.geminiController.isGeminiBusy();
   const geminiHasKey = controllers.geminiController.getGeminiHasKey();
   dom.geminiApiKeyInput.readOnly = geminiHasKey || geminiBusy;

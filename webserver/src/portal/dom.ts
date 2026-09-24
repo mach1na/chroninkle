@@ -16,7 +16,6 @@ function getRequiredElement<T>(id: string): T {
 }
 
 export interface PortalDom {
-  followupLogoEl: HTMLDivElement;
   // WiFi
   wifiStatusCard: NetworkStatusField;
   wifiSettingsSheet: BottomSheetField;
@@ -42,8 +41,6 @@ export interface PortalDom {
 
 export function createPortalDom(): PortalDom {
   return {
-    followupLogoEl: getRequiredElement<HTMLDivElement>('followupLogo'),
-
     wifiStatusCard: getRequiredElement<NetworkStatusField>('wifiStatusCard'),
     wifiSettingsSheet: getRequiredElement<BottomSheetField>('wifiSettingsSheet'),
     wifiSettingsCloseBtn: getRequiredElement<HTMLElement>('wifiSettingsCloseBtn'),

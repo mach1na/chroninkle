@@ -29,7 +29,7 @@
 #include "epaper_panel.h"
 #include "esp_check.h"
 #include "esp_log.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -91,6 +91,7 @@ epaper_ui::SettingsPageState s_settings_page_state = {};
 epaper_ui::SettingsStoragePageState s_settings_storage_page_state = {};
 epaper_ui::SettingsTodosPageState s_settings_todos_page_state = {};
 epaper_ui::SettingsTopicsPageState s_settings_topics_page_state = {};
+epaper_ui::SettingsAboutPageState s_settings_about_page_state = {};
 epaper_ui::WifiPageState s_wifi_page_state = {};
 epaper_ui::TimePageState s_time_page_state = {};
 epaper_ui::DashboardPageState s_dashboard_page_state = {};
@@ -120,6 +121,7 @@ struct RenderSnapshot {
     epaper_ui::SettingsStoragePageState settings_storage_page = {};
     epaper_ui::SettingsTodosPageState settings_todos_page = {};
     epaper_ui::SettingsTopicsPageState settings_topics_page = {};
+    epaper_ui::SettingsAboutPageState settings_about_page = {};
     epaper_ui::WifiPageState wifi_page = {};
     epaper_ui::TimePageState time_page = {};
     epaper_ui::DashboardPageState dashboard_page = {};
@@ -201,6 +203,7 @@ const RenderSnapshot& CaptureRenderSnapshot()
     snapshot.settings_storage_page = s_settings_storage_page_state;
     snapshot.settings_todos_page = s_settings_todos_page_state;
     snapshot.settings_topics_page = s_settings_topics_page_state;
+    snapshot.settings_about_page = s_settings_about_page_state;
     snapshot.wifi_page = s_wifi_page_state;
     snapshot.time_page = s_time_page_state;
     snapshot.dashboard_page = s_dashboard_page_state;
@@ -455,6 +458,20 @@ void DrawSettingsTopicsUnderlay(uint8_t* framebuffer, const RenderSnapshot& snap
                                       snapshot.settings_topics_page,
                                       snapshot.status_bar,
                                       snapshot.global_footer);
+}
+
+void DrawSettingsAboutUnderlay(uint8_t* framebuffer, const RenderSnapshot& snapshot)
+{
+    EpaperPanel& panel = Panel();
+    panel.Clear(true);
+    epaper_ui::DrawSettingsAboutPage(framebuffer,
+                                     WAVESHARE_EPD_WIDTH,
+                                     WAVESHARE_EPD_HEIGHT,
+                                     kPortraitWidth,
+                                     kPortraitHeight,
+                                     snapshot.settings_about_page,
+                                     snapshot.status_bar,
+                                     snapshot.global_footer);
 }
 
 void DrawWifiUnderlay(uint8_t* framebuffer, const RenderSnapshot& snapshot)
@@ -814,6 +831,25 @@ esp_err_t ApplySettingsTopics(RefreshMode refresh_mode)
     DrawCurrentOverlays(panel.framebuffer(), snapshot);
 
     s_current_screen.store(ScreenId::kSettingsTopics, std::memory_order_relaxed);
+    RefreshBusyGuard refresh_busy;
+    const esp_err_t err = RefreshForMode(panel, refresh_mode);
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    LogMetrics(panel.metrics());
+    return ESP_OK;
+}
+
+esp_err_t ApplySettingsAbout(RefreshMode refresh_mode)
+{
+    const RenderSnapshot& snapshot = CaptureRenderSnapshot();
+    EpaperPanel& panel = Panel();
+    DrawSettingsAboutUnderlay(panel.framebuffer(), snapshot);
+    CaptureUnderlaySnapshot(panel.framebuffer());
+    DrawCurrentOverlays(panel.framebuffer(), snapshot);
+
+    s_current_screen.store(ScreenId::kSettingsAbout, std::memory_order_relaxed);
     RefreshBusyGuard refresh_busy;
     const esp_err_t err = RefreshForMode(panel, refresh_mode);
     if (err != ESP_OK) {
@@ -1213,6 +1249,9 @@ esp_err_t RefreshCurrentScreenRegionLocked()
         case ScreenId::kSettingsTopics:
             DrawSettingsTopicsUnderlay(panel.framebuffer(), snapshot);
             break;
+        case ScreenId::kSettingsAbout:
+            DrawSettingsAboutUnderlay(panel.framebuffer(), snapshot);
+            break;
         case ScreenId::kWifi:
             DrawWifiUnderlay(panel.framebuffer(), snapshot);
             break;
@@ -1298,6 +1337,8 @@ esp_err_t RefreshCurrentScreenLocked(RefreshMode refresh_mode)
             return ApplySettingsTodos(refresh_mode);
         case ScreenId::kSettingsTopics:
             return ApplySettingsTopics(refresh_mode);
+        case ScreenId::kSettingsAbout:
+            return ApplySettingsAbout(refresh_mode);
         case ScreenId::kWifi:
             return ApplyWifi(refresh_mode);
         case ScreenId::kTime:
@@ -1434,6 +1475,8 @@ void DisplayTask(void*)
                 err = ApplySettingsTodos(command.refresh_request.refresh_mode);
             } else if (command.screen == ScreenId::kSettingsTopics) {
                 err = ApplySettingsTopics(command.refresh_request.refresh_mode);
+            } else if (command.screen == ScreenId::kSettingsAbout) {
+                err = ApplySettingsAbout(command.refresh_request.refresh_mode);
             } else if (command.screen == ScreenId::kTime) {
                 err = ApplyTime(command.refresh_request.refresh_mode);
             } else if (command.screen == ScreenId::kTopicsBrowse) {
@@ -1493,9 +1536,9 @@ esp_err_t StartDisplayTask()
         "display_service",
         kDisplayTaskStackWords,
         nullptr,
-        followup_task_config::kPriorityDisplay,
+        chroninkle_task_config::kPriorityDisplay,
         &s_display_task,
-        followup_task_config::kAppCore);
+        chroninkle_task_config::kAppCore);
     if (created != pdPASS) {
         s_display_task = nullptr;
         return ESP_ERR_NO_MEM;
@@ -1649,6 +1692,17 @@ esp_err_t SetSettingsTopicsPageState(const epaper_ui::SettingsTopicsPageState& s
 
     std::lock_guard<std::mutex> lock(s_state_mutex);
     s_settings_topics_page_state = state;
+    return ESP_OK;
+}
+
+esp_err_t SetSettingsAboutPageState(const epaper_ui::SettingsAboutPageState& state)
+{
+    if (!s_initialized) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    std::lock_guard<std::mutex> lock(s_state_mutex);
+    s_settings_about_page_state = state;
     return ESP_OK;
 }
 

@@ -1,6 +1,6 @@
 # Versioning
 
-Followup follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
+Chroninkle follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
 
 ## Source of truth
 

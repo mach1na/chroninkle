@@ -5,7 +5,7 @@
 #include "axp2101.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
-#include "followup_task_config.h"
+#include "chroninkle_task_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "pcf85063.h"
@@ -304,9 +304,9 @@ esp_err_t Init()
             "sensor_poll",
             kSensorPollTaskStackWords,
             nullptr,
-            followup_task_config::kPrioritySensorPoll,
+            chroninkle_task_config::kPrioritySensorPoll,
             &s_sensor_task,
-            followup_task_config::kSystemCore);
+            chroninkle_task_config::kSystemCore);
         if (created != pdPASS) {
             s_sensor_task = nullptr;
             ESP_LOGW(kTag, "Sensor poll task create failed; telemetry will be stale");

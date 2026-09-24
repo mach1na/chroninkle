@@ -1,12 +1,12 @@
-# Followup Setup Portal
+# Chroninkle Setup Portal
 
-Web UI for provisioning a Followup device over its Wi-Fi access point. The portal
+Web UI for provisioning a Chroninkle device over its Wi-Fi access point. The portal
 is built with TypeScript + Vite and **embedded into the firmware** (see
 [Build & Deploy](#build--deploy-to-firmware)) — it is served by the
 `wifi_service` component's HTTP server while the device is in AP mode.
 
 It is adapted from the byte90 captive portal, stripped down to the three things
-Followup provisions:
+Chroninkle provisions:
 
 - **Wi-Fi** — scan, connect, disconnect, and live status
 - **Gemini API key** — save / clear
@@ -20,7 +20,7 @@ The frontend is organized around:
 
 ## API Endpoints Used By The Portal
 
-These are served by the Followup firmware (`wifi_service`, `timezone_service`,
+These are served by the Chroninkle firmware (`wifi_service`, `timezone_service`,
 `gemini_service`) while the device is in access-point mode.
 
 WiFi (`wifi_service`)
@@ -55,7 +55,7 @@ npm run dev
 
 Vite serves the app at `http://localhost:5173/`. The portal makes absolute
 `/api/...` calls, so a dev server alone has no backend — point your machine at a
-Followup device's AP (or proxy `/api` to one) to exercise the flows against real
+Chroninkle device's AP (or proxy `/api` to one) to exercise the flows against real
 firmware.
 
 ## Build & Deploy To Firmware
@@ -82,7 +82,7 @@ them with the command above rather than hand-editing.
 ```text
 webserver/
   index.html              # portal markup (WiFi / Gemini / Time cards)
-  src/assets/             # inline SVGs (?raw) incl. followup_logo.svg
+  src/assets/             # inline SVGs (?raw)
   src/components/         # autonomous Web Components
   src/portal/             # feature controllers, API helpers, DOM wiring, types
   src/gradualBlur.ts
