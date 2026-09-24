@@ -5,6 +5,50 @@ list scannable. Full history — investigation notes, what was fixed, and
 on-device verification — is preserved here in original order. See
 `docs/todo.md` for what's still open.
 
+## ~~Full refreshes are too frequent / too visible~~ — resolved
+
+Craig's report (2026-09-11): full refreshes happen "rather egregiously" and
+should be reduced further. Every screen-to-screen navigation in
+`main/app_shell.cpp` always requested `display_service::RefreshMode::kFull`
+-- the slowest, most thorough waveform -- unconditionally for every page
+change, not just ghost-clearing or wake/boot recovery.
+
+**`kFast` investigated and rejected (2026-09-11).** The `RefreshMode::kFast`
+path already existed end-to-end and looked like the obvious fix, but git
+history showed it was tried before: commit `2e058a9` wired it into exactly
+these navigation paths and commit `ae15b27` reverted it less than an hour
+later -- on this panel, the fast OTP waveform "flashes like a full refresh
+but finishes grey," a known, real contrast defect. Checked Waveshare's own
+reference repo too: byte-for-byte identical fast-mode register sequence,
+same forced temperature value, and their own on-device `.txt` reader
+doesn't use fast mode for page turns either -- it uses plain partial
+refreshes, which turned out to be the actual precedent for the real fix.
+
+**Resolution (2026-09-24):** Craig's design -- every screen transition uses
+`RefreshMode::kPartial` except going to the Home screen and
+locking/shutting down, which stay `kFull`. Applied across every navigation
+call site in `main/app_shell.cpp` (~25 sites), plus `book_list_page_runtime.cpp`
+(book delete refresh), `page_input_runtime.cpp` (Wi-Fi page force-refresh),
+and `lock_screen_runtime.cpp`'s still-awake unlock path (conditional on
+whether the restore screen is Home). Left untouched, since they're not
+navigation and already correct: the mandatory boot-time first paint (no
+valid prior frame to diff against), `WakeDisplay`/`WakeDisplayToScreen`/
+`RecoverAfterLightSleep` (physical panel wake recovery, always full by
+necessity), the large-overlay-dismiss full refresh
+(`OverlayRefreshPolicy::kRebuildUnderlayFull`, a different ghosting concern),
+and the existing idle-deferred ghost-clear flush
+(`EpaperPanel::NeedsGhostingFlush`, 8-consecutive-partials trigger) -- which
+now fires considerably more often given how much more partial-refresh
+traffic there is, and is exactly the mechanism relied on to keep ghosting in
+check instead of researching `kFast` further.
+
+Verified with a clean build, a real device flash, and live use: "works
+great." The `kFast` temperature-sweep and the "manual force-full-refresh
+gesture" escape-hatch idea from the original fallback plan were both
+superseded by this simpler design and not built -- worth revisiting only if
+ghosting turns out to be a real problem in practice, which hasn't been
+observed yet.
+
 ## ~~Pin the AXP2101's 6s emergency power-off to actually power off~~ — resolved
 
 Found while investigating the (now-resolved, see below) PWR power-back-on

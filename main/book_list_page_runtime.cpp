@@ -279,7 +279,7 @@ bool DeleteConfirmedBook()
     }
     const bool deleted = text_reader_service::DeleteBook(filename);
     ResetFocus();
-    (void)UpdateDisplayStateAndRequestRefresh(display_service::RefreshMode::kFull);
+    (void)UpdateDisplayStateAndRequestRefresh(display_service::RefreshMode::kPartial);
     return deleted;
 }
 

@@ -793,7 +793,7 @@ ButtonResult ApplyWifiActivateResult(const wifi_page_interactions::ActivateResul
         result.footer_item = footer_runtime::FooterFocusItem::kTime;
     };
     callbacks.force_refresh = []() {
-        ApplyWifiPageStateUpdate(display_service::RefreshMode::kFull);
+        ApplyWifiPageStateUpdate(display_service::RefreshMode::kPartial);
     };
     callbacks.toggle_wifi = []() {
         const wifi_service::UiState state = wifi_service::GetUiState();

@@ -23,6 +23,12 @@ via `git log`, not backfilled here.
   FreeRTOS task table, remaining source comments/log strings/onboarding
   copy, the `webserver/` setup portal, and the internal docs. Only the
   GitHub repository name remains, tracked separately in `docs/todo.md`.
+- Screen navigation now uses a quick partial refresh instead of the slow,
+  flashy full-screen waveform for almost every transition. Only going to
+  the Home screen and locking/shutting down still do a full refresh; the
+  existing idle-deferred ghost-clear flush (`EpaperPanel::NeedsGhostingFlush`)
+  keeps ghosting in check automatically as partials become far more
+  frequent.
 
 ### Fixed
 
