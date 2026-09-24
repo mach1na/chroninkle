@@ -37,6 +37,53 @@ def parse_asset_spec(raw: str) -> AssetSpec:
     return AssetSpec(path=path, symbol=parts[1])
 
 
+def get_png_dimensions(asset_path: Path) -> tuple[int, int]:
+    result = subprocess.run(
+        ["sips", "-g", "pixelWidth", "-g", "pixelHeight", str(asset_path)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise AssetGenError(
+            f"failed to read dimensions of {asset_path} with sips:\n{result.stderr.strip()}"
+        )
+    width: int | None = None
+    height: int | None = None
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        if line.startswith("pixelWidth:"):
+            width = int(line.split(":", 1)[1].strip())
+        elif line.startswith("pixelHeight:"):
+            height = int(line.split(":", 1)[1].strip())
+    if width is None or height is None:
+        raise AssetGenError(f"could not determine pixel dimensions of {asset_path}")
+    return width, height
+
+
+def divisors(n: int) -> list[int]:
+    return [d for d in range(1, n + 1) if n % d == 0]
+
+
+def nearest_neighbor_upscale(
+    width: int, height: int, pixels: list[int], scale: int
+) -> tuple[int, int, list[int]]:
+    new_width = width * scale
+    new_height = height * scale
+    upscaled = [0] * (new_width * new_height)
+    for row in range(height):
+        row_start = row * width
+        for col in range(width):
+            if not pixels[row_start + col]:
+                continue
+            out_col_start = col * scale
+            for dy in range(scale):
+                out_row_start = (row * scale + dy) * new_width
+                for dx in range(scale):
+                    upscaled[out_row_start + out_col_start + dx] = 1
+    return new_width, new_height, upscaled
+
+
 def convert_png_to_bmp(
     asset_path: Path,
     temp_dir: str,
@@ -203,6 +250,34 @@ def build_bitmaps(specs: list[AssetSpec], *, fixed_size: int | None) -> list[Bit
     bitmaps: list[BitmapAsset] = []
     with tempfile.TemporaryDirectory() as temp_dir:
         for spec in specs:
+            if fixed_size is not None:
+                native_width, native_height = get_png_dimensions(spec.path)
+                if native_width < fixed_size or native_height < fixed_size:
+                    # Smaller than the target: this is a pixel-art source meant to be
+                    # scaled up. sips's own resize is a smooth resample -- fine for
+                    # downscaling, but it blurs pixel-art edges before the 1-bit
+                    # threshold crushes them. Upscale ourselves with nearest-neighbor
+                    # by an exact integer factor instead, so edges stay crisp.
+                    if native_width != native_height:
+                        raise AssetGenError(
+                            f"{spec.path}: {native_width}x{native_height} source isn't "
+                            f"square; a pixel-art source smaller than the "
+                            f"{fixed_size}x{fixed_size} target must be square"
+                        )
+                    if fixed_size % native_width != 0:
+                        valid = ", ".join(str(d) for d in divisors(fixed_size))
+                        raise AssetGenError(
+                            f"{spec.path}: {native_width}x{native_width} source doesn't "
+                            f"evenly divide the {fixed_size}x{fixed_size} target, so it "
+                            f"can't be nearest-neighbor upscaled without distortion. "
+                            f"Use one of: {valid}"
+                        )
+                    bmp_path = convert_png_to_bmp(spec.path, temp_dir, fixed_size=None)
+                    width, height, pixels = parse_bmp_pixels(bmp_path)
+                    scale = fixed_size // width
+                    width, height, pixels = nearest_neighbor_upscale(width, height, pixels, scale)
+                    bitmaps.append(pack_bitmap(width, height, pixels))
+                    continue
             bmp_path = convert_png_to_bmp(spec.path, temp_dir, fixed_size=fixed_size)
             width, height, pixels = parse_bmp_pixels(bmp_path)
             bitmaps.append(pack_bitmap(width, height, pixels))

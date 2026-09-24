@@ -23,6 +23,11 @@ Craig owns actually producing the assets (tracked in
   generated C++ in `components/project_assets` (lookup API: `GetLogo` /
   `GetIcon` / `GetFooterIcon`, see `docs/app-architecture.md`). Never
   hand-edit the generated files.
+- Pixel-art icon sources can be drawn smaller than the embedded target
+  size (e.g. 16x16 or 32x32) and the generator nearest-neighbor-upscales
+  them automatically, as long as the source size evenly divides the
+  target (see `docs/asset-generation.md`) — so Craig can design at a true
+  pixel-art grid instead of the final embed resolution.
 - Fonts: source TTFs in `fonts/*.ttf` → `scripts/generate_epaper_fonts.py`
   → `components/epaper_ui/generated_epaper_fonts.{cpp,h}`. Currently
   Inter-based.
