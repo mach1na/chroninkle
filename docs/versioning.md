@@ -16,8 +16,12 @@ does not carry an independent version and moves with the firmware version.
 
 ## When to bump
 
-The product is pre-1.0, so:
+The product reached a stable 1.0 at the 1.0.0 release (2026-09-24, the last
+release before the v2 rewrite), so strict SemVer applies:
 
+- **MAJOR** — a breaking change (a stored-data format change that isn't
+  migrated, a removed setting, etc). The planned v2 front-end rewrite is
+  expected to be exactly this.
 - **MINOR** — a new or changed user-facing feature/behavior (new screen,
   changed gesture, new setting, etc).
 - **PATCH** — a bug fix, or an internal/refactor change with no user-visible
@@ -25,9 +29,9 @@ The product is pre-1.0, so:
 - **No bump** — docs-only changes, comments, CI/tooling that doesn't affect
   the built firmware.
 
-Once the product reaches a stable 1.0, switch to strict SemVer: breaking
-changes (a stored-data format change that isn't migrated, a removed setting,
-etc.) bump MAJOR.
+Before 1.0.0, MAJOR was never bumped (0.x releases used MINOR/PATCH only,
+pre-1.0 SemVer convention) — see `git log`/`CHANGELOG.md` history prior to
+1.0.0 with that in mind.
 
 ## Workflow
 

@@ -8,6 +8,13 @@ via `git log`, not backfilled here.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-24
+
+This is the last planned release before v2, a complete front-end rewrite
+(dropping the current text-driven copy for a graphical, icon-based
+interface — see `docs/todo.md`). 1.0 marks this as the stable baseline the
+v1 UI settles on before that rewrite starts.
+
 ### Added
 
 - A new **About** page under Settings, showing the installed firmware
