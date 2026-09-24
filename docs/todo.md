@@ -262,11 +262,12 @@ implementation item yet. Open questions for whoever picks up the planning:
   line) — given `docs/versioning.md`'s SemVer policy, a rewrite this broad
   likely means a MAJOR bump and probably its own long-lived branch rather
   than a single feature branch.
-- How this interacts with the still-open Followup -> Chroninkle rename above
-  — worth sequencing so the rewrite doesn't have to touch both naming and
-  visual design churn at once.
+- The Followup -> Chroninkle rename (naming, Kconfig namespace, GitHub repo)
+  is fully done now (see `docs/todo-archive.md`), so this rewrite doesn't
+  have to sequence around it or touch naming and visual design churn at
+  the same time.
 
-## Change the boot-up sound
+## v2: change the boot-up sound
 
 Craig wants a new startup sound cue to go with the Chroninkle rebrand
 (2026-09-13) — he'll make/source the audio himself later.
