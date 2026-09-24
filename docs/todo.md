@@ -207,53 +207,6 @@ Open questions for whoever designs this:
 
 Own branch/PR.
 
-## Finish the Followup -> Chroninkle rename: GitHub repo
-
-Craig decided (2026-09-13) to rename the project from Followup to
-**Chroninkle**. The in-repo pass landed 2026-09-24 (own branch,
-`rename-followup-to-chroninkle`): `CMakeLists.txt` project name
-(`folloup_sticky` -> `chroninkle`), the Kconfig namespace (`CONFIG_FOLLOWUP_*`
--> `CONFIG_CHRONINKLE_*` in `main/Kconfig.projbuild`/`sdkconfig.defaults`/
-every reading `.cpp`, including the Wi-Fi AP prefix default which now
-broadcasts `Chroninkle-XXXXXX`), the `followup_task_config` namespace/header
-(-> `chroninkle_task_config.h`), remaining source comments/log strings/
-onboarding copy, the `webserver/` setup portal (title, copy, `package.json`
-name, a logo-asset cleanup -- see note below), and the internal docs
-(`app-architecture.md`, `gemini-service.md`, `auto-sleep.md`,
-`versioning.md`, `user-manual.md`, `CLAUDE.md`, `AGENTS.md`). Build/flash not
-yet verified on this branch -- do that before merging, since the Kconfig
-rename invalidates anyone's local `sdkconfig` cache (a `reconfigure` picks up
-the new symbol names and defaults automatically, but it's worth confirming on
-real hardware).
-
-The `kFollowupLogo` asset symbol and its `assets/logos/folloup-logo.png`
-source were deliberately kept, not renamed -- that's the actual original
-Followup wordmark, shown on the boot splash's "Based on" attribution line
-alongside the ALXV Labs logo. Likewise a few doc mentions of "Followup"/
-"Folloup" are intentional upstream/historical references (e.g.
-`gemini-service.md`'s "Deferred Followup Features", `app-architecture.md`'s
-"Not yet ported from Folloup") describing the original upstream project this
-was forked from, not this codebase's old name -- those correctly stay as-is.
-
-Note: the `webserver/` setup portal previously showed an inline vector
-Followup wordmark (`src/assets/followup_logo.svg`, using `currentColor` for
-light/dark theming). No equivalent Chroninkle vector logo exists yet -- only
-a raster `assets/logos/chroninkle-logo.png` (used by the firmware splash and
-`README.md`), which can't reuse the `currentColor` theming trick and isn't a
-transcription of the old wordmark's path data. Rather than fabricate a vector
-logo or use a wrongly-themed raster one, the portal now shows a plain text
-"Chroninkle" wordmark (`.brand-logo` in `portal.css`) as a placeholder. A
-real vector Chroninkle wordmark (matching the on-device brand) would be a
-nice follow-up, own branch.
-
-Only remaining piece of the original rename, deliberately deferred until the
-above is verified stable:
-
-- **GitHub repo**: `mach1na/folloup` -> a new name (`chroninkle`?). Update
-  the repo description too (`"A Folloup port for SeeedStudio's Sticky"` is
-  already stale -- Sticky isn't even the current target). Repoint the local
-  `origin` remote explicitly rather than relying on GitHub's redirect.
-
 ## v2: visible notification when a queued transcription retry gives up
 
 Found during live field testing (2026-09-24): a recording that's queued for
