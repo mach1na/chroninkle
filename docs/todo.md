@@ -132,30 +132,19 @@ only clear `pending_transcription` on the latter, keeping transient
 failures queued for the next reconnect) is its own decision, not yet made;
 raised in conversation the same day but intentionally not resolved here.
 
-## v2: complete front-end rewrite (drop optimistic phrases, go icon-based)
+## v2: graphical/icon-based rewrite
 
-Craig wants to start planning a v2 (2026-09-24): a complete rewrite of the
-on-device UI, moving away from the current text/"optimistic phrase"-driven
-copy (status lines, prompts, empty-states written as encouraging sentences)
-toward a more graphical, icon-based interface.
+Craig is planning Chroninkle v2 (2026-09-24): a graphical, icon-based
+rework of the on-device UI, moving away from the current text/"optimistic
+phrase" copy, with a new pixel-art logo/icon set and font (Craig's own
+deliverables) and reworked navigation/screens.
 
-Unscoped so far — this is a placeholder for design/planning work, not an
-implementation item yet. Open questions for whoever picks up the planning:
-- What "optimistic phrases" means concretely — an audit of current
-  user-facing copy across `epaper_ui` page renderers (status bar, toast,
-  empty-states, footer hints) to catalog what gets replaced.
-- What the icon-based replacement looks like per screen (Home, Notes/Todos/
-  FollowUp, Topics, Settings, onboarding) — likely needs new assets via
-  `components/project_assets` / `scripts/generate_epaper_project_assets.py`.
-- Whether this is a redesign of the existing screen/widget set in place, or
-  a genuine v2 (new `epaper_ui` widgets, possibly a new versioned branch
-  line) — given `docs/versioning.md`'s SemVer policy, a rewrite this broad
-  likely means a MAJOR bump and probably its own long-lived branch rather
-  than a single feature branch.
-- The Followup -> Chroninkle rename (naming, Kconfig namespace, GitHub repo)
-  is fully done now (see `docs/todo-archive.md`), so this rewrite doesn't
-  have to sequence around it or touch naming and visual design churn at
-  the same time.
+This is now planned spec-driven — see `docs/specs/v2/README.md` for the
+full scope, per-feature-area specs, and status. Implementation happens on
+the long-lived `v2-dev` branch (cut from `main`), not directly on `main` or
+as a single feature branch; individual specs each get their own branch off
+`v2-dev` once `Ready`. This is a MAJOR version bump per `docs/versioning.md`
+once `v2-dev` merges back into `main`.
 
 ## v2: change the boot-up sound
 
