@@ -318,6 +318,13 @@ personal credentials afterward, and no risk of a release accidentally shipping t
   stack unrelated work onto an existing branch or work directly on `main`
   (the user-manual and todo-cleanup docs-only pushes are the narrow,
   explicitly-requested exception, not the default).
+- V2 work (see `docs/specs/v2/`) branches off `v2-dev`, not `main`, and
+  merges back into `v2-dev`, not `main` — `v2-dev` is a long-lived
+  integration branch so v1 (`main`) stays independently shippable while V2
+  is in progress. The per-item-own-branch rule above still applies on top
+  of this: don't stack multiple spec implementations onto `v2-dev` directly
+  either. `v2-dev` merges into `main` as the `2.0.0` release once V2 is
+  feature-complete.
 - Chroninkle uses Semantic Versioning — see `docs/versioning.md`. Every fix or
   feature branch that changes firmware/webapp behavior bumps `version.txt`
   (MINOR for a feature, PATCH for a bug fix) and adds a `CHANGELOG.md` entry
