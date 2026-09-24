@@ -254,6 +254,30 @@ Do the Kconfig/CMake/source-comment pass as its own branch with a full
 build+flash verification before merging, since it touches identifiers other
 code and anyone's saved `sdkconfig` depend on.
 
+## v2: complete front-end rewrite (drop optimistic phrases, go icon-based)
+
+Craig wants to start planning a v2 (2026-09-24): a complete rewrite of the
+on-device UI, moving away from the current text/"optimistic phrase"-driven
+copy (status lines, prompts, empty-states written as encouraging sentences)
+toward a more graphical, icon-based interface.
+
+Unscoped so far — this is a placeholder for design/planning work, not an
+implementation item yet. Open questions for whoever picks up the planning:
+- What "optimistic phrases" means concretely — an audit of current
+  user-facing copy across `epaper_ui` page renderers (status bar, toast,
+  empty-states, footer hints) to catalog what gets replaced.
+- What the icon-based replacement looks like per screen (Home, Notes/Todos/
+  FollowUp, Topics, Settings, onboarding) — likely needs new assets via
+  `components/project_assets` / `scripts/generate_epaper_project_assets.py`.
+- Whether this is a redesign of the existing screen/widget set in place, or
+  a genuine v2 (new `epaper_ui` widgets, possibly a new versioned branch
+  line) — given `docs/versioning.md`'s SemVer policy, a rewrite this broad
+  likely means a MAJOR bump and probably its own long-lived branch rather
+  than a single feature branch.
+- How this interacts with the still-open Followup -> Chroninkle rename above
+  — worth sequencing so the rewrite doesn't have to touch both naming and
+  visual design churn at once.
+
 ## Change the boot-up sound
 
 Craig wants a new startup sound cue to go with the Chroninkle rebrand
