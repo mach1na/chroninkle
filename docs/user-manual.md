@@ -125,24 +125,22 @@ the status bar shows how many are waiting.
 
 ## The Home screen
 
-Home is Chroninkle's dashboard. Near the top you'll see:
-
-- A **task tracker** — "`done`/`total` completed" with a progress bar, or
-  "No tasks yet" if you haven't tagged anything as a Task.
-- Today's date and a rotating welcome message.
-
-Below that is the main menu, in this order:
+Home is Chroninkle's dashboard: today's date at the top, then a grid of
+six icons, three per row, each with a caption underneath. The selected icon
+is shown inverted (white on black). In order:
 
 - **Follow up** — anything you've flagged for later, regardless of what
-  it's tagged as (badge shows how many).
+  it's tagged as (a small badge on the icon shows how many).
 - **Todos** (badge shows how many) — your Task recordings.
 - **Notes** (badge shows how many) — your Note and Idea recordings.
 - **Topics** — browse everything tagged with a given [topic](#topics),
   including Gemini-generated summaries.
 - **Books** — browse and read `.txt` files from the device's [Books
   folder](#books).
+- **Settings** — Wi-Fi, time, storage and the other [settings](#settings).
 
-Move between them by tilting the rocker and pressing it in to **Select**.
+Move between them by tilting the rocker (it steps left to right, then down
+to the next row) and pressing it in to **Select**.
 
 ## Notes, Todos, and Follow-up
 

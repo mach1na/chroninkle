@@ -60,6 +60,16 @@ CATEGORIES = [
         fixed_size=44,
     ),
     AssetCategory(
+        manifest_key="home_icons",
+        enum_name="EmbeddedHomeIconId",
+        getter_name="GetHomeIcon",
+        namespace="epaper_home_icons",
+        header_name="generated_epaper_home_icons.h",
+        source_name="generated_epaper_home_icons.cpp",
+        guard="GENERATED_EPAPER_HOME_ICONS_H",
+        fixed_size=96,
+    ),
+    AssetCategory(
         manifest_key="images",
         enum_name="EmbeddedImageId",
         getter_name="GetImage",

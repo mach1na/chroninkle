@@ -75,6 +75,15 @@ enum class EmbeddedIconId : uint8_t {
 enum class EmbeddedFooterIconId : uint8_t {
 };
 
+enum class EmbeddedHomeIconId : uint8_t {
+    kTodos,
+    kNotes,
+    kTopics,
+    kBooks,
+    kFollowUp,
+    kSettings,
+};
+
 enum class EmbeddedImageId : uint8_t {
     kSlide1,
     kSlide2,

@@ -31,7 +31,6 @@ void AddFooterItems(NavigationModel& model, bool is_home_screen)
         // FooterLayoutForScreen's show_wifi/show_time now being permanently false. Leaving them
         // in would have been exactly the bug this function's own comment above warns about:
         // roving focus landing on an icon the user can't see.
-        AddItem(model, NavigationItemSection::kFooter, NavigationItemRole::kFooterSettings, 1);
         AddItem(model, NavigationItemSection::kFooter, NavigationItemRole::kFooterSticky, 4);
     } else {
         AddItem(model, NavigationItemSection::kFooter, NavigationItemRole::kFooterHome, 0);
@@ -223,7 +222,7 @@ NavigationModel BuildDashboardPageNavigationModel()
     model.scope = NavigationScope::kDashboard;
 
     // Must match epaper_ui::kDashboardMenuItemCount (dashboard_page.h).
-    for (int index = 0; index < 5; ++index) {
+    for (int index = 0; index < 6; ++index) {
         AddItem(model, NavigationItemSection::kDashboardPageMenu,
                 NavigationItemRole::kDashboardMenuItem, index);
     }

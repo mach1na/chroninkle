@@ -23,11 +23,6 @@ public:
 
     epaper_ui::DashboardPageState BuildState() const;
 
-    // Number of rotation intervals elapsed since the epoch (0 before the clock is valid).
-    // The interval length is CONFIG_CHRONINKLE_WELCOME_MESSAGE_ROTATE_HOURS. Used both to pick
-    // the current greeting and to detect when it should roll over.
-    static uint32_t WelcomePeriodsSinceEpoch();
-
     const page_navigation::NavigationModel& navigation_model() const { return navigation_model_; }
     const page_navigation::RovingFocus& focus() const { return focus_; }
 
@@ -36,10 +31,6 @@ private:
         page_navigation::BuildDashboardPageNavigationModel();
     page_navigation::RovingFocus focus_{navigation_model_.item_count, 0};
     recording_archive_service::Snapshot archive_ = {};
-    // Random welcome-message phase, chosen once per boot; the day count is added on top so
-    // the greeting also rotates daily (see BuildState).
-    uint32_t welcome_seed_ = 0;
-    bool welcome_seeded_ = false;
 };
 
 #endif  // DASHBOARD_PAGE_COORDINATOR_H_

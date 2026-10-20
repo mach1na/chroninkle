@@ -19,8 +19,6 @@ constexpr const char* kTag = "DashboardPageRuntime";
 std::mutex s_mutex;
 DashboardPageCoordinator s_coordinator = {};
 int32_t s_interaction_generation = 1;
-uint32_t s_last_welcome_period = 0;
-bool s_welcome_period_valid = false;
 MenuItemHandler s_menu_item_handler = nullptr;
 void* s_menu_item_context = nullptr;
 
@@ -197,9 +195,6 @@ esp_err_t SyncFromService(bool request_refresh_if_active)
     {
         std::lock_guard<std::mutex> lock(s_mutex);
         s_coordinator.RefreshFromArchive(recording_archive_service::GetSnapshot());
-        // Re-baseline the rotation so RefreshWelcomeIfRotated only fires on later rollovers.
-        s_last_welcome_period = DashboardPageCoordinator::WelcomePeriodsSinceEpoch();
-        s_welcome_period_valid = true;
     }
     const esp_err_t err =
         request_refresh_if_active
@@ -209,20 +204,6 @@ esp_err_t SyncFromService(bool request_refresh_if_active)
         ESP_LOGW(kTag, "Dashboard sync failed: %s", esp_err_to_name(err));
     }
     return err;
-}
-
-esp_err_t RefreshWelcomeIfRotated()
-{
-    const uint32_t period = DashboardPageCoordinator::WelcomePeriodsSinceEpoch();
-    {
-        std::lock_guard<std::mutex> lock(s_mutex);
-        if (s_welcome_period_valid && period == s_last_welcome_period) {
-            return ESP_OK;  // still in the same interval; nothing to repaint
-        }
-        s_last_welcome_period = period;
-        s_welcome_period_valid = true;
-    }
-    return UpdateDisplayStateAndRequestRefresh(display_service::RefreshMode::kPartial);
 }
 
 void SetMenuItemHandler(MenuItemHandler handler, void* context)

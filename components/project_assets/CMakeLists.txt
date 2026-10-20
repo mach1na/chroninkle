@@ -1,6 +1,7 @@
 idf_component_register(
     SRCS
         "generated_epaper_footer_icons.cpp"
+        "generated_epaper_home_icons.cpp"
         "generated_epaper_icons.cpp"
         "generated_epaper_images.cpp"
         "generated_epaper_logos.cpp"

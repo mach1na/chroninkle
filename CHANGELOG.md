@@ -8,6 +8,19 @@ via `git log`, not backfilled here.
 
 ## [Unreleased]
 
+### Changed
+
+- V2: the Home screen is now a 3-column grid of pixel-art icons with
+  captions (Follow up, Todos, Notes, Topics, Books, Settings) instead of a
+  text menu. Settings moved from the footer into the grid.
+- V2: all small UI icons were replaced with Pixelarticons (MIT) glyphs.
+
+### Removed
+
+- V2: the rotating welcome message, the Home task-tracker bar and the
+  first-capture banner, and the `CHRONINKLE_WELCOME_MESSAGE_ROTATE_HOURS`
+  setting.
+
 ## [1.0.0] - 2026-09-24
 
 This is the last planned release before v2, a complete front-end rewrite
