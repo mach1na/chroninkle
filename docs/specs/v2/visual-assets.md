@@ -55,6 +55,24 @@ Craig owns actually producing the assets (tracked in
 
 TBD — will firm up as `design/v2-resource-manifest.md` items land.
 
+**Icon source (2026-10-20):** [Pixelarticons](https://pixelarticons.com)
+2.4.2 (MIT, 24x24 pixel grid, SVG). Only the icons in use are tracked under
+`assets/V2/pixelarticons/` (with its `LICENSE`); the full set lives locally,
+gitignored, in `assets/V2/pixelarticons-library/` for future picks. 24px divides 96px at an exact
+4x, so the pipeline's pixel-art auto-upscale applies (it does *not* divide
+112px). Home menu picks:
+
+| Home item | Icon |
+| --- | --- |
+| Todos | `bulletlist-sharp` |
+| Notes | `notebook` |
+| Topics | `album` |
+| Books | `book-open` |
+| Follow Up | `circle-question` |
+
+All five convert cleanly to 96x96 1-bit through the generator. Still to
+decide: whether to keep the mix of sharp and regular corner styles.
+
 ## Open Questions
 
 - Does the new pixel-art logo replace `kFollowupLogo`'s boot-splash role,

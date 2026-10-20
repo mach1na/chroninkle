@@ -69,6 +69,10 @@ reverses. This matches how the single-column list traverses today, just
 wrapping every 3 cells instead of every 1 — no new button/gesture needed,
 this board only has `UP`/`DOWN` for roving focus (no left/right).
 
+**Icons:** Pixelarticons picks per menu item are recorded in
+[visual-assets.md](visual-assets.md); their 24px grid favors the 96px/32px
+option.
+
 ## Open Questions
 
 - Does `components/epaper_ui/welcome_message.cpp` get deleted outright, or
