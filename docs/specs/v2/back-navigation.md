@@ -1,6 +1,6 @@
 # Back navigation
 
-**Status:** Draft
+**Status:** Ready
 
 ## Summary
 
@@ -42,28 +42,68 @@ consistent back gesture that always works.
 - Changing the entered-control exit behavior *within* a screen, unless that
   turns out to be the same mechanism as screen-level back.
 
+## Decisions
+
+1. **Full stack** of previously active screens (not just "last screen").
+2. **Entered controls first:** a back tap still exits an entered list /
+   scroll container / reader before it navigates. Only when nothing is
+   entered does it go back a screen.
+3. **Overlays first:** keyboard, select modal, toast and sticky overlay
+   keep their own dismiss handling; back only navigates when no overlay
+   captured the tap.
+4. **Replaces the footer Home icon:** the per-screen footer Home icon is
+   removed; back is the way out.
+
 ## Proposed Design
 
-TBD — needs design conversation. This is a real architectural change (a
-navigation-history concept doesn't exist today), not a copy/asset change.
-Needs to define: how deep does the history go (one level back, or a full
-stack)? Does entering/exiting a list still consume a back-press first, or
-does back always jump a full screen now? How does this interact with
-overlays (keyboard/toast/modals), which already have their own dismiss
-handling?
+**History stack.** A small fixed-size stack (16 entries, oldest dropped when
+full) of screen entries. An entry is a `ScreenId`, plus the recording id and
+source page when the screen is Details (the only screen whose state isn't
+retained by its runtime).
+
+**Recording history.** Every screen change goes through one app_shell
+helper in place of calling `display_service::SetCurrentScreen` directly:
+
+- Navigating to a screen that is already on the stack truncates the stack
+  to just below that entry and does not push the current screen. This is
+  what makes a back, and any existing hard-coded "Back" button, collapse
+  history instead of growing it (Settings -> Storage -> Back to Settings
+  leaves the stack unchanged).
+- Otherwise the screen being left is pushed.
+- Home clears the stack (it is the root).
+- Onboarding and the lock screen are never pushed and never targets.
+
+**Back gesture.** `button_service::IsBackGesture` (quick `ACTION` tap). In
+`HandleDispatchedButtonEvent`, if overlay focus and the page handler did not
+consume the tap, it pops the top entry and shows that screen. On Home, or
+with an empty stack, it does nothing. It is ignored while a recording
+session is not idle, so tapping during record/review can't navigate.
+Press-and-hold `ACTION` (record) and long-press `DOWN` (scroll) are
+unchanged.
+
+**Footer.** Remove the Home footer icon from every screen's layout and
+navigation model. Mic stays; Home keeps Sticky until
+[stickies-deprecation.md](stickies-deprecation.md) lands.
+
+**Rollout.** Step 1: history + back gesture (additive). Step 2: remove the
+footer Home icon once back is verified on the device.
 
 ## Open Questions
 
-- Single-level "last screen" vs. a real navigation stack?
-- Interaction with overlay input capture (`overlay_runtime::
-  IsInputCaptured()`) — overlays already suppress underlay refresh; does
-  back-while-overlay-open dismiss the overlay first, or is that unchanged?
-- Does this replace the footer's per-screen Home icon (see
-  [footer-redesign.md](footer-redesign.md)), or coexist with it?
+None blocking.
 
 ## Acceptance Criteria
 
-TBD — needs design conversation.
+- From Home, opening Notes -> a day -> a recording's Details, then tapping
+  back repeatedly returns Details -> day list -> Notes -> Home, one step
+  per tap, and does nothing on Home.
+- With an item list or reader entered, the first back tap exits it and the
+  second navigates.
+- With a keyboard or select modal open, back dismisses it and stays on the
+  screen.
+- Back during recording, review playback or the tag menu does not navigate.
+- Settings sub-pages return to the Settings hub and then Home.
+- No footer Home icon appears on any screen after step 2.
 
 ## Related
 
