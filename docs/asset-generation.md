@@ -92,11 +92,11 @@ automatically**, nearest-neighbor, by `build_bitmaps` in
 `generate_epaper_assets_common.py` — this keeps pixel-art edges crisp
 instead of letting `sips`'s smooth resize blur them before the 1-bit
 threshold. This only kicks in when the source is smaller than the target and square.
-The source is scaled by the largest exact integer factor that fits, and if
-that doesn't fill the target (e.g. a 24x24 source into the 36x36 icon slot is
-1x) the result is centred on a blank canvas instead of being resampled, so
-the pixel grid is never blurred. Pixel-art sources are SVG or PNG; SVG
-sources must render to a whole number of pixels. A source at or above the target size still goes through the original
+Each output pixel copies the source pixel it falls inside, so edges stay
+hard. Integer factors (24px into 96px is 4x) are exact; fractional ones
+(24px into the 36px icon slot is 1.5x) are clean for art drawn on a 2px grid
+like Pixelarticons (every 2px stroke becomes 3px) but make 1px details uneven.
+SVG sources must render to a whole number of pixels. A source at or above the target size still goes through the original
 `sips`-based resize path unchanged.
 
 To add a new icon:

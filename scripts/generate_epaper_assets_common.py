@@ -73,41 +73,18 @@ def get_png_dimensions(asset_path: Path) -> tuple[int, int]:
     return width, height
 
 
-def divisors(n: int) -> list[int]:
-    return [d for d in range(1, n + 1) if n % d == 0]
-
-
-def nearest_neighbor_upscale(
-    width: int, height: int, pixels: list[int], scale: int
-) -> tuple[int, int, list[int]]:
-    new_width = width * scale
-    new_height = height * scale
-    upscaled = [0] * (new_width * new_height)
-    for row in range(height):
-        row_start = row * width
-        for col in range(width):
-            if not pixels[row_start + col]:
-                continue
-            out_col_start = col * scale
-            for dy in range(scale):
-                out_row_start = (row * scale + dy) * new_width
-                for dx in range(scale):
-                    upscaled[out_row_start + out_col_start + dx] = 1
-    return new_width, new_height, upscaled
-
-
-def center_on_canvas(
+def nearest_neighbor_resize(
     width: int, height: int, pixels: list[int], size: int
 ) -> tuple[int, int, list[int]]:
-    if width == size and height == size:
-        return width, height, pixels
-    canvas = [0] * (size * size)
-    left = (size - width) // 2
-    top = (size - height) // 2
-    for row in range(height):
-        start = (top + row) * size + left
-        canvas[start:start + width] = pixels[row * width:(row + 1) * width]
-    return size, size, canvas
+    # Each output pixel samples the source pixel it falls inside. Exact for
+    # integer factors; for a fractional factor (24px -> 36px is 1.5x) pixel-art
+    # drawn on a 2px grid, like Pixelarticons, still lands cleanly (2px -> 3px).
+    out = [0] * (size * size)
+    for row in range(size):
+        src_row = row * height // size
+        for col in range(size):
+            out[row * size + col] = pixels[src_row * width + col * width // size]
+    return size, size, out
 
 
 def convert_png_to_bmp(
@@ -292,12 +269,7 @@ def build_bitmaps(specs: list[AssetSpec], *, fixed_size: int | None) -> list[Bit
                         )
                     bmp_path = convert_png_to_bmp(spec.path, temp_dir, fixed_size=None)
                     width, height, pixels = parse_bmp_pixels(bmp_path)
-                    # Largest exact integer factor that fits; when it doesn't fill the
-                    # target (e.g. 24px into 36px is 1x), centre the result on a blank
-                    # canvas rather than resampling, so the pixel grid stays intact.
-                    scale = fixed_size // width
-                    width, height, pixels = nearest_neighbor_upscale(width, height, pixels, scale)
-                    width, height, pixels = center_on_canvas(width, height, pixels, fixed_size)
+                    width, height, pixels = nearest_neighbor_resize(width, height, pixels, fixed_size)
                     bitmaps.append(pack_bitmap(width, height, pixels))
                     continue
             bmp_path = convert_png_to_bmp(spec.path, temp_dir, fixed_size=fixed_size)
