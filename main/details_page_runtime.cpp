@@ -275,6 +275,12 @@ DetailsPageSource SourcePage()
     return s_coordinator.source_page();
 }
 
+std::string CurrentRecordingId()
+{
+    std::lock_guard<std::mutex> lock(s_mutex);
+    return s_coordinator.recording_id();
+}
+
 void RequestBack()
 {
     s_pending_back.store(true, std::memory_order_relaxed);

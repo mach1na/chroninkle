@@ -37,7 +37,7 @@ independently in the meantime.
 | [Visual assets (logo, icons, font)](visual-assets.md) | Draft |
 | [Notes/Todos format](notes-todos-format.md) | Draft |
 | [Footer redesign](footer-redesign.md) | Draft |
-| [Back navigation](back-navigation.md) | Draft |
+| [Back navigation](back-navigation.md) | Done |
 | [FollowUp rework](followup-rework.md) | Draft |
 | [Stickies deprecation](stickies-deprecation.md) | Draft |
 | [Topics flow](topics-flow.md) | Draft |

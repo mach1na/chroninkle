@@ -34,6 +34,9 @@ esp_err_t SyncFromArchive(bool request_refresh_if_active);
 // The page that opened Details, so the Back button can return to it.
 DetailsPageSource SourcePage();
 
+// The recording currently shown (empty before the first QueueShow).
+std::string CurrentRecordingId();
+
 // Back navigation is deferred so it happens after input dispatch returns (avoids changing screens
 // mid-dispatch). The Back activation calls RequestBack(); app_shell polls ConsumePendingBack().
 void RequestBack();

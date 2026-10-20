@@ -39,6 +39,7 @@
 #include "recording_session_service.h"
 #include "recording_service.h"
 #include "sdkconfig.h"
+#include "screen_history.h"
 #include "settings_page_runtime.h"
 #include "settings_about_page_runtime.h"
 #include "settings_storage_page_runtime.h"
@@ -171,13 +172,12 @@ footer_runtime::LayoutState FooterLayoutForScreen(display_service::ScreenId scre
 {
     footer_runtime::LayoutState layout = {};
     layout.visible = true;
-    // Context-dependent, not a fixed set: on Home there's no point showing a "go Home" icon, so
-    // it shows everything else instead; everywhere else, Settings/Sticky aren't needed mid-task
-    // and just get in the way of the one icon that matters -- the way back to Home. Mic
-    // (press-and-hold-to-record) stays visible everywhere either way, since it's the core action
-    // and was never part of this visibility split. Each page's NavigationModel mirrors this same
-    // split (see AddFooterItems in components/page_navigation/navigation_model.cpp) so roving
-    // focus can't land on an icon the user can't see.
+    // Context-dependent: only Home shows an extra footer icon (Sticky); every other screen shows
+    // just Mic (press-and-hold-to-record), which stays visible everywhere since it's the core
+    // action. There is no Home icon anywhere -- the universal back gesture (GoBack) replaces it.
+    // Each page's NavigationModel mirrors this (see AddFooterItems in
+    // components/page_navigation/navigation_model.cpp) so roving focus can't land on an icon
+    // the user can't see.
     //
     // WiFi and Time no longer have footer icons of their own -- they're reached from the
     // Settings hub instead, so show_wifi/show_time are permanently false now. Each page's own
@@ -190,7 +190,7 @@ footer_runtime::LayoutState FooterLayoutForScreen(display_service::ScreenId scre
     layout.show_wifi = false;
     layout.show_time = false;
     layout.show_sticky = is_home;
-    layout.show_home = !is_home;
+    layout.show_home = false;  // the universal back gesture replaces the footer Home icon
     layout.show_mic = true;
     return layout;
 }
@@ -219,6 +219,34 @@ esp_err_t SyncWifiPageState(bool request_refresh_if_active)
     return err;
 }
 
+// Back navigation: every screen change goes through SetScreen() so screen_history sees it. The
+// current screen is tracked here (rather than read from display_service) because the display
+// command is asynchronous.
+std::atomic<display_service::ScreenId> s_nav_current{display_service::ScreenId::kHome};
+
+screen_history::Entry CurrentHistoryEntry()
+{
+    screen_history::Entry entry = {};
+    entry.screen = s_nav_current.load(std::memory_order_relaxed);
+    if (entry.screen == display_service::ScreenId::kDetails) {
+        entry.recording_id = details_page_runtime::CurrentRecordingId();
+        entry.details_source = static_cast<int>(details_page_runtime::SourcePage());
+    }
+    return entry;
+}
+
+esp_err_t SetScreen(display_service::ScreenId target,
+                    display_service::RefreshMode refresh_mode,
+                    const char* source)
+{
+    const esp_err_t err = display_service::SetCurrentScreen(target, refresh_mode, source);
+    if (err == ESP_OK) {
+        screen_history::OnNavigate(CurrentHistoryEntry(), target);
+        s_nav_current.store(target, std::memory_order_relaxed);
+    }
+    return err;
+}
+
 esp_err_t ShowHomeScreen(display_service::RefreshMode refresh_mode)
 {
     SyncStatusBarState("show_home_screen");
@@ -242,7 +270,7 @@ esp_err_t ShowHomeScreen(display_service::RefreshMode refresh_mode)
     if (!s_archive_reconcile_started.exchange(true)) {
         recording_archive_service::RefreshAsync();
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kHome, refresh_mode,
+    return SetScreen(display_service::ScreenId::kHome, refresh_mode,
                                              "show_home_screen");
 }
 
@@ -263,7 +291,7 @@ esp_err_t ShowSettingsScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Settings page sync before show failed: %s",
                  esp_err_to_name(settings_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kSettings, refresh_mode,
+    return SetScreen(display_service::ScreenId::kSettings, refresh_mode,
                                              "show_settings_screen");
 }
 
@@ -285,7 +313,7 @@ esp_err_t ShowSettingsStorageScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Settings storage page sync before show failed: %s",
                  esp_err_to_name(storage_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kSettingsStorage,
+    return SetScreen(display_service::ScreenId::kSettingsStorage,
                                              refresh_mode, "show_settings_storage_screen");
 }
 
@@ -307,7 +335,7 @@ esp_err_t ShowSettingsTodosScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Settings todos page sync before show failed: %s",
                  esp_err_to_name(todos_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kSettingsTodos,
+    return SetScreen(display_service::ScreenId::kSettingsTodos,
                                              refresh_mode, "show_settings_todos_screen");
 }
 
@@ -329,7 +357,7 @@ esp_err_t ShowSettingsTopicsScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Settings topics page sync before show failed: %s",
                  esp_err_to_name(topics_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kSettingsTopics,
+    return SetScreen(display_service::ScreenId::kSettingsTopics,
                                              refresh_mode, "show_settings_topics_screen");
 }
 
@@ -351,7 +379,7 @@ esp_err_t ShowSettingsAboutScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Settings about page sync before show failed: %s",
                  esp_err_to_name(about_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kSettingsAbout,
+    return SetScreen(display_service::ScreenId::kSettingsAbout,
                                              refresh_mode, "show_settings_about_screen");
 }
 
@@ -408,7 +436,7 @@ esp_err_t ShowTopicsBrowseScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Topics browse page sync before show failed: %s",
                  esp_err_to_name(topics_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kTopicsBrowse,
+    return SetScreen(display_service::ScreenId::kTopicsBrowse,
                                              refresh_mode, "show_topics_browse_screen");
 }
 
@@ -432,7 +460,7 @@ esp_err_t ShowTopicEntriesScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Footer sync before topic entries screen failed: %s",
                  esp_err_to_name(footer_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kTopicEntries,
+    return SetScreen(display_service::ScreenId::kTopicEntries,
                                              refresh_mode, "show_topic_entries_screen");
 }
 
@@ -485,7 +513,7 @@ esp_err_t ShowTopicSummaryScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Footer sync before topic summary screen failed: %s",
                  esp_err_to_name(footer_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kTopicSummary, refresh_mode,
+    return SetScreen(display_service::ScreenId::kTopicSummary, refresh_mode,
                                              "show_topic_summary_screen");
 }
 
@@ -538,7 +566,7 @@ esp_err_t ShowNotesScreen(display_service::RefreshMode refresh_mode)
     if (footer_err != ESP_OK && footer_err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Footer sync before notes screen failed: %s", esp_err_to_name(footer_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kNotes, refresh_mode,
+    return SetScreen(display_service::ScreenId::kNotes, refresh_mode,
                                              "show_notes_screen");
 }
 
@@ -559,7 +587,7 @@ esp_err_t ShowTodosScreen(display_service::RefreshMode refresh_mode)
     if (footer_err != ESP_OK && footer_err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Footer sync before todos screen failed: %s", esp_err_to_name(footer_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kTodos, refresh_mode,
+    return SetScreen(display_service::ScreenId::kTodos, refresh_mode,
                                              "show_todos_screen");
 }
 
@@ -581,7 +609,7 @@ esp_err_t ShowFollowUpScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Footer sync before follow-up screen failed: %s",
                  esp_err_to_name(footer_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kFollowUp, refresh_mode,
+    return SetScreen(display_service::ScreenId::kFollowUp, refresh_mode,
                                              "show_follow_up_screen");
 }
 
@@ -602,7 +630,7 @@ esp_err_t ShowBookListScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Book list page sync before show failed: %s",
                  esp_err_to_name(book_list_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kBookList, refresh_mode,
+    return SetScreen(display_service::ScreenId::kBookList, refresh_mode,
                                              "show_book_list_screen");
 }
 
@@ -618,7 +646,7 @@ esp_err_t ShowBookReaderScreen(display_service::RefreshMode refresh_mode)
         ESP_LOGW(kTag, "Footer sync before book reader screen failed: %s",
                  esp_err_to_name(footer_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kBookReader, refresh_mode,
+    return SetScreen(display_service::ScreenId::kBookReader, refresh_mode,
                                              "show_book_reader_screen");
 }
 
@@ -670,7 +698,7 @@ esp_err_t ShowOnboardingScreen(display_service::RefreshMode refresh_mode)
     if (page_err != ESP_OK && page_err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Onboarding page state build failed: %s", esp_err_to_name(page_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kOnboarding, refresh_mode,
+    return SetScreen(display_service::ScreenId::kOnboarding, refresh_mode,
                                              "show_onboarding_screen");
 }
 
@@ -728,7 +756,7 @@ esp_err_t ShowDetailsScreen(const std::string& recording_id, DetailsPageSource s
     if (sync_err != ESP_OK && sync_err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Details page sync before show failed: %s", esp_err_to_name(sync_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kDetails, refresh_mode,
+    return SetScreen(display_service::ScreenId::kDetails, refresh_mode,
                                              "show_details_screen");
 }
 
@@ -810,7 +838,7 @@ esp_err_t ShowWifiScreen(display_service::RefreshMode refresh_mode)
     // re-syncs with the results. Safe to call unconditionally: StartNetworkScan is a
     // no-op when WiFi is disabled or a scan is already running.
     (void)wifi_service::StartNetworkScan();
-    return display_service::SetCurrentScreen(display_service::ScreenId::kWifi, refresh_mode,
+    return SetScreen(display_service::ScreenId::kWifi, refresh_mode,
                                              "show_wifi_screen");
 }
 
@@ -830,8 +858,97 @@ esp_err_t ShowTimeScreen(display_service::RefreshMode refresh_mode)
     if (time_err != ESP_OK && time_err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Time page sync before show failed: %s", esp_err_to_name(time_err));
     }
-    return display_service::SetCurrentScreen(display_service::ScreenId::kTime, refresh_mode,
+    return SetScreen(display_service::ScreenId::kTime, refresh_mode,
                                              "show_time_screen");
+}
+
+// App-wide back gesture, reached when no overlay, recording control or entered page control
+// consumed the tap. Returns to the most recent screen in the history (Home when there is none).
+// Returns true if it navigated.
+bool GoBack()
+{
+    const display_service::ScreenId current = s_nav_current.load(std::memory_order_relaxed);
+    if (current == display_service::ScreenId::kHome ||
+        current == display_service::ScreenId::kOnboarding || lock_screen_runtime::IsActive()) {
+        return false;
+    }
+    // A take in progress (armed through transcribing) owns the ACTION button.
+    switch (recording_session_service::GetSnapshot().phase) {
+        case recording_session_service::Phase::kIdle:
+        case recording_session_service::Phase::kComplete:
+        case recording_session_service::Phase::kFailed:
+            break;
+        default:
+            return false;
+    }
+
+    screen_history::Entry target = {};
+    if (!screen_history::Top(&target)) {
+        target.screen = display_service::ScreenId::kHome;
+    }
+
+    constexpr auto kPartial = display_service::RefreshMode::kPartial;
+    esp_err_t err = ESP_OK;
+    switch (target.screen) {
+        case display_service::ScreenId::kSettings:
+            err = ShowSettingsScreen(kPartial);
+            break;
+        case display_service::ScreenId::kSettingsStorage:
+            err = ShowSettingsStorageScreen(kPartial);
+            break;
+        case display_service::ScreenId::kSettingsTodos:
+            err = ShowSettingsTodosScreen(kPartial);
+            break;
+        case display_service::ScreenId::kSettingsTopics:
+            err = ShowSettingsTopicsScreen(kPartial);
+            break;
+        case display_service::ScreenId::kSettingsAbout:
+            err = ShowSettingsAboutScreen(kPartial);
+            break;
+        case display_service::ScreenId::kWifi:
+            err = ShowWifiScreen(kPartial);
+            break;
+        case display_service::ScreenId::kTime:
+            err = ShowTimeScreen(kPartial);
+            break;
+        case display_service::ScreenId::kTopicsBrowse:
+            err = ShowTopicsBrowseScreen(kPartial);
+            break;
+        case display_service::ScreenId::kTopicEntries:
+            err = ShowTopicEntriesScreen(kPartial);
+            break;
+        case display_service::ScreenId::kTopicSummary:
+            err = ShowTopicSummaryScreen(kPartial);
+            break;
+        case display_service::ScreenId::kNotes:
+            err = ShowNotesScreen(kPartial);
+            break;
+        case display_service::ScreenId::kTodos:
+            err = ShowTodosScreen(kPartial);
+            break;
+        case display_service::ScreenId::kFollowUp:
+            err = ShowFollowUpScreen(kPartial);
+            break;
+        case display_service::ScreenId::kBookList:
+            err = ShowBookListScreen(kPartial);
+            break;
+        case display_service::ScreenId::kBookReader:
+            err = ShowBookReaderScreen(kPartial);
+            break;
+        case display_service::ScreenId::kDetails:
+            err = ShowDetailsScreen(target.recording_id,
+                                    static_cast<DetailsPageSource>(target.details_source),
+                                    kPartial);
+            break;
+        case display_service::ScreenId::kHome:
+        default:
+            err = ShowHomeScreen(display_service::RefreshMode::kFull);
+            break;
+    }
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGW(kTag, "Back navigation failed: %s", esp_err_to_name(err));
+    }
+    return err == ESP_OK;
 }
 
 // Gather every follow-up recording (newest first) as sticky-note items, reusing the same content
@@ -1681,6 +1798,11 @@ void HandleDispatchedButtonEvent(const button_service::ButtonEventInfo& event)
         ShowBookReaderScreenIfRequested();
         HandleBookReaderBackIfRequested();
         FlushOverlayFeedback();
+        return;
+    }
+
+    if (button_service::IsBackGesture(event) && GoBack()) {
+        PlayFeedback(feedback_service::FeedbackEvent::kButtonClick);
         return;
     }
 
