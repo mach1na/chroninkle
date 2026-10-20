@@ -230,10 +230,14 @@ namespace home_grid {
 inline constexpr int kColumns = 3;
 inline constexpr int kIconSize = 96;
 inline constexpr int kCellWidth = 128;
-inline constexpr int kCellPadding = spacing::k12;
-inline constexpr int kIconCaptionGap = spacing::k8;
-inline constexpr int kRowGap = spacing::k16;
-inline constexpr int kBadgeInset = spacing::k8;
+// Each icon sits on a square bordered tile with a hard offset drop shadow (solid black: the only
+// crisp shadow on 1-bit e-paper). The shadow hangs outside the tile, inside the cell width.
+inline constexpr int kTileSize = 120;
+inline constexpr int kTileBorder = 3;
+inline constexpr int kShadowOffset = 6;
+inline constexpr int kTileCaptionGap = spacing::k8;
+inline constexpr int kRowGap = spacing::k24;
+inline constexpr int kBadgeInset = 5;
 
 }  // namespace home_grid
 

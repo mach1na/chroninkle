@@ -80,9 +80,11 @@ option.
   112px/16px table did not add up to 448px; cell width is the fixed value.
   24px Pixelarticons sources scale to 96px at an exact 4x.
 - **Captions:** each icon has a small caption underneath.
-- **Badges:** a corner badge at the top-right of the cell (white pill when
-  the cell is selected).
-- **Selection:** the whole cell inverts.
+- **Badges:** a corner badge at the top-right of the tile (white pill when
+  the tile is selected).
+- **Tiles:** each icon sits on a 120px square tile (3px border) with a hard
+  6px black drop shadow; the caption is below the tile.
+- **Selection:** the tile inverts (black tile, white icon, white badge).
 - **Top block:** only today's date remains; the welcome message, Task
   tracker bar and first-capture banner are removed, along with the
   rotation setting.

@@ -129,8 +129,8 @@ the status bar shows how many are waiting.
 ## The Home screen
 
 Home is Chroninkle's dashboard: today's date at the top, then a grid of
-six icons, three per row, each with a caption underneath. The selected icon
-is shown inverted (white on black). In order:
+six icons, three per row, each on a square tile with a drop shadow and a
+caption underneath. The selected tile is shown inverted (white on black). In order:
 
 - **Follow up** — anything you've flagged for later, regardless of what
   it's tagged as (a small badge on the icon shows how many).
