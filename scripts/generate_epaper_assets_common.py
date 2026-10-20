@@ -37,6 +37,18 @@ def parse_asset_spec(raw: str) -> AssetSpec:
     return AssetSpec(path=path, symbol=parts[1])
 
 
+def _parse_dimension(asset_path: Path, label: str, raw: str) -> int:
+    # sips reports integer pixel dimensions for raster formats (e.g. "16") but
+    # float-formatted dimensions for vector formats like SVG (e.g. "16.000").
+    value = float(raw)
+    if not value.is_integer():
+        raise AssetGenError(
+            f"{asset_path}: non-integer {label} ({raw}) -- use a source whose "
+            f"rendered size is a whole number of pixels"
+        )
+    return int(value)
+
+
 def get_png_dimensions(asset_path: Path) -> tuple[int, int]:
     result = subprocess.run(
         ["sips", "-g", "pixelWidth", "-g", "pixelHeight", str(asset_path)],
@@ -53,9 +65,9 @@ def get_png_dimensions(asset_path: Path) -> tuple[int, int]:
     for line in result.stdout.splitlines():
         line = line.strip()
         if line.startswith("pixelWidth:"):
-            width = int(line.split(":", 1)[1].strip())
+            width = _parse_dimension(asset_path, "pixelWidth", line.split(":", 1)[1].strip())
         elif line.startswith("pixelHeight:"):
-            height = int(line.split(":", 1)[1].strip())
+            height = _parse_dimension(asset_path, "pixelHeight", line.split(":", 1)[1].strip())
     if width is None or height is None:
         raise AssetGenError(f"could not determine pixel dimensions of {asset_path}")
     return width, height
@@ -82,6 +94,20 @@ def nearest_neighbor_upscale(
                 for dx in range(scale):
                     upscaled[out_row_start + out_col_start + dx] = 1
     return new_width, new_height, upscaled
+
+
+def center_on_canvas(
+    width: int, height: int, pixels: list[int], size: int
+) -> tuple[int, int, list[int]]:
+    if width == size and height == size:
+        return width, height, pixels
+    canvas = [0] * (size * size)
+    left = (size - width) // 2
+    top = (size - height) // 2
+    for row in range(height):
+        start = (top + row) * size + left
+        canvas[start:start + width] = pixels[row * width:(row + 1) * width]
+    return size, size, canvas
 
 
 def convert_png_to_bmp(
@@ -264,18 +290,14 @@ def build_bitmaps(specs: list[AssetSpec], *, fixed_size: int | None) -> list[Bit
                             f"square; a pixel-art source smaller than the "
                             f"{fixed_size}x{fixed_size} target must be square"
                         )
-                    if fixed_size % native_width != 0:
-                        valid = ", ".join(str(d) for d in divisors(fixed_size))
-                        raise AssetGenError(
-                            f"{spec.path}: {native_width}x{native_width} source doesn't "
-                            f"evenly divide the {fixed_size}x{fixed_size} target, so it "
-                            f"can't be nearest-neighbor upscaled without distortion. "
-                            f"Use one of: {valid}"
-                        )
                     bmp_path = convert_png_to_bmp(spec.path, temp_dir, fixed_size=None)
                     width, height, pixels = parse_bmp_pixels(bmp_path)
+                    # Largest exact integer factor that fits; when it doesn't fill the
+                    # target (e.g. 24px into 36px is 1x), centre the result on a blank
+                    # canvas rather than resampling, so the pixel grid stays intact.
                     scale = fixed_size // width
                     width, height, pixels = nearest_neighbor_upscale(width, height, pixels, scale)
+                    width, height, pixels = center_on_canvas(width, height, pixels, fixed_size)
                     bitmaps.append(pack_bitmap(width, height, pixels))
                     continue
             bmp_path = convert_png_to_bmp(spec.path, temp_dir, fixed_size=fixed_size)

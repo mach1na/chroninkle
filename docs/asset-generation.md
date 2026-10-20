@@ -91,11 +91,12 @@ monochrome e-paper icon assets through `EmbeddedIconId` and
 automatically**, nearest-neighbor, by `build_bitmaps` in
 `generate_epaper_assets_common.py` — this keeps pixel-art edges crisp
 instead of letting `sips`'s smooth resize blur them before the 1-bit
-threshold. This only kicks in when the source is smaller than the target
-and requires an exact integer scale factor (e.g. a 16x16 or 32x32 source
-for a 96x96 target); a source size that doesn't evenly divide the target
-fails the generator with a clear error rather than silently blurring. A
-source at or above the target size still goes through the original
+threshold. This only kicks in when the source is smaller than the target and square.
+The source is scaled by the largest exact integer factor that fits, and if
+that doesn't fill the target (e.g. a 24x24 source into the 36x36 icon slot is
+1x) the result is centred on a blank canvas instead of being resampled, so
+the pixel grid is never blurred. Pixel-art sources are SVG or PNG; SVG
+sources must render to a whole number of pixels. A source at or above the target size still goes through the original
 `sips`-based resize path unchanged.
 
 To add a new icon:

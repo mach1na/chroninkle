@@ -91,3 +91,6 @@ __pycache__/
 
 # Design resources (Craig's local assets, not tracked)
 design/
+
+# Full Pixelarticons set kept locally for future icon picks (only chosen icons are tracked)
+assets/V2/pixelarticons-library/

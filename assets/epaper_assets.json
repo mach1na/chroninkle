@@ -23,43 +23,43 @@
   ],
   "icons": [
     {
-      "path": "assets/icons/add.png",
+      "path": "assets/V2/pixelarticons/plus-box.svg",
       "symbol": "kAdd"
     },
     {
-      "path": "assets/icons/ai-connect.png",
+      "path": "assets/V2/pixelarticons/robot-face-sad.svg",
       "symbol": "kAiConnect"
     },
     {
-      "path": "assets/icons/api-key.png",
+      "path": "assets/V2/pixelarticons/key.svg",
       "symbol": "kApiKey"
     },
     {
-      "path": "assets/icons/audio.png",
+      "path": "assets/V2/pixelarticons/audio-waveform.svg",
       "symbol": "kAudio"
     },
     {
-      "path": "assets/icons/bat_1.png",
+      "path": "assets/V2/pixelarticons/battery.svg",
       "symbol": "kBattery1"
     },
     {
-      "path": "assets/icons/bat_2.png",
+      "path": "assets/V2/pixelarticons/battery-low.svg",
       "symbol": "kBattery2"
     },
     {
-      "path": "assets/icons/bat_3.png",
+      "path": "assets/V2/pixelarticons/battery-medium.svg",
       "symbol": "kBattery3"
     },
     {
-      "path": "assets/icons/bat_4.png",
+      "path": "assets/V2/pixelarticons/battery-medium.svg",
       "symbol": "kBattery4"
     },
     {
-      "path": "assets/icons/bat_5.png",
+      "path": "assets/V2/pixelarticons/battery-full.svg",
       "symbol": "kBattery5"
     },
     {
-      "path": "assets/icons/bat_6.png",
+      "path": "assets/V2/pixelarticons/plug-solid.svg",
       "symbol": "kBattery6"
     },
     {
@@ -75,183 +75,183 @@
       "symbol": "kBle3"
     },
     {
-      "path": "assets/icons/check.png",
+      "path": "assets/V2/pixelarticons/check.svg",
       "symbol": "kCheck"
     },
     {
-      "path": "assets/icons/checkbox-checked.png",
+      "path": "assets/V2/pixelarticons/checkbox-on.svg",
       "symbol": "kCheckboxChecked"
     },
     {
-      "path": "assets/icons/checkbox-unchecked.png",
+      "path": "assets/V2/pixelarticons/checkbox.svg",
       "symbol": "kCheckboxUnchecked"
     },
     {
-      "path": "assets/icons/chevron-left.png",
+      "path": "assets/V2/pixelarticons/chevron-left.svg",
       "symbol": "kChevronLeft"
     },
     {
-      "path": "assets/icons/chevron-right.png",
+      "path": "assets/V2/pixelarticons/chevron-right.svg",
       "symbol": "kChevronRight"
     },
     {
-      "path": "assets/icons/sticky.png",
+      "path": "assets/V2/pixelarticons/sticky-note-text.svg",
       "symbol": "kSticky"
     },
     {
-      "path": "assets/icons/close.png",
+      "path": "assets/V2/pixelarticons/close.svg",
       "symbol": "kClose"
     },
     {
-      "path": "assets/icons/delete.png",
+      "path": "assets/V2/pixelarticons/trash.svg",
       "symbol": "kDelete"
     },
     {
-      "path": "assets/icons/file-audio.png",
+      "path": "assets/V2/pixelarticons/audio-waveform.svg",
       "symbol": "kFileAudio"
     },
     {
-      "path": "assets/icons/file-json.png",
+      "path": "assets/V2/pixelarticons/file-text.svg",
       "symbol": "kFileJson"
     },
     {
-      "path": "assets/icons/file-md.png",
+      "path": "assets/V2/pixelarticons/file-text.svg",
       "symbol": "kFileMd"
     },
     {
-      "path": "assets/icons/file-transcript.png",
+      "path": "assets/V2/pixelarticons/text-align-left.svg",
       "symbol": "kFileTranscript"
     },
     {
-      "path": "assets/icons/file.png",
+      "path": "assets/V2/pixelarticons/files.svg",
       "symbol": "kFile"
     },
     {
-      "path": "assets/icons/folder-open.png",
+      "path": "assets/V2/pixelarticons/folder.svg",
       "symbol": "kFolderOpen"
     },
     {
-      "path": "assets/icons/folder.png",
+      "path": "assets/V2/pixelarticons/folder.svg",
       "symbol": "kFolder"
     },
     {
-      "path": "assets/icons/gemini_api.png",
+      "path": "assets/V2/pixelarticons/sparkle.svg",
       "symbol": "kGeminiApi"
     },
     {
-      "path": "assets/icons/goal.png",
+      "path": "assets/V2/pixelarticons/goal.svg",
       "symbol": "kGoal"
     },
     {
-      "path": "assets/icons/home.png",
+      "path": "assets/V2/pixelarticons/home.svg",
       "symbol": "kHome"
     },
     {
-      "path": "assets/icons/idea.png",
+      "path": "assets/V2/pixelarticons/lightbulb.svg",
       "symbol": "kIdea"
     },
     {
-      "path": "assets/icons/invisible.png",
+      "path": "assets/V2/pixelarticons/eye-off.svg",
       "symbol": "kInvisible"
     },
     {
-      "path": "assets/icons/keyboard.png",
+      "path": "assets/V2/pixelarticons/keyboard.svg",
       "symbol": "kKeyboard"
     },
     {
-      "path": "assets/icons/lock.png",
+      "path": "assets/V2/pixelarticons/lock.svg",
       "symbol": "kLock"
     },
     {
-      "path": "assets/icons/mic-off.png",
+      "path": "assets/V2/pixelarticons/mic-off.svg",
       "symbol": "kMicOff"
     },
     {
-      "path": "assets/icons/mic-on.png",
+      "path": "assets/V2/pixelarticons/mic.svg",
       "symbol": "kMicOn"
     },
     {
-      "path": "assets/icons/pin.png",
+      "path": "assets/V2/pixelarticons/map-pin.svg",
       "symbol": "kPin"
     },
     {
-      "path": "assets/icons/power.png",
+      "path": "assets/V2/pixelarticons/power.svg",
       "symbol": "kPower"
     },
     {
-      "path": "assets/icons/refresh.png",
+      "path": "assets/V2/pixelarticons/refresh-solid.svg",
       "symbol": "kRefresh"
     },
     {
-      "path": "assets/icons/remove.png",
+      "path": "assets/V2/pixelarticons/minus-box.svg",
       "symbol": "kRemove"
     },
     {
-      "path": "assets/icons/sd_card.png",
+      "path": "assets/V2/pixelarticons/memory-stick.svg",
       "symbol": "kSdCard"
     },
     {
-      "path": "assets/icons/select.png",
+      "path": "assets/V2/pixelarticons/chevrons-vertical.svg",
       "symbol": "kSelect"
     },
     {
-      "path": "assets/icons/settings.png",
+      "path": "assets/V2/pixelarticons/settings-cog.svg",
       "symbol": "kSettings"
     },
     {
-      "path": "assets/icons/sleep.png",
+      "path": "assets/V2/pixelarticons/moon.svg",
       "symbol": "kSleep"
     },
     {
-      "path": "assets/icons/star.png",
+      "path": "assets/V2/pixelarticons/robot.svg",
       "symbol": "kStar"
     },
     {
-      "path": "assets/icons/task-start.png",
+      "path": "assets/V2/pixelarticons/play.svg",
       "symbol": "kTaskStart"
     },
     {
-      "path": "assets/icons/time.png",
+      "path": "assets/V2/pixelarticons/clock.svg",
       "symbol": "kTime"
     },
     {
-      "path": "assets/icons/transcribe.png",
+      "path": "assets/V2/pixelarticons/ai-voice.svg",
       "symbol": "kTranscribe"
     },
     {
-      "path": "assets/icons/usb-storage.png",
+      "path": "assets/V2/pixelarticons/usb.svg",
       "symbol": "kUsbStorage"
     },
     {
-      "path": "assets/icons/visible.png",
+      "path": "assets/V2/pixelarticons/eye.svg",
       "symbol": "kVisible"
     },
     {
-      "path": "assets/icons/wifi_1.png",
+      "path": "assets/V2/pixelarticons/letter-x-circle.svg",
       "symbol": "kWifi1"
     },
     {
-      "path": "assets/icons/wifi_2.png",
+      "path": "assets/V2/pixelarticons/cellular-signal-3.svg",
       "symbol": "kWifi2"
     },
     {
-      "path": "assets/icons/wifi_2bar.png",
+      "path": "assets/V2/pixelarticons/cellular-signal-2.svg",
       "symbol": "kWbar2"
     },
     {
-      "path": "assets/icons/wifi_3.png",
+      "path": "assets/V2/pixelarticons/circle-info-solid.svg",
       "symbol": "kWifi3"
     },
     {
-      "path": "assets/icons/wifi_3bar.png",
+      "path": "assets/V2/pixelarticons/cellular-signal-3.svg",
       "symbol": "kWbar3"
     },
     {
-      "path": "assets/icons/wifi_4.png",
+      "path": "assets/V2/pixelarticons/wifi.svg",
       "symbol": "kWifi4"
     },
     {
-      "path": "assets/icons/wifi_config.png",
+      "path": "assets/V2/pixelarticons/wifi.svg",
       "symbol": "kWifiConfig"
     }
   ],
