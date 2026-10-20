@@ -30,7 +30,6 @@ enum class EmbeddedIconId : uint8_t {
     kCheckboxUnchecked,
     kChevronLeft,
     kChevronRight,
-    kSticky,
     kClose,
     kDelete,
     kFileAudio,

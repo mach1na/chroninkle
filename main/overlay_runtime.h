@@ -11,18 +11,10 @@
 #include "epaper_ui/keyboard_controller.h"
 #include "epaper_ui/select_modal.h"
 #include "epaper_ui/card_modal.h"
-#include "epaper_ui/sticky_note.h"
 #include "epaper_ui/toast.h"
 #include "esp_err.h"
 
 namespace overlay_runtime {
-
-// One sticky in the full-page sticky-note overlay. Content mirrors the timeline row.
-struct StickyNoteItem {
-    std::string date_text;
-    epaper_ui::ListItemHeaderState header;
-    std::string body_text;
-};
 
 using KeyboardEventHandler =
     void (*)(const epaper_ui::KeyboardState& state, epaper_ui::KeyboardIntent intent, void* context);
@@ -32,7 +24,6 @@ bool IsShutdownModalVisible();
 bool IsStorageModalVisible();
 bool IsSelectModalVisible();
 bool IsKeyboardVisible();
-bool IsStickyNoteVisible();
 bool IsShutdownPending();
 bool IsInputCaptured();
 
@@ -69,11 +60,6 @@ app_interaction::InputResult HandleButtonEvent(const button_service::ButtonEvent
 esp_err_t ShowToast(const epaper_ui::ToastState& state);
 esp_err_t ShowToastForDuration(const epaper_ui::ToastState& state, uint32_t duration_ms);
 esp_err_t ClearToast();
-
-// Full-page sticky-note overlay: shows `items` starting at the first, cycling with wrap-around via
-// prev/next and dismissing via Close. A no-op (returns ESP_ERR_INVALID_ARG) when `items` is empty.
-esp_err_t ShowStickyNotes(const std::vector<StickyNoteItem>& items);
-esp_err_t DismissStickyNotes();
 
 }  // namespace overlay_runtime
 

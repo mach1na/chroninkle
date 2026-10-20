@@ -14,13 +14,15 @@ via `git log`, not backfilled here.
   captions (Follow up, Todos, Notes, Topics, Books, Settings) instead of a
   text menu. Settings moved from the footer into the grid.
 - V2: all small UI icons were replaced with Pixelarticons (MIT) glyphs.
-
 - V2: the quick Record-button tap is now a universal **Back**: after exiting
   any open list or reader it returns to the previous screen, one step per
   tap, back to Home. The footer's Home icon is gone from every screen.
 
 ### Removed
 
+- V2: the **Stickies** feature (the footer Sticky button and the full-page
+  sticky-note overlay that flipped through follow-ups). The footer is now
+  just the Mic button.
 - V2: the rotating welcome message, the Home task-tracker bar and the
   first-capture banner, and the `CHRONINKLE_WELCOME_MESSAGE_ROTATE_HOURS`
   setting.

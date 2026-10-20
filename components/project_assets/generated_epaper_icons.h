@@ -23,7 +23,6 @@ extern const EmbeddedImageAsset kCheckboxChecked;
 extern const EmbeddedImageAsset kCheckboxUnchecked;
 extern const EmbeddedImageAsset kChevronLeft;
 extern const EmbeddedImageAsset kChevronRight;
-extern const EmbeddedImageAsset kSticky;
 extern const EmbeddedImageAsset kClose;
 extern const EmbeddedImageAsset kDelete;
 extern const EmbeddedImageAsset kFileAudio;

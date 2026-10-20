@@ -43,11 +43,8 @@ CardModalPurpose s_card_modal_purpose = CardModalPurpose::kNone;
 epaper_ui::SelectModalState s_select_modal_state = {};
 epaper_ui::KeyboardState s_keyboard_state = {};
 epaper_ui::ToastState s_toast_state = {};
-epaper_ui::StickyNoteState s_sticky_note_state = {};
-std::vector<StickyNoteItem> s_sticky_note_items = {};
 page_navigation::RovingFocus s_card_modal_focus = {};
 page_navigation::RovingFocus s_select_modal_focus = {};
-page_navigation::RovingFocus s_sticky_note_focus = {};
 bool s_shutdown_request_in_progress = false;
 KeyboardEventHandler s_keyboard_event_handler = nullptr;
 void* s_keyboard_event_context = nullptr;
@@ -157,68 +154,6 @@ void QueuePendingFeedbackLocked(app_interaction::FeedbackCue cue)
     s_feedback_pending = true;
 }
 
-// The sticky overlay roves over 4 targets: the transcript scroll body (index 0) plus the three
-// footer controls (1 = Close, 2 = Prev, 3 = Next). UP/DOWN scroll the body by this percent when it
-// is "entered" (Details-style), otherwise they rove.
-constexpr int kStickyBodyFocusIndex = 0;
-constexpr int kStickyFocusCount = epaper_ui::kStickyNoteControlCount + 1;
-constexpr int kStickyScrollStepPercent = 10;
-
-bool StickyFocusIsBody(int index)
-{
-    return index == kStickyBodyFocusIndex;
-}
-
-// Focus index 1..3 map to the footer controls; index 0 (the body) is not a footer control.
-epaper_ui::StickyNoteControl StickyControlForFocusIndex(int index)
-{
-    const int control_index = index - 1;
-    return control_index >= 0 && control_index < epaper_ui::kStickyNoteControlCount
-               ? static_cast<epaper_ui::StickyNoteControl>(control_index)
-               : epaper_ui::StickyNoteControl::kNone;
-}
-
-// Refresh the visible sticky content from the backing item list (wrapping the active index), and
-// reset the transcript scroll since the content changed.
-void ApplyStickyContentLocked()
-{
-    s_sticky_note_state.scroll_active = false;
-    s_sticky_note_state.scroll_position_percent = 0;
-
-    const int count = static_cast<int>(s_sticky_note_items.size());
-    s_sticky_note_state.sticky_count = count;
-    if (count <= 0) {
-        s_sticky_note_state.active_index = 0;
-        s_sticky_note_state.date_text = {};
-        s_sticky_note_state.header = {};
-        s_sticky_note_state.body_text = {};
-        return;
-    }
-    const int index =
-        page_navigation::RovingFocus::WrapIndex(s_sticky_note_state.active_index, count);
-    s_sticky_note_state.active_index = index;
-    const StickyNoteItem& item = s_sticky_note_items[static_cast<size_t>(index)];
-    s_sticky_note_state.date_text = item.date_text;
-    s_sticky_note_state.header = item.header;
-    s_sticky_note_state.body_text = item.body_text;
-}
-
-void SyncStickyFocusLocked()
-{
-    const int index = s_sticky_note_focus.index();
-    s_sticky_note_state.selected_control = StickyControlForFocusIndex(index);
-    // Keep the scroll ring lit while the body is focused or entered (matches the Details page).
-    s_sticky_note_state.scroll_focused =
-        StickyFocusIsBody(index) || s_sticky_note_state.scroll_active;
-}
-
-void ClearStickyNoteLocked()
-{
-    s_sticky_note_state = {};
-    s_sticky_note_items.clear();
-    s_sticky_note_focus.Configure(0);
-}
-
 void SyncCardModalStateFromFocusLocked()
 {
     s_card_modal_state.selected_action_index = std::max(0, s_card_modal_focus.index());
@@ -240,7 +175,6 @@ struct OverlayRefreshSnapshot {
     bool select_visible = false;
     bool keyboard_visible = false;
     bool toast_visible = false;
-    bool sticky_visible = false;
     epaper_ui::UiRect bounds = {};
 };
 
@@ -270,14 +204,7 @@ OverlayRefreshSnapshot CaptureOverlayRefreshSnapshotLocked()
     snapshot.select_visible = s_select_modal_state.visible;
     snapshot.keyboard_visible = s_keyboard_state.visible;
     snapshot.toast_visible = s_toast_state.visible;
-    snapshot.sticky_visible = s_sticky_note_state.visible;
 
-    if (snapshot.sticky_visible) {
-        snapshot.bounds = epaper_ui::UnionRect(
-            snapshot.bounds,
-            ShadowedRect(epaper_ui::StickyNotePanelBounds(portrait_width, portrait_height, {}),
-                         design::modal::kShadowOffset));
-    }
     if (snapshot.toast_visible) {
         snapshot.bounds = epaper_ui::UnionRect(
             snapshot.bounds,
@@ -324,8 +251,7 @@ display_service::OverlayRefreshPolicy DetermineOverlayRefreshPolicy(
     // choose (and drift).
     const bool large_overlay_dismissed =
         (before.keyboard_visible && !after.keyboard_visible) ||
-        (before.select_visible && !after.select_visible) ||
-        (before.sticky_visible && !after.sticky_visible);
+        (before.select_visible && !after.select_visible);
     if (large_overlay_dismissed) {
         return display_service::OverlayRefreshPolicy::kRebuildUnderlayFull;
     }
@@ -335,8 +261,7 @@ display_service::OverlayRefreshPolicy DetermineOverlayRefreshPolicy(
     const bool visibility_changed = before.card_modal_visible != after.card_modal_visible ||
                                     before.select_visible != after.select_visible ||
                                     before.keyboard_visible != after.keyboard_visible ||
-                                    before.toast_visible != after.toast_visible ||
-                                    before.sticky_visible != after.sticky_visible;
+                                    before.toast_visible != after.toast_visible;
     if (visibility_changed || !RectEquals(before.bounds, after.bounds)) {
         return display_service::OverlayRefreshPolicy::kRebuildUnderlay;
     }
@@ -347,8 +272,7 @@ display_service::OverlayRefreshPolicy DetermineOverlayRefreshPolicy(
 esp_err_t ApplyOverlayState(const epaper_ui::CardModalState& card_modal_state,
                             const epaper_ui::SelectModalState& select_modal_state,
                             const epaper_ui::KeyboardState& keyboard_state,
-                            const epaper_ui::ToastState& toast_state,
-                            const epaper_ui::StickyNoteState& sticky_note_state)
+                            const epaper_ui::ToastState& toast_state)
 {
     ESP_RETURN_ON_ERROR(display_service::SetCardModalState(card_modal_state),
                         kTag,
@@ -362,9 +286,6 @@ esp_err_t ApplyOverlayState(const epaper_ui::CardModalState& card_modal_state,
     ESP_RETURN_ON_ERROR(display_service::SetToastState(toast_state),
                         kTag,
                         "set toast state failed");
-    ESP_RETURN_ON_ERROR(display_service::SetStickyNoteState(sticky_note_state),
-                        kTag,
-                        "set sticky note state failed");
     return ESP_OK;
 }
 
@@ -383,7 +304,6 @@ esp_err_t SyncOverlayState(
     epaper_ui::SelectModalState select_modal_state = {};
     epaper_ui::KeyboardState keyboard_state = {};
     epaper_ui::ToastState toast_state = {};
-    epaper_ui::StickyNoteState sticky_note_state = {};
     {
         std::lock_guard<std::mutex> lock(s_state_mutex);
         if (!s_initialized) {
@@ -393,14 +313,12 @@ esp_err_t SyncOverlayState(
         select_modal_state = s_select_modal_state;
         keyboard_state = s_keyboard_state;
         toast_state = s_toast_state;
-        sticky_note_state = s_sticky_note_state;
     }
 
     return ApplyOverlayState(card_modal_state,
                              select_modal_state,
                              keyboard_state,
-                             toast_state,
-                             sticky_note_state);
+                             toast_state);
 }
 
 void ToastTimerCallback(void*)
@@ -496,18 +414,11 @@ bool IsKeyboardVisible()
     return s_keyboard_state.visible;
 }
 
-bool IsStickyNoteVisible()
-{
-    std::lock_guard<std::mutex> lock(s_state_mutex);
-    return s_sticky_note_state.visible;
-}
-
 bool IsShutdownPending()
 {
     std::lock_guard<std::mutex> lock(s_state_mutex);
     return s_card_modal_state.visible || s_shutdown_request_in_progress ||
-           s_select_modal_state.visible || s_keyboard_state.visible ||
-           s_sticky_note_state.visible;
+           s_select_modal_state.visible || s_keyboard_state.visible;
 }
 
 bool IsInputCaptured()
@@ -515,7 +426,6 @@ bool IsInputCaptured()
     std::lock_guard<std::mutex> lock(s_state_mutex);
     return s_card_modal_state.visible || s_shutdown_request_in_progress ||
            s_select_modal_state.visible || s_keyboard_state.visible ||
-           s_sticky_note_state.visible ||
            (s_toast_state.visible && s_toast_state.show_close_button);
 }
 
@@ -844,27 +754,7 @@ bool MoveFocus(int delta)
         }
 
         const OverlayRefreshSnapshot before = CaptureOverlayRefreshSnapshotLocked();
-        if (s_sticky_note_state.visible) {
-            if (s_sticky_note_state.scroll_active) {
-                // Entered the transcript: UP/DOWN scroll by a fixed percent, clamped [0,100].
-                const shared_page_interactions::ScrollStepResult step =
-                    shared_page_interactions::StepScrollPercent(
-                        s_sticky_note_state.scroll_position_percent, delta,
-                        kStickyScrollStepPercent);
-                if (step.changed) {
-                    s_sticky_note_state.scroll_position_percent = step.value;
-                    refresh_policy = DetermineOverlayRefreshPolicy(
-                        before, CaptureOverlayRefreshSnapshotLocked());
-                    changed = true;
-                }
-            } else if (s_sticky_note_focus.item_count() > 0 &&
-                       s_sticky_note_focus.Move(delta > 0 ? 1 : -1)) {
-                SyncStickyFocusLocked();
-                refresh_policy =
-                    DetermineOverlayRefreshPolicy(before, CaptureOverlayRefreshSnapshotLocked());
-                changed = true;
-            }
-        } else if (s_card_modal_state.visible) {
+        if (s_card_modal_state.visible) {
             if (s_card_modal_focus.item_count() <= 0) {
                 return false;
             }
@@ -952,56 +842,11 @@ app_interaction::InputResult HandleButtonEvent(const button_service::ButtonEvent
             return result;
         }
         if (!s_card_modal_state.visible && !s_select_modal_state.visible &&
-            !s_keyboard_state.visible && !s_sticky_note_state.visible) {
+            !s_keyboard_state.visible) {
             return result;
         }
 
         const OverlayRefreshSnapshot before = CaptureOverlayRefreshSnapshotLocked();
-        if (s_sticky_note_state.visible) {
-            result.consumed = true;
-            const int focus_index = s_sticky_note_focus.index();
-            if (button_service::IsSelectButton(event.button) &&
-                event.event == button_service::ButtonEvent::kSingleClick) {
-                play_click = true;
-                if (StickyFocusIsBody(focus_index)) {
-                    // OK on the transcript enters scroll mode; inert if already entered.
-                    if (!s_sticky_note_state.scroll_active) {
-                        s_sticky_note_state.scroll_active = true;
-                        SyncStickyFocusLocked();
-                    }
-                } else {
-                    const epaper_ui::StickyNoteControl control =
-                        StickyControlForFocusIndex(focus_index);
-                    if (control == epaper_ui::StickyNoteControl::kClose) {
-                        ClearStickyNoteLocked();
-                        AdvanceOverlayInteractionGenerationLocked();
-                    } else if (control != epaper_ui::StickyNoteControl::kNone) {
-                        const int count = static_cast<int>(s_sticky_note_items.size());
-                        if (count > 0) {
-                            const int delta =
-                                control == epaper_ui::StickyNoteControl::kNext ? 1 : -1;
-                            s_sticky_note_state.active_index =
-                                page_navigation::RovingFocus::WrapIndex(
-                                    s_sticky_note_state.active_index + delta, count);
-                            ApplyStickyContentLocked();
-                            SyncStickyFocusLocked();
-                        }
-                    }
-                }
-                request_refresh = true;
-                refresh_policy =
-                    DetermineOverlayRefreshPolicy(before, CaptureOverlayRefreshSnapshotLocked());
-            } else if (button_service::IsBackGesture(event) && s_sticky_note_state.scroll_active) {
-                // A quick ACTION tap exits the transcript scroll, back to roving the controls.
-                s_sticky_note_state.scroll_active = false;
-                SyncStickyFocusLocked();
-                play_click = true;
-                request_refresh = true;
-                refresh_policy =
-                    DetermineOverlayRefreshPolicy(before, CaptureOverlayRefreshSnapshotLocked());
-            }
-            goto done_locked;
-        }
         if (s_card_modal_state.visible) {
             result.consumed = true;
             switch (event.event) {
@@ -1259,56 +1104,6 @@ esp_err_t ClearToast()
         }
         s_toast_state = {};
         ++s_toast_generation;
-        AdvanceOverlayInteractionGenerationLocked();
-        refresh_policy =
-            DetermineOverlayRefreshPolicy(before, CaptureOverlayRefreshSnapshotLocked());
-    }
-    return SyncOverlayState(true, refresh_policy);
-}
-
-esp_err_t ShowStickyNotes(const std::vector<StickyNoteItem>& items)
-{
-    if (items.empty()) {
-        return ESP_ERR_INVALID_ARG;
-    }
-    display_service::OverlayRefreshPolicy refresh_policy =
-        display_service::OverlayRefreshPolicy::kRebuildUnderlay;
-    {
-        std::lock_guard<std::mutex> lock(s_state_mutex);
-        if (!s_initialized) {
-            return ESP_ERR_INVALID_STATE;
-        }
-        const OverlayRefreshSnapshot before = CaptureOverlayRefreshSnapshotLocked();
-        s_sticky_note_items = items;
-        s_sticky_note_state = {};
-        s_sticky_note_state.visible = true;
-        s_sticky_note_state.active_index = 0;
-        // Rove over the transcript body (0) then Close/Prev/Next; start on the body so OK enters scroll.
-        s_sticky_note_focus.Configure(kStickyFocusCount, kStickyBodyFocusIndex);
-        ApplyStickyContentLocked();
-        SyncStickyFocusLocked();
-        AdvanceOverlayInteractionGenerationLocked();
-        refresh_policy =
-            DetermineOverlayRefreshPolicy(before, CaptureOverlayRefreshSnapshotLocked());
-        QueuePendingFeedbackLocked(app_interaction::FeedbackCue::kModalOpen);
-    }
-    return SyncOverlayState(true, refresh_policy);
-}
-
-esp_err_t DismissStickyNotes()
-{
-    display_service::OverlayRefreshPolicy refresh_policy =
-        display_service::OverlayRefreshPolicy::kRebuildUnderlayFull;
-    {
-        std::lock_guard<std::mutex> lock(s_state_mutex);
-        if (!s_initialized) {
-            return ESP_ERR_INVALID_STATE;
-        }
-        if (!s_sticky_note_state.visible) {
-            return ESP_OK;
-        }
-        const OverlayRefreshSnapshot before = CaptureOverlayRefreshSnapshotLocked();
-        ClearStickyNoteLocked();
         AdvanceOverlayInteractionGenerationLocked();
         refresh_policy =
             DetermineOverlayRefreshPolicy(before, CaptureOverlayRefreshSnapshotLocked());

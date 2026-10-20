@@ -22,7 +22,6 @@
 #include "epaper_ui/follow_up_page.h"
 #include "epaper_ui/notes_page.h"
 #include "epaper_ui/onboarding_page.h"
-#include "epaper_ui/sticky_note.h"
 #include "epaper_ui/topic_summary_page.h"
 #include "epaper_ui/todos_page.h"
 #include "epaper_ui/toast.h"
@@ -127,7 +126,6 @@ esp_err_t SetKeyboardState(const epaper_ui::KeyboardState& state);
 esp_err_t SetCardModalState(const epaper_ui::CardModalState& state);
 esp_err_t SetSelectModalState(const epaper_ui::SelectModalState& state);
 esp_err_t SetToastState(const epaper_ui::ToastState& state);
-esp_err_t SetStickyNoteState(const epaper_ui::StickyNoteState& state);
 // The optional `source` tag names what invoked the refresh; it is echoed in the
 // "Display command requested" log to make refresh provenance traceable.
 esp_err_t SetCurrentScreen(ScreenId screen,

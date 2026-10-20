@@ -2464,22 +2464,7 @@ ButtonResult HandleButtonEventForScreen(display_service::ScreenId screen,
 
 ButtonResult HandleButtonEventForCurrentScreen(const button_service::ButtonEventInfo& event)
 {
-    const display_service::ScreenId screen = display_service::GetCurrentScreen();
-    ButtonResult result = HandleButtonEventForScreen(screen, event);
-
-    // The Sticky footer button is uniform across pages (always opens the sticky overlay), so rather
-    // than thread a per-page intent through every page's activation, handle it centrally: the shared
-    // per-page footer handler only maps Home/Settings/Wifi/Time, so a focused Sticky button falls
-    // through here on a Select single click.
-    if (!result.handled && button_service::IsSelectButton(event.button) &&
-        event.event == button_service::ButtonEvent::kSingleClick &&
-        BuildFooterProjectionForScreen(screen).focused_item ==
-            footer_runtime::FooterFocusItem::kSticky) {
-        result.handled = true;
-        result.interaction_result = MakeConsumedResult(true);
-        result.footer_item = footer_runtime::FooterFocusItem::kSticky;
-    }
-    return result;
+    return HandleButtonEventForScreen(display_service::GetCurrentScreen(), event);
 }
 
 }  // namespace page_input_runtime
