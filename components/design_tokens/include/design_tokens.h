@@ -225,14 +225,17 @@ inline constexpr int kSegmentGap = spacing::k8;
 
 }  // namespace current_date
 
-namespace welcome_message {
+namespace home_grid {
 
-inline constexpr int kSectionGap = spacing::k2;
-inline constexpr int kIconSize = icon::k44;
-inline constexpr int kIconGap = spacing::k8;
-inline constexpr int kIconYOffset = 6;
+inline constexpr int kColumns = 3;
+inline constexpr int kIconSize = 96;
+inline constexpr int kCellWidth = 128;
+inline constexpr int kCellPadding = spacing::k12;
+inline constexpr int kIconCaptionGap = spacing::k8;
+inline constexpr int kRowGap = spacing::k16;
+inline constexpr int kBadgeInset = spacing::k8;
 
-}  // namespace welcome_message
+}  // namespace home_grid
 
 namespace current_progress {
 

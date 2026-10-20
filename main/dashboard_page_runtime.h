@@ -22,9 +22,6 @@ footer_runtime::ProjectionState BuildFooterProjectionState();
 page_actions::FocusUpdateOutcome FocusFooterItem(footer_runtime::FooterFocusItem item);
 void ResetFocus();
 esp_err_t SyncFromService(bool request_refresh_if_active);
-// Repaints the dashboard when the welcome-message rotation interval has rolled over since the
-// last sync. Cheap no-op within the same interval; call it from the periodic clock tick.
-esp_err_t RefreshWelcomeIfRotated();
 
 // Menu activation. A menu item first offers itself to the registered handler (installed by
 // app_shell to route items to their pages); items the handler declines fall back to a

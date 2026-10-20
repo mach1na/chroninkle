@@ -1,6 +1,6 @@
 # Home screen
 
-**Status:** Draft
+**Status:** Done
 
 ## Summary
 
@@ -73,24 +73,35 @@ this board only has `UP`/`DOWN` for roving focus (no left/right).
 [visual-assets.md](visual-assets.md); their 24px grid favors the 96px/32px
 option.
 
-## Open Questions
+## Decisions
 
-- Does `components/epaper_ui/welcome_message.cpp` get deleted outright, or
-  repurposed (e.g. just the date display kept)?
-- Does the "Task tracker" progress bar concept carry over graphically, or
-  is it dropped along with the motivational copy?
-- Final V2 feature set on Home depends on [followup-rework.md](followup-rework.md)'s
-  outcome (FollowUp may not exist as a menu item) — affects row count.
-- Final icon size (96px/32px gap vs. 112px/16px gap vs. another option) —
-  not chosen yet.
-- Do icons carry a text caption underneath (affects row height and how
-  many rows fit before scrolling), or are they icon-only?
-- Do badge counts (e.g. unread/pending counts) still render on top of/
-  beside a grid icon, and if so how, visually?
+- **Layout:** 3 columns, 96px icons centred in 128px-wide cells with 32px
+  gaps (3 x 128 + 2 x 32 = 448px usable width). The earlier 96px/32px and
+  112px/16px table did not add up to 448px; cell width is the fixed value.
+  24px Pixelarticons sources scale to 96px at an exact 4x.
+- **Captions:** each icon has a small caption underneath.
+- **Badges:** a corner badge at the top-right of the cell (white pill when
+  the cell is selected).
+- **Selection:** the whole cell inverts.
+- **Top block:** only today's date remains; the welcome message, Task
+  tracker bar and first-capture banner are removed, along with the
+  rotation setting.
+- **Menu items:** Follow up, Todos, Notes, Topics, Books and Settings
+  (Settings moved from the footer into the grid). Follow up stays pending
+  the [followup-rework.md](followup-rework.md) outcome.
+
+## Not implemented
+
+- Vertical scrolling for more than two rows (six items fit without it).
+- Midnight date rollover: the date only updates when something else
+  repaints Home (the old hourly welcome refresh did this incidentally).
 
 ## Acceptance Criteria
 
-TBD — needs design conversation.
+- Home shows the date and a 3-column grid of six captioned icons.
+- `DOWN`/`UP` move focus left-to-right, then top-to-bottom; the focused cell
+  is inverted; Select opens the item.
+- Settings opens the Settings hub and is no longer a footer icon.
 
 ## Related
 

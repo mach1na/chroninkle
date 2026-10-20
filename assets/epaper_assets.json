@@ -256,6 +256,32 @@
     }
   ],
   "footer_icons": [],
+  "home_icons": [
+    {
+      "path": "assets/V2/pixelarticons/bulletlist-sharp.svg",
+      "symbol": "kTodos"
+    },
+    {
+      "path": "assets/V2/pixelarticons/notebook.svg",
+      "symbol": "kNotes"
+    },
+    {
+      "path": "assets/V2/pixelarticons/album.svg",
+      "symbol": "kTopics"
+    },
+    {
+      "path": "assets/V2/pixelarticons/book-open.svg",
+      "symbol": "kBooks"
+    },
+    {
+      "path": "assets/V2/pixelarticons/circle-question.svg",
+      "symbol": "kFollowUp"
+    },
+    {
+      "path": "assets/V2/pixelarticons/settings-cog.svg",
+      "symbol": "kSettings"
+    }
+  ],
   "images": [
     {
       "path": "assets/images/slide1.png",

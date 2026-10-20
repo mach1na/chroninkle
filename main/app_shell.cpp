@@ -186,7 +186,7 @@ footer_runtime::LayoutState FooterLayoutForScreen(display_service::ScreenId scre
     // avoid a wide mechanical sweep of every page runtime's footer-index mapping for no behavior
     // change.
     const bool is_home = screen == display_service::ScreenId::kHome;
-    layout.show_settings = is_home;
+    layout.show_settings = false;  // Settings is a Home grid item now, not a footer icon
     layout.show_wifi = false;
     layout.show_time = false;
     layout.show_sticky = is_home;
@@ -988,6 +988,13 @@ bool HandleDashboardMenuItem(int menu_index, void*)
         }
         return true;
     }
+    if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kSettings)) {
+        const esp_err_t err = ShowSettingsScreen(display_service::RefreshMode::kPartial);
+        if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+            ESP_LOGW(kTag, "Show settings screen failed: %s", esp_err_to_name(err));
+        }
+        return true;
+    }
     return false;
 }
 
@@ -1442,15 +1449,6 @@ void HandleTimezoneEvent(const timezone_service::Event& event, void*)
     if (status_bar_err != ESP_OK && status_bar_err != ESP_ERR_INVALID_STATE) {
         ESP_LOGW(kTag, "Status bar update after time event failed: %s",
                  esp_err_to_name(status_bar_err));
-    }
-
-    // Roll the dashboard welcome message over to the next variant when its interval elapses.
-    if (ScreenActiveForRefresh(display_service::ScreenId::kHome)) {
-        const esp_err_t welcome_err = dashboard_page_runtime::RefreshWelcomeIfRotated();
-        if (welcome_err != ESP_OK && welcome_err != ESP_ERR_INVALID_STATE) {
-            ESP_LOGW(kTag, "Dashboard welcome rotation after time event failed: %s",
-                     esp_err_to_name(welcome_err));
-        }
     }
 }
 

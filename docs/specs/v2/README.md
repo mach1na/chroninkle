@@ -33,7 +33,7 @@ independently in the meantime.
 
 | Spec | Status |
 | --- | --- |
-| [Home screen](home-screen.md) | Draft |
+| [Home screen](home-screen.md) | Done |
 | [Visual assets (logo, icons, font)](visual-assets.md) | Draft |
 | [Notes/Todos format](notes-todos-format.md) | Draft |
 | [Footer redesign](footer-redesign.md) | Draft |

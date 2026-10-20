@@ -3,6 +3,7 @@
 #include "generated_epaper_logos.h"
 #include "generated_epaper_icons.h"
 #include "generated_epaper_footer_icons.h"
+#include "generated_epaper_home_icons.h"
 #include "generated_epaper_images.h"
 
 namespace project_assets {
@@ -152,6 +153,26 @@ const EmbeddedImageAsset* GetIcon(EmbeddedIconId id)
 const EmbeddedImageAsset* GetFooterIcon(EmbeddedFooterIconId id)
 {
     switch (id) {
+        default:
+            return nullptr;
+    }
+}
+
+const EmbeddedImageAsset* GetHomeIcon(EmbeddedHomeIconId id)
+{
+    switch (id) {
+        case EmbeddedHomeIconId::kTodos:
+            return &epaper_home_icons::kTodos;
+        case EmbeddedHomeIconId::kNotes:
+            return &epaper_home_icons::kNotes;
+        case EmbeddedHomeIconId::kTopics:
+            return &epaper_home_icons::kTopics;
+        case EmbeddedHomeIconId::kBooks:
+            return &epaper_home_icons::kBooks;
+        case EmbeddedHomeIconId::kFollowUp:
+            return &epaper_home_icons::kFollowUp;
+        case EmbeddedHomeIconId::kSettings:
+            return &epaper_home_icons::kSettings;
         default:
             return nullptr;
     }

@@ -4,17 +4,16 @@
 #include <cstdint>
 #include <string>
 
-#include "epaper_ui/completion_banner.h"
+#include "epaper_ui/badge.h"
+#include "epaper_ui/current_date.h"
 #include "epaper_ui/global_footer.h"
-#include "epaper_ui/menu_item.h"
-#include "epaper_ui/progress_bar.h"
 #include "epaper_ui/status_bar.h"
-#include "epaper_ui/welcome_message.h"
 
 namespace epaper_ui {
 
-// The dashboard's main menu has five fixed items; Follow up / Notes / Todos can show a badge.
-inline constexpr int kDashboardMenuItemCount = 5;
+// The dashboard's main menu is a 3-column icon grid of six fixed items; Follow up / Notes / Todos
+// can show a corner badge.
+inline constexpr int kDashboardMenuItemCount = 6;
 
 // Fixed slot order of the dashboard menu (must match kMenuLabels in dashboard_page.cpp).
 enum class DashboardMenuItem : int {
@@ -23,6 +22,7 @@ enum class DashboardMenuItem : int {
     kNotes,
     kTopics,
     kBooks,
+    kSettings,
 };
 
 struct DashboardPageMenuState {
@@ -39,10 +39,7 @@ struct DashboardPageMenuState {
 
 struct DashboardPageState {
     int navigation_focus_index = -1;
-    WelcomeMessageState welcome_message = {};
-    bool shows_completion_banner = false;
-    CompletionBannerState completion_banner = {};
-    ProgressBarState current_progress = {};
+    CurrentDateState current_date = {};
     DashboardPageMenuState menu = {};
 
     bool operator==(const DashboardPageState& other) const = default;
