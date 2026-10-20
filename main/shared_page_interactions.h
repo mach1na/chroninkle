@@ -25,7 +25,7 @@ inline ScrollStepResult StepScrollPercent(int current, int delta, int step_perce
     return {next, next != current};
 }
 
-// Footer index<->role mapping. This exact mapping (0=Home, 1=Settings, 2=Wifi, 3=Time, 4=Sticky) is
+// Footer index<->role mapping. This exact mapping (0=Home, 1=Settings, 2=Wifi, 3=Time) is
 // duplicated identically across every page runtime in the app; scoped here to the Notes/Todos/
 // Follow-up trio for now rather than migrating every other page's already-working copy in the same
 // change (a separate, lower-risk cleanup).
@@ -40,8 +40,6 @@ inline footer_runtime::FooterFocusItem FooterItemForIndex(int selected_index)
             return footer_runtime::FooterFocusItem::kTime;
         case 0:
             return footer_runtime::FooterFocusItem::kHome;
-        case 4:
-            return footer_runtime::FooterFocusItem::kSticky;
         default:
             return footer_runtime::FooterFocusItem::kNone;
     }
@@ -59,8 +57,6 @@ inline page_navigation::NavigationItemRole FooterRoleForFooterItem(
             return page_navigation::NavigationItemRole::kFooterHome;
         case footer_runtime::FooterFocusItem::kTime:
             return page_navigation::NavigationItemRole::kFooterTime;
-        case footer_runtime::FooterFocusItem::kSticky:
-            return page_navigation::NavigationItemRole::kFooterSticky;
         case footer_runtime::FooterFocusItem::kNone:
         case footer_runtime::FooterFocusItem::kFolder:
         case footer_runtime::FooterFocusItem::kMic:

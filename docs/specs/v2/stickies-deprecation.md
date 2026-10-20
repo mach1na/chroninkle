@@ -1,6 +1,6 @@
 # Stickies deprecation
 
-**Status:** Draft
+**Status:** Done
 
 ## Summary
 
@@ -37,6 +37,14 @@ TBD — mechanically this is a removal (overlay implementation, footer
 button, associated `SurfaceKey`/refresh wiring), but sequencing depends on
 [followup-rework.md](followup-rework.md) and [footer-redesign.md](footer-redesign.md)
 landing first.
+
+## Resolution
+
+Clean removal (nothing preserved elsewhere), done independently of the
+FollowUp rework: the sticky-note overlay (`epaper_ui` widget, display-service
+state and draw, `overlay_runtime` state and input), the footer Sticky button
+and its focus/navigation plumbing, the Sticky icon asset and the
+follow-up sticky item builder in `app_shell`.
 
 ## Open Questions
 

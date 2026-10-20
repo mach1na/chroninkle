@@ -33,8 +33,6 @@ const EmbeddedImageAsset* FooterIcon(FooterFocusItem item)
             return project_assets::GetIcon(EmbeddedIconId::kTime);
         case FooterFocusItem::kFolder:
             return project_assets::GetIcon(EmbeddedIconId::kFolder);
-        case FooterFocusItem::kSticky:
-            return project_assets::GetIcon(EmbeddedIconId::kSticky);
         case FooterFocusItem::kMic:
         case FooterFocusItem::kNone:
         default:
@@ -53,7 +51,6 @@ void ApplyProjectedSelection(epaper_ui::GlobalFooterState* state, FooterFocusIte
     state->wifi.selected = focused_item == FooterFocusItem::kWifi;
     state->time.selected = focused_item == FooterFocusItem::kTime;
     state->folder.selected = focused_item == FooterFocusItem::kFolder;
-    state->sticky.selected = focused_item == FooterFocusItem::kSticky;
     state->mic.selected = focused_item == FooterFocusItem::kMic;
 }
 
@@ -77,7 +74,7 @@ bool LayoutStateEquals(const LayoutState& lhs, const LayoutState& rhs)
     return lhs.visible == rhs.visible && lhs.show_home == rhs.show_home &&
            lhs.show_settings == rhs.show_settings && lhs.show_wifi == rhs.show_wifi &&
            lhs.show_time == rhs.show_time && lhs.show_folder == rhs.show_folder &&
-           lhs.show_mic == rhs.show_mic && lhs.show_sticky == rhs.show_sticky;
+           lhs.show_mic == rhs.show_mic;
 }
 
 void AdvanceInteractionGenerationLocked()
@@ -157,8 +154,6 @@ epaper_ui::GlobalFooterState BuildState()
     state.folder.visible = layout.show_folder;
     state.folder.icon = FooterIcon(FooterFocusItem::kFolder);
 
-    state.sticky.visible = layout.show_sticky;
-    state.sticky.icon = FooterIcon(FooterFocusItem::kSticky);
 
     state.mic.visible = layout.show_mic;
     state.mic.idle_icon = project_assets::GetIcon(EmbeddedIconId::kMicOff);

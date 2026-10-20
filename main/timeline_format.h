@@ -6,8 +6,7 @@
 
 #include "recording_archive_service.h"
 
-// Shared formatters for the recording timeline shown on the Notes, Todos, and Follow-up pages (and
-// the sticky-note overlay, which reuses the same content shape).
+// Shared formatters for the recording timeline shown on the Notes, Todos, and Follow-up pages.
 namespace timeline_format {
 
 // Extract the "YYYY-MM-DD" day key from a created_local_date that may be either "YYYY-MM-DD" or

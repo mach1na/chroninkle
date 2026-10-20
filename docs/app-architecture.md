@@ -53,7 +53,7 @@ onboarding, and a set of feature pages plus overlays) built on:
   spacing, colors, typography roles, and component sizing.
 - An `epaper_ui` component that owns the reusable e-paper presentation
   primitives (status bar, global footer, lock screen, card modal, select modal,
-  toast, keyboard, carousel, scroll container, timeline list, sticky note, and
+  toast, keyboard, carousel, scroll container, timeline list, and
   the many list/menu/input widgets) plus the full page renderers (dashboard,
   onboarding, topics browse, topic entries, topic summary, notes, todos,
   follow-up, details, settings, wifi, time).
@@ -75,7 +75,7 @@ onboarding, and a set of feature pages plus overlays) built on:
   selection, and save/transcription orchestration.
 - A `recording_archive_service` component that owns the SD recording index
   (listing, metadata, follow-up flags) surfaced by the Notes/Todos/Follow-up
-  pages and the sticky-note overlay.
+  pages.
 - A `transcription_service` and a `summary_service` component that own the
   Gemini-backed transcription and summary flows respectively (these live in
   their own components, not inside `gemini_service`).
@@ -330,16 +330,13 @@ Screens (`ScreenId`):
   `kTime`, `kLockScreen`.
 
 Overlays (`overlay_runtime` + drawn in `display_service::DrawCurrentOverlays`,
-z-order keyboard → toast → select modal → card modal → sticky note):
+z-order keyboard → toast → select modal → card modal):
 
 - **card modal** — shutdown/storage confirmations (replaces the old
   "shutdown modal").
 - **select modal** — single-choice pickers (e.g. tag / timezone).
 - **keyboard** — on-screen text entry.
 - **toast** — transient status, optionally closable.
-- **sticky note** — a full-page overlay opened by the footer Sticky button that
-  flips through the follow-up notes (Prev/Next wrap, Close), with a Details-style
-  scroll container for each transcript.
 
 ### Overlay refresh suppression
 
@@ -356,7 +353,7 @@ refresh and one overlay refresh per drain.
 
 **The overlay rule:** while an overlay owns the screen — that is, while
 `overlay_runtime::IsInputCaptured()` is true (keyboard, select modal, card modal,
-the sticky-note overlay, a shutdown request in progress, or a closable toast) —
+a shutdown request in progress, or a closable toast) —
 the worker *suppresses underlay refreshes*
 (page/status/footer). The apply callbacks still run, so the stored state stays
 current; only the panel rebuild *beneath* the open overlay is skipped. Overlay
@@ -406,16 +403,16 @@ The current app-runtime helpers under `main/` are:
 - `status_bar_runtime`: compose Wi-Fi, Gemini, battery, sleep, and shutdown
   state into `epaper_ui::StatusBarState`
 - `footer_runtime`: project footer layout and shared page focus into
-  `epaper_ui::GlobalFooterState` (Settings/WiFi/Time/Folder/Sticky/Home + Mic)
+  `epaper_ui::GlobalFooterState` (Mic only; Settings/WiFi/Time/Folder/Home plumbing remains but is never shown)
 - `overlay_runtime`: own retained overlay state (card modal, select modal,
-  keyboard, toast, and the full-page sticky-note overlay), hit testing, and
+  keyboard, and toast), hit testing, and
   overlay presentation hooks
 - one runtime family per feature page — `{dashboard, onboarding, topics_browse,
   topic_entries, topic_summary, notes, todos, follow_up, details}_page_{runtime,
   coordinator, interactions}`, plus `settings/wifi/time` (runtime + interactions) — composing
   page state and translating focus into neutral page outcomes + follow-on intents
 - `timeline_format`: shared date/time formatters for the Notes/Todos/Follow-up
-  timelines and the sticky-note overlay (the "Today"-vs-absolute-date logic)
+  timelines (the "Today"-vs-absolute-date logic)
 - `input_runtime_setup`: own app-facing button/touch binding setup plus the
   shared inputs-enabled gate before events enter app routing
 - `input_focus_runtime`: own overlay-first button routing for roving focus
@@ -468,10 +465,9 @@ The current early startup sequence is:
 - Initializes `recording_service` and logs recording status.
 - Initializes `recording_session_service`, which owns the press/hold recording
   flow, tag selection, and transcription/save orchestration.
-- Initializes `footer_runtime`, which seeds the footer layout (Settings, WiFi,
-  Time, Folder, Sticky, Home buttons — in that left-to-right order — plus the Mic
-  status) and the footer focus projection model. The Sticky button (left of Home)
-  opens the follow-up sticky-note overlay.
+- Initializes `footer_runtime`, which seeds the footer layout (Mic only: the
+  Home, Settings and Sticky icons were removed in V2) and the footer focus projection
+  model.
 - Initializes `button_service`.
 - Subscribes to button and touch events, forwards user activity into
   auto-sleep, forwards interaction feedback into `feedback_service`, and handles
@@ -517,8 +513,7 @@ Current app-level button interactions are:
   click): the app-wide "exit an entered control" gesture, handled per screen.
   It backs out of a control the user has stepped into -- e.g. an entered
   scroll container / timeline item list on the Topic Summary / Notes / Todos /
-  Follow-up / Topic Entries pages, the WiFi network list, or the sticky-note
-  transcript scroll. It is a no-op at the app level on screens with nothing to
+  Follow-up / Topic Entries pages, or the WiFi network list. It is a no-op at the app level on screens with nothing to
   back out of. `button_service::IsBackGesture` gates this. (This replaced
   `BOOT`'s former dual role as a second select/confirm button.) Pressing and
   **holding** `DOWN` (a long-press) is deliberately *not* part of this gesture
@@ -558,7 +553,7 @@ path has time to stop feeding `PWR_EN`.
 Current input precedence and focus ownership are:
 
 - overlay roving/hit focus first: card modal, select modal, keyboard, and the
-  full-page sticky-note overlay, plus the closable toast
+  closable toast
 - footer targets when no overlay captures input
 - registered page targets after footer under the shared page-touch contract
 
@@ -575,7 +570,7 @@ Current focus-surface inventory is:
 - `Time`: shared page-focus path, with overlay editors (timezone select modal,
   numeric keyboard per field)
 - `Lock screen`: no focusable page or footer surface today
-- card modal / select modal / keyboard / toast / sticky-note overlays: overlay path
+- card modal / select modal / keyboard / toast overlays: overlay path
 
 Ownership is intentionally split as:
 
@@ -603,8 +598,8 @@ Ownership is intentionally split as:
 - `main/page_interaction_runtime.cpp`: registration point for future page
   runtimes/coordinators to provide `resolve -> focus -> activate` touch hooks
 - `main/overlay_runtime.cpp`: retained overlay state, focus-sync, submit, and
-  dismiss behavior for the card modal, select modal, keyboard, toast, and
-  sticky-note overlays
+  dismiss behavior for the card modal, select modal, keyboard, and toast
+  overlays
 - `main/footer_runtime.cpp`: presentation-only projection of footer layout and
   shared page focus into the e-paper footer contract, plus footer
   touch resolve/focus/activate hooks for footer-owned surfaces such as `Home`
@@ -1354,14 +1349,14 @@ Current UI state:
 - the lock screen uses its own `epaper_ui` renderer and a dedicated runtime
   helper in `main/lock_screen_runtime.cpp`
 - overlays are composited on top of the active screen in `DrawCurrentOverlays`
-  (z-order keyboard → toast → select modal → card modal → sticky note); the
+  (z-order keyboard → toast → select modal → card modal); the
   `RenderSnapshot` carries each overlay's state (`card_modal`, `select_modal`,
-  `keyboard`, `toast`, `sticky_note`)
+  `keyboard`, `toast`)
 - overlay presentation has two app-facing refresh paths:
   - show/hide or footprint changes rebuild the underlay before redrawing the
     overlay
-  - same-visibility overlay churn such as roving-focus updates or sticky-note
-    scrolling may reuse the cached underlay snapshot
+  - same-visibility overlay churn such as roving-focus updates
+    may reuse the cached underlay snapshot
 - sleep and shutdown indicators are driven through `status_bar_runtime`
   immediately before display sleep, light sleep, and deep-sleep shutdown
   transitions

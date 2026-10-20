@@ -44,15 +44,11 @@ Mark a task or note as a follow-up to keep it on your radar. Chroninkle helps yo
 
 Lock the screen — or shut the device down — and the ePaper freezes on a summary of your pending todos instead of going blank or dark. Because e-paper holds its image with no power, that summary stays legible and in front of you even while the device is locked, asleep, or fully off.
 
-### 6. Browse Your Follow-Ups as Stickies
-
-From the Home screen, open your flagged follow-ups as a stack of sticky notes you browse one at a time — a quick way to page back through what you've marked as worth revisiting, whatever it's tagged as.
-
-### 7. Group Anything Under a Topic
+### 6. Group Anything Under a Topic
 
 Tag a Note, Idea, or Todo with a topic — a project name, say — independent of what type it's tagged as. Browse everything under a topic from the Home screen, and ask Gemini for a written recap of everything ever tagged with it, no matter how long ago it was captured.
 
-### 8. Read Your Own Text Files
+### 7. Read Your Own Text Files
 
 Copy plain `.txt` files onto the SD card's `books` folder and read them right on the device. Chroninkle remembers your page in each book, so picking one back up continues where you left off.
 
@@ -65,7 +61,6 @@ Copy plain `.txt` files onto the SD card's `books` folder and read them right on
 | Note | Keep a quick thought or reminder, transcribed automatically |
 | Follow-up | Flag the items that matter so they stay top of mind |
 | Lock screen | See your pending todos at a glance whenever the device is locked or shut down |
-| Stickies | Browse your flagged follow-ups one at a time from the Home screen |
 | Topics | Group Notes, Ideas, and Todos under a shared label and summarize them together |
 | Books | Read plain-text files stored on the SD card, picking up where you left off |
 | Summaries | Ask Gemini for a fresh written recap of your Notes, Todos, or a Topic, on demand |

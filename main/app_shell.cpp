@@ -172,24 +172,17 @@ footer_runtime::LayoutState FooterLayoutForScreen(display_service::ScreenId scre
 {
     footer_runtime::LayoutState layout = {};
     layout.visible = true;
-    // Context-dependent: only Home shows an extra footer icon (Sticky); every other screen shows
-    // just Mic (press-and-hold-to-record), which stays visible everywhere since it's the core
-    // action. There is no Home icon anywhere -- the universal back gesture (GoBack) replaces it.
-    // Each page's NavigationModel mirrors this (see AddFooterItems in
-    // components/page_navigation/navigation_model.cpp) so roving focus can't land on an icon
-    // the user can't see.
-    //
-    // WiFi and Time no longer have footer icons of their own -- they're reached from the
-    // Settings hub instead, so show_wifi/show_time are permanently false now. Each page's own
-    // NavigationModel (AddFooterItems) no longer places a kFooterWifi/kFooterTime item either,
-    // so those two roles are unreachable app-wide; left defined rather than removed outright to
-    // avoid a wide mechanical sweep of every page runtime's footer-index mapping for no behavior
-    // change.
-    const bool is_home = screen == display_service::ScreenId::kHome;
+    (void)screen;  // the footer is now identical on every screen
+    // The footer is just Mic (press-and-hold-to-record) on every screen, since it's the core
+    // action. Home, Settings and Sticky icons are gone (the universal back gesture, GoBack,
+    // replaces Home; Settings is a Home grid item; the sticky-note overlay was removed), and
+    // WiFi/Time are reached from the Settings hub. No page's NavigationModel places a footer
+    // item any more, so roving focus can't land on an icon the user can't see. The footer
+    // runtime/widget still carry the other buttons' plumbing, left in place rather than swept
+    // out of every page runtime for no behavior change.
     layout.show_settings = false;  // Settings is a Home grid item now, not a footer icon
     layout.show_wifi = false;
     layout.show_time = false;
-    layout.show_sticky = is_home;
     layout.show_home = false;  // the universal back gesture replaces the footer Home icon
     layout.show_mic = true;
     return layout;
@@ -951,73 +944,6 @@ bool GoBack()
     return err == ESP_OK;
 }
 
-// Gather every follow-up recording (newest first) as sticky-note items, reusing the same content
-// shape as the Follow-up timeline rows.
-std::vector<overlay_runtime::StickyNoteItem> BuildFollowUpStickyItems()
-{
-    esp_err_t status = ESP_OK;
-    const std::vector<recording_archive_service::RecordingEntry> entries =
-        recording_archive_service::ListRecordings(&status);
-
-    std::vector<const recording_archive_service::RecordingEntry*> follow_ups;
-    for (const recording_archive_service::RecordingEntry& entry : entries) {
-        if (entry.metadata.follow_up) {
-            follow_ups.push_back(&entry);
-        }
-    }
-    const auto entry_time = [](const recording_archive_service::RecordingEntry* entry) {
-        return entry->metadata.created_unix_seconds > 0 ? entry->metadata.created_unix_seconds
-                                                        : entry->modified_unix_seconds;
-    };
-    std::sort(follow_ups.begin(), follow_ups.end(),
-              [&](const recording_archive_service::RecordingEntry* a,
-                  const recording_archive_service::RecordingEntry* b) {
-                  return entry_time(a) > entry_time(b);
-              });
-
-    std::vector<overlay_runtime::StickyNoteItem> items;
-    items.reserve(follow_ups.size());
-    for (const recording_archive_service::RecordingEntry* entry_ptr : follow_ups) {
-        const recording_archive_service::RecordingEntry& entry = *entry_ptr;
-        const std::string transcript = timeline_format::TrimTranscript(entry.transcript_text);
-        const bool has_transcription = entry.metadata.has_transcript && !transcript.empty();
-
-        overlay_runtime::StickyNoteItem item = {};
-        // Recorded date on top (plain text); the tag sits in the header row, after the pin icon.
-        item.date_text = timeline_format::FormatDateLabel(entry.metadata.created_local_date);
-        item.header.icon_asset = project_assets::GetIcon(
-            has_transcription ? EmbeddedIconId::kTranscribe : EmbeddedIconId::kAudio);
-        item.header.tag_icon_asset = project_assets::GetIcon(EmbeddedIconId::kPin);
-        item.header.tag_text = timeline_format::TagText(entry.metadata.tag);
-        item.header.time_text = timeline_format::FormatTimeLabel(
-            entry.metadata.time_valid, entry.metadata.created_unix_seconds);
-        item.header.minute_seconds_text =
-            timeline_format::FormatDurationLabel(entry.metadata.duration_ms);
-        item.body_text = has_transcription ? transcript : "Audio only follow-up item.";
-        items.push_back(std::move(item));
-    }
-    return items;
-}
-
-// Footer "Sticky" action: show the follow-up notes in the sticky overlay, or a nudge toast when
-// there are none yet.
-void ShowFollowUpStickyNotes()
-{
-    const std::vector<overlay_runtime::StickyNoteItem> items = BuildFollowUpStickyItems();
-    if (items.empty()) {
-        epaper_ui::ToastState toast = {};
-        toast.visible = true;
-        toast.body_text = "Follow up on a thought to view";
-        toast.leading_icon = project_assets::GetIcon(EmbeddedIconId::kPin);
-        (void)overlay_runtime::ShowToastForDuration(toast, 2000);
-        return;
-    }
-    const esp_err_t err = overlay_runtime::ShowStickyNotes(items);
-    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
-        ESP_LOGW(kTag, "Show sticky notes failed: %s", esp_err_to_name(err));
-    }
-}
-
 app_interaction::InputResult HandleFooterActivate(footer_runtime::FooterFocusItem item, void*)
 {
     app_interaction::InputResult result = {};
@@ -1047,11 +973,6 @@ app_interaction::InputResult HandleFooterActivate(footer_runtime::FooterFocusIte
             result.feedback_cue = app_interaction::FeedbackCue::kClick;
             err = ShowTimeScreen(display_service::RefreshMode::kPartial);
             break;
-        case footer_runtime::FooterFocusItem::kSticky:
-            // Opens the follow-up sticky overlay (or a nudge toast). The overlay owns its own
-            // refresh + feedback, and there is no underlying screen change, so return directly.
-            ShowFollowUpStickyNotes();
-            return result;
         case footer_runtime::FooterFocusItem::kFolder:
         case footer_runtime::FooterFocusItem::kMic:
         case footer_runtime::FooterFocusItem::kNone:
