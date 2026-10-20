@@ -73,6 +73,35 @@ gitignored, in `assets/V2/pixelarticons-library/` for future picks. 24px divides
 All five convert cleanly to 96x96 1-bit through the generator. Still to
 decide: whether to keep the mix of sharp and regular corner styles.
 
+**Replacement for the existing `assets/icons/` set (2026-10-20):** current
+icon name = Pixelarticons icon. BLE icons are skipped (the firmware doesn't
+use them). Where a name is repeated, two slots intentionally share one glyph.
+
+```
+add = plus-box                  remove = minus-box            close = close
+delete = trash                  check = check                 checkbox-checked = checkbox-on
+checkbox-unchecked = checkbox   chevron-left = chevron-left   chevron-right = chevron-right
+home = home                     settings = settings-cog       NEW settings (Home/footer) = settings-cog
+mic-on = mic                    mic-off = mic-off             keyboard = keyboard
+lock = lock                     power = power                 refresh = refresh-solid
+folder = folder                 folder-open = folder          file = files
+file-audio = audio-waveform     file-json = file-text         file-md = file-text
+file-transcript = text-align-left   star = robot              sticky = sticky-note-text
+idea = lightbulb                goal = goal                   time = clock
+visible = eye                   invisible = eye-off           audio = audio-waveform
+bat_1 (<=10%) = battery         bat_2 (11-30%) = battery-low  bat_3 (31-50%) = battery-medium
+bat_4 (51-75%) = battery-medium bat_5 (76-100%) = battery-full bat_6 (charging) = plug-solid
+usb-storage = usb               sleep = moon                  ai-connect = robot-face-sad
+transcribe = ai-voice           gemini_api = sparkle          api-key = key
+pin = map-pin                   select = chevrons-vertical    sd_card = memory-stick
+task-start = play               wifi_config = wifi
+wifi_1 = letter-x-circle        wifi_2 = cellular-signal-3    wifi_2bar = cellular-signal-2
+wifi_3 = circle-info-solid      wifi_3bar = cellular-signal-3 wifi_4 = wifi
+```
+
+Not yet decided: final icon sizes for the small tier (24px source scales
+cleanly to 24/48/72px, not 36px), and the actual manifest wiring.
+
 ## Open Questions
 
 - Does the new pixel-art logo replace `kFollowupLogo`'s boot-splash role,
