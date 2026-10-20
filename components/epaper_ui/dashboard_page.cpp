@@ -13,7 +13,6 @@ namespace {
 constexpr int kMargin = design::spacing::k16;
 constexpr int kContentTopGap = design::spacing::k32;
 constexpr int kDateGridGap = design::spacing::k32;
-constexpr int kCellCornerRadius = 4;
 constexpr auto kCaptionRole = design::TypographyRole::kLabelSmall;
 
 constexpr std::array<const char*, kDashboardMenuItemCount> kMenuLabels = {
@@ -32,9 +31,8 @@ int PageWidth(int portrait_width)
 
 int CellHeight()
 {
-    return design::home_grid::kCellPadding + design::home_grid::kIconSize +
-           design::home_grid::kIconCaptionGap + LineHeight(kCaptionRole) +
-           design::home_grid::kCellPadding;
+    return design::home_grid::kTileSize + design::home_grid::kShadowOffset +
+           design::home_grid::kTileCaptionGap + LineHeight(kCaptionRole);
 }
 
 struct Layout {
@@ -163,34 +161,45 @@ void DrawDashboardPage(uint8_t* framebuffer,
     for (int index = 0; index < kDashboardMenuItemCount; ++index) {
         const UiRect bounds = CellBounds(layout, index);
         const bool selected = index == state.menu.selected_index;
-        const uint8_t background = selected ? design::color::kBlack : design::color::kWhite;
-        const uint8_t foreground = selected ? design::color::kWhite : design::color::kBlack;
+        const uint8_t tile_fill = selected ? design::color::kBlack : design::color::kWhite;
+        const uint8_t icon_tone = selected ? design::color::kWhite : design::color::kBlack;
+        const int tile_size = design::home_grid::kTileSize;
+        const int border = design::home_grid::kTileBorder;
+        const UiRect tile = {bounds.x, bounds.y, tile_size, tile_size};
 
-        // Selection inverts the whole cell (icon + caption), mirroring the old menu-row focus.
-        FillRoundedPortraitRect(framebuffer, raw_width, raw_height, portrait_width,
-                                portrait_height, bounds, kCellCornerRadius, background);
+        // Hard drop shadow, then the bordered tile; selection inverts the tile (icon + badge).
+        FillPortraitRect(framebuffer, raw_width, raw_height, portrait_width, portrait_height,
+                         {tile.x + design::home_grid::kShadowOffset,
+                          tile.y + design::home_grid::kShadowOffset, tile_size, tile_size},
+                         design::color::kBlack);
+        FillPortraitRect(framebuffer, raw_width, raw_height, portrait_width, portrait_height, tile,
+                         design::color::kBlack);
+        FillPortraitRect(framebuffer, raw_width, raw_height, portrait_width, portrait_height,
+                         {tile.x + border, tile.y + border, tile_size - (2 * border),
+                          tile_size - (2 * border)},
+                         tile_fill);
 
-        const int icon_x = bounds.x + CenterOffset(bounds.width, design::home_grid::kIconSize);
-        const int icon_y = bounds.y + design::home_grid::kCellPadding;
         DrawPortraitMonoAsset(
-            framebuffer, raw_width, raw_height, portrait_width, portrait_height, icon_x, icon_y,
-            project_assets::GetHomeIcon(kMenuIcons[static_cast<size_t>(index)]), foreground);
+            framebuffer, raw_width, raw_height, portrait_width, portrait_height,
+            tile.x + CenterOffset(tile_size, design::home_grid::kIconSize),
+            tile.y + CenterOffset(tile_size, design::home_grid::kIconSize),
+            project_assets::GetHomeIcon(kMenuIcons[static_cast<size_t>(index)]), icon_tone);
 
-        const std::string caption = FitLabelText(
-            kCaptionRole, DashboardMenuItemLabel(index), bounds.width - (2 * kCellCornerRadius));
+        const std::string caption =
+            FitLabelText(kCaptionRole, DashboardMenuItemLabel(index), bounds.width);
         DrawTypographyText(framebuffer, raw_width, raw_height, portrait_width, portrait_height,
-                           bounds.x + CenterOffset(bounds.width, MeasureText(kCaptionRole, caption)),
-                           icon_y + design::home_grid::kIconSize +
-                               design::home_grid::kIconCaptionGap,
-                           caption, kCaptionRole, foreground);
+                           tile.x + CenterOffset(tile_size, MeasureText(kCaptionRole, caption)),
+                           tile.bottom() + design::home_grid::kShadowOffset +
+                               design::home_grid::kTileCaptionGap,
+                           caption, kCaptionRole, design::color::kBlack);
 
         if (MenuItemShowsBadge(state.menu, index)) {
             BadgeState badge = MenuItemBadge(state.menu, index);
-            badge.inverse = selected;  // white pill so it reads on the inverted cell
+            badge.inverse = selected;  // white pill so it reads on the inverted tile
             const UiRect badge_bounds = BadgeBounds(0, 0, badge, {});
             DrawBadge(framebuffer, raw_width, raw_height, portrait_width, portrait_height,
-                      bounds.right() - design::home_grid::kBadgeInset - badge_bounds.width,
-                      bounds.y + design::home_grid::kBadgeInset, badge, {});
+                      tile.right() - design::home_grid::kBadgeInset - badge_bounds.width,
+                      tile.y + design::home_grid::kBadgeInset, badge, {});
         }
     }
 

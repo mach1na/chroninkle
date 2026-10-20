@@ -12,7 +12,8 @@ via `git log`, not backfilled here.
 
 - V2: the Home screen is now a 3-column grid of pixel-art icons with
   captions (Follow up, Todos, Notes, Topics, Books, Settings) instead of a
-  text menu. Settings moved from the footer into the grid.
+  text menu, each icon on a square tile with a drop shadow. Settings moved
+  from the footer into the grid.
 - V2: all small UI icons were replaced with Pixelarticons (MIT) glyphs.
 - V2: the quick Record-button tap is now a universal **Back**: after exiting
   any open list or reader it returns to the previous screen, one step per
