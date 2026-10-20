@@ -18,9 +18,9 @@ void AddItem(NavigationModel& model,
 
 // Single source of truth for which footer roles are reachable by roving focus on a page, mirroring
 // main/app_shell.cpp's FooterLayoutForScreen visibility rule: the Home/Dashboard screen shows
-// every other footer icon (no need for a "go Home" icon when already there); every other screen
-// shows only Home (Mic stays reachable too, but it was never part of roving focus/NavigationModel
-// to begin with -- see footer_runtime). Omitting a role here, rather than merely hiding it in the
+// the remaining footer icon (Sticky); every other screen has no footer item in roving focus (Mic
+// stays reachable too, but it was never part of roving focus/NavigationModel to begin with -- see
+// footer_runtime). Omitting a role here, rather than merely hiding it in the
 // footer's visual LayoutState, keeps UP/DOWN roving focus from landing on an icon the user can't
 // see: IndexOfRole/FooterSelectedIndexForFocus/FocusFooterItem all already tolerate an absent role.
 void AddFooterItems(NavigationModel& model, bool is_home_screen)
@@ -32,9 +32,8 @@ void AddFooterItems(NavigationModel& model, bool is_home_screen)
         // in would have been exactly the bug this function's own comment above warns about:
         // roving focus landing on an icon the user can't see.
         AddItem(model, NavigationItemSection::kFooter, NavigationItemRole::kFooterSticky, 4);
-    } else {
-        AddItem(model, NavigationItemSection::kFooter, NavigationItemRole::kFooterHome, 0);
     }
+    // No Home icon on any screen: the universal back gesture replaces it (back-navigation spec).
 }
 
 }  // namespace

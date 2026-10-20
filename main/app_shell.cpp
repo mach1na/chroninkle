@@ -172,13 +172,12 @@ footer_runtime::LayoutState FooterLayoutForScreen(display_service::ScreenId scre
 {
     footer_runtime::LayoutState layout = {};
     layout.visible = true;
-    // Context-dependent, not a fixed set: on Home there's no point showing a "go Home" icon, so
-    // it shows everything else instead; everywhere else, Settings/Sticky aren't needed mid-task
-    // and just get in the way of the one icon that matters -- the way back to Home. Mic
-    // (press-and-hold-to-record) stays visible everywhere either way, since it's the core action
-    // and was never part of this visibility split. Each page's NavigationModel mirrors this same
-    // split (see AddFooterItems in components/page_navigation/navigation_model.cpp) so roving
-    // focus can't land on an icon the user can't see.
+    // Context-dependent: only Home shows an extra footer icon (Sticky); every other screen shows
+    // just Mic (press-and-hold-to-record), which stays visible everywhere since it's the core
+    // action. There is no Home icon anywhere -- the universal back gesture (GoBack) replaces it.
+    // Each page's NavigationModel mirrors this (see AddFooterItems in
+    // components/page_navigation/navigation_model.cpp) so roving focus can't land on an icon
+    // the user can't see.
     //
     // WiFi and Time no longer have footer icons of their own -- they're reached from the
     // Settings hub instead, so show_wifi/show_time are permanently false now. Each page's own
@@ -191,7 +190,7 @@ footer_runtime::LayoutState FooterLayoutForScreen(display_service::ScreenId scre
     layout.show_wifi = false;
     layout.show_time = false;
     layout.show_sticky = is_home;
-    layout.show_home = !is_home;
+    layout.show_home = false;  // the universal back gesture replaces the footer Home icon
     layout.show_mic = true;
     return layout;
 }

@@ -35,7 +35,7 @@ is driven by these.
 
 | Control | Quick action | Press and hold |
 |---|---|---|
-| **Record button** | **Back** — exits whatever you're currently inside (an open list, a scroll view, a switch) | **Record** a thought (see below) |
+| **Record button** | **Back** — exits whatever you're currently inside (an open list, a scroll view, a switch), or otherwise returns to the previous screen | **Record** a thought (see below) |
 | **Rocker** (tilt up / tilt down / press in) | Tilt up or down to move the selection; press the rocker straight in (**Select**) to select/confirm | Hold a tilt to keep moving in that direction |
 | **PWR** | Short press: **lock / unlock** the screen | Hold ~1 second: open a **shut down?** confirmation |
 
@@ -45,9 +45,12 @@ A few things worth knowing up front:
   moves your selection; pressing it straight in — referred to as
   **Select** in this manual — selects/confirms.
 - **The Record button does double duty.** A quick tap is **Back** — it
-  backs out of whatever you're currently inside. Press and *hold* it, and
-  it starts recording instead. You don't need to reach for a different
-  control to back out of a list versus to record.
+  backs out of whatever you're currently inside, and if you're not inside
+  anything it takes you back to the screen you were on before, one step per
+  tap, all the way to Home. (On Home it does nothing, and it's ignored
+  while you're recording.) Press and *hold* it, and it starts recording
+  instead. You don't need to reach for a different control to back out of a
+  list versus to record.
 - **Holding PWR for a full 6 seconds forces the power off**, no matter what
   the screen is doing. This is a hardware failsafe, not something you
   should need in normal use.
@@ -285,9 +288,8 @@ opening its own page, plus one action below them:
   it.
 
 Select a heading to open its page. Every one of those pages has its own
-**Back** button at the bottom that returns you to this Settings hub. The
-footer's **Home** icon, on any of them, is different — it jumps straight
-back to the Home screen, skipping the hub.
+**Back** button at the bottom that returns you to this Settings hub, and a
+quick tap of the Record button does the same (tap again to go on to Home).
 
 ### Network
 
