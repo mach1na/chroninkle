@@ -94,3 +94,5 @@ design/
 
 # Full Pixelarticons set kept locally for future icon picks (only chosen icons are tracked)
 assets/V2/pixelarticons-library/
+# Work-in-progress icon source files (e.g. Pixelorama .pxo) that are not shipping in V2
+assets/V2/icons/
