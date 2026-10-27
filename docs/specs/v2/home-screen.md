@@ -33,8 +33,8 @@ Home is the first and most visible surface this affects.
 
 ## Goals
 
-- Icon-based feature menu (Notes/Todos/FollowUp, or whatever V2's screen
-  set ends up being per [followup-rework.md](followup-rework.md)).
+- Icon-based feature menu (Todos/Notes/Topics/Books/Settings; Follow up was
+  dropped per [followup-rework.md](followup-rework.md)).
 - No rotating welcome-message/motivational copy.
 
 ## Non-Goals
@@ -88,13 +88,14 @@ option.
 - **Top block:** only today's date remains; the welcome message, Task
   tracker bar and first-capture banner are removed, along with the
   rotation setting.
-- **Menu items:** Follow up, Todos, Notes, Topics, Books and Settings
-  (Settings moved from the footer into the grid). Follow up stays pending
-  the [followup-rework.md](followup-rework.md) outcome.
+- **Menu items:** Todos, Notes, Topics, Books and Settings (Settings moved
+  from the footer into the grid). The Follow up tile was removed when
+  Follow-up was deprecated (see [followup-rework.md](followup-rework.md)); the
+  five remaining tiles reflow to 3 + 2.
 
 ## Not implemented
 
-- Vertical scrolling for more than two rows (six items fit without it).
+- Vertical scrolling for more than two rows (five items fit without it).
 - Midnight date rollover: the date only updates when something else
   repaints Home (the old hourly welcome refresh did this incidentally).
 
@@ -109,4 +110,4 @@ option.
 
 - [visual-assets.md](visual-assets.md) — new icon set needed for the menu
 - [footer-redesign.md](footer-redesign.md) — Home's footer is redesigned separately
-- [followup-rework.md](followup-rework.md) — affects whether FollowUp stays a menu item
+- [followup-rework.md](followup-rework.md) — Follow up was removed from the menu

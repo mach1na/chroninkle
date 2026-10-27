@@ -1019,13 +1019,6 @@ bool HandleDashboardMenuItem(int menu_index, void*)
         }
         return true;
     }
-    if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kFollowUp)) {
-        const esp_err_t err = ShowFollowUpScreen(display_service::RefreshMode::kPartial);
-        if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
-            ESP_LOGW(kTag, "Show follow-up screen failed: %s", esp_err_to_name(err));
-        }
-        return true;
-    }
     if (menu_index == static_cast<int>(epaper_ui::DashboardMenuItem::kSettings)) {
         const esp_err_t err = ShowSettingsScreen(display_service::RefreshMode::kPartial);
         if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {

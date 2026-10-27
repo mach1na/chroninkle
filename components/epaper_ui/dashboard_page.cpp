@@ -16,12 +16,12 @@ constexpr int kDateGridGap = design::spacing::k32;
 constexpr auto kCaptionRole = design::TypographyRole::kLabelSmall;
 
 constexpr std::array<const char*, kDashboardMenuItemCount> kMenuLabels = {
-    "Follow up", "Todos", "Notes", "Topics", "Books", "Settings",
+    "Todos", "Notes", "Topics", "Books", "Settings",
 };
 
 constexpr std::array<EmbeddedHomeIconId, kDashboardMenuItemCount> kMenuIcons = {
-    EmbeddedHomeIconId::kFollowUp, EmbeddedHomeIconId::kTodos, EmbeddedHomeIconId::kNotes,
-    EmbeddedHomeIconId::kTopics,   EmbeddedHomeIconId::kBooks,    EmbeddedHomeIconId::kSettings,
+    EmbeddedHomeIconId::kTodos, EmbeddedHomeIconId::kNotes, EmbeddedHomeIconId::kTopics,
+    EmbeddedHomeIconId::kBooks, EmbeddedHomeIconId::kSettings,
 };
 
 int PageWidth(int portrait_width)
@@ -66,11 +66,9 @@ UiRect CellBounds(const Layout& layout, int index)
 bool MenuItemShowsBadge(const DashboardPageMenuState& menu, int index)
 {
     switch (index) {
-        case 0:
-            return menu.shows_follow_up_badge;
-        case 1:
+        case static_cast<int>(DashboardMenuItem::kTodos):
             return menu.shows_todos_badge;
-        case 2:
+        case static_cast<int>(DashboardMenuItem::kNotes):
             return menu.shows_notes_badge;
         default:
             return false;
@@ -80,11 +78,9 @@ bool MenuItemShowsBadge(const DashboardPageMenuState& menu, int index)
 BadgeState MenuItemBadge(const DashboardPageMenuState& menu, int index)
 {
     switch (index) {
-        case 0:
-            return {menu.follow_up_badge_text, false};
-        case 1:
+        case static_cast<int>(DashboardMenuItem::kTodos):
             return {menu.todos_badge_text, false};
-        case 2:
+        case static_cast<int>(DashboardMenuItem::kNotes):
             return {menu.notes_badge_text, false};
         default:
             return {};
