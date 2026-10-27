@@ -194,7 +194,7 @@ NavigationModel BuildDashboardPageNavigationModel()
     model.scope = NavigationScope::kDashboard;
 
     // Must match epaper_ui::kDashboardMenuItemCount (dashboard_page.h).
-    for (int index = 0; index < 6; ++index) {
+    for (int index = 0; index < 5; ++index) {
         AddItem(model, NavigationItemSection::kDashboardPageMenu,
                 NavigationItemRole::kDashboardMenuItem, index);
     }

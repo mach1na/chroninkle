@@ -88,9 +88,10 @@ option.
 - **Top block:** only today's date remains; the welcome message, Task
   tracker bar and first-capture banner are removed, along with the
   rotation setting.
-- **Menu items:** Follow up, Todos, Notes, Topics, Books and Settings
-  (Settings moved from the footer into the grid). Follow up stays pending
-  the [followup-rework.md](followup-rework.md) outcome.
+- **Menu items:** Todos, Notes, Topics, Books and Settings (Settings moved
+  from the footer into the grid). The Follow up tile was removed when
+  Follow-up was deprecated (see [followup-rework.md](followup-rework.md)); the
+  five remaining tiles reflow to 3 + 2.
 
 ## Not implemented
 

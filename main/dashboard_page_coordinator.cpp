@@ -86,10 +86,8 @@ epaper_ui::DashboardPageState DashboardPageCoordinator::BuildState() const
     FillCurrentDate(&state.current_date);
 
     state.menu.selected_index = FocusedMenuIndex();
-    state.menu.shows_follow_up_badge = archive_.follow_up_recording_count > 0;
     state.menu.shows_notes_badge = archive_.notes_recording_count > 0;
     state.menu.shows_todos_badge = archive_.todo_recording_count > 0;
-    state.menu.follow_up_badge_text = std::to_string(archive_.follow_up_recording_count);
     state.menu.notes_badge_text = std::to_string(archive_.notes_recording_count);
     state.menu.todos_badge_text = std::to_string(archive_.todo_recording_count);
     return state;

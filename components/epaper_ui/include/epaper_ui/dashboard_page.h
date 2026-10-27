@@ -11,14 +11,13 @@
 
 namespace epaper_ui {
 
-// The dashboard's main menu is a 3-column icon grid of six fixed items; Follow up / Notes / Todos
+// The dashboard's main menu is a 3-column icon grid of five fixed items (3 + 2); Notes / Todos
 // can show a corner badge.
-inline constexpr int kDashboardMenuItemCount = 6;
+inline constexpr int kDashboardMenuItemCount = 5;
 
 // Fixed slot order of the dashboard menu (must match kMenuLabels in dashboard_page.cpp).
 enum class DashboardMenuItem : int {
-    kFollowUp = 0,
-    kTodos,
+    kTodos = 0,
     kNotes,
     kTopics,
     kBooks,
@@ -27,10 +26,8 @@ enum class DashboardMenuItem : int {
 
 struct DashboardPageMenuState {
     int selected_index = -1;
-    bool shows_follow_up_badge = false;
     bool shows_notes_badge = false;
     bool shows_todos_badge = false;
-    std::string follow_up_badge_text = "New";
     std::string notes_badge_text = "New";
     std::string todos_badge_text = "New";
 
