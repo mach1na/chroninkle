@@ -4,13 +4,14 @@
 
 ## Summary
 
-Rework or potentially deprecate the FollowUp screen/feature outright.
-Decision not yet made.
+**Decision (2026-10-27): deprecate Follow-up.** The Follow-up flag and the
+Follow-ups screen are removed from the V2 UI. Existing follow-up data stays
+on the SD card, hidden rather than deleted, so the decision is reversible.
 
 ## Problem / Motivation
 
-Craig has flagged FollowUp as needing a rethink for V2, up to and including
-removing it entirely — not yet decided which.
+Craig flagged FollowUp as needing a rethink for V2. He has now decided to
+deprecate it rather than rework it (see Summary).
 
 ## Current Behavior
 
@@ -27,33 +28,42 @@ removing it entirely — not yet decided which.
 
 ## Goals
 
-TBD — depends on the rework-vs-deprecate decision.
+- Remove the Follow-up flag, its actions (Follow up / Remove follow-up /
+  Complete follow-up) and the Follow-ups screen from the V2 UI.
+- Keep existing follow-up data on the SD card, unmodified.
 
 ## Non-Goals
 
-TBD.
+- Deleting or migrating existing follow-up data.
+- Reworking Follow-up into a new feature.
 
 ## Proposed Design
 
-TBD — needs a decision first: rework, or deprecate outright.
+Deprecate: hide the flag, keep the data. See [GLOSSARY.md](../../../GLOSSARY.md)
+("Follow-up" is listed under Deprecated). Remaining UI detail (which
+Home-grid slot the Follow-ups tile frees up, what replaces the Details-page
+actions) is still to be settled with [home-screen.md](home-screen.md) and
+[footer-redesign.md](footer-redesign.md).
 
 ## Open Questions
 
-- Rework or deprecate? Not yet decided.
-- If reworked: what does FollowUp become — different from Notes/Todos in
-  what way?
-- If deprecated: what happens to existing FollowUp-tagged data on device
-  (migration, hide-but-keep, or removal)?
-- Sticky notes currently browse FollowUp entries specifically — does
-  deprecating Stickies (see [stickies-deprecation.md](stickies-deprecation.md))
-  happen regardless of FollowUp's fate, or are they decided together?
+- ~~Rework or deprecate?~~ Deprecate (2026-10-27).
+- ~~What happens to existing data?~~ Hide but keep (2026-10-27).
+- ~~Does Stickies deprecation depend on this?~~ Resolved: the sticky-note
+  overlay is already removed (see [stickies-deprecation.md](stickies-deprecation.md)).
+- What takes over the Follow-ups tile's slot on the Home grid?
+- If the flag is hidden, what happens to an entry that is flagged and
+  incomplete: does it reappear normally in Notes/To-dos with no marker?
 
 ## Acceptance Criteria
 
-TBD — needs design conversation and a rework-vs-deprecate decision.
+- No Follow-up flag, action or screen is reachable in the UI.
+- Existing follow-up entries still appear normally in Notes/To-dos and are
+  not modified or deleted on the SD card.
+- `docs/user-manual.md` no longer describes Follow-up.
 
 ## Related
 
-- [stickies-deprecation.md](stickies-deprecation.md) — Stickies currently browses FollowUp entries
+- [stickies-deprecation.md](stickies-deprecation.md) — Stickies browsed FollowUp entries (since removed)
 - [notes-todos-format.md](notes-todos-format.md) — shares FollowUp's current list format
 - [home-screen.md](home-screen.md) — FollowUp's Home menu presence depends on this outcome

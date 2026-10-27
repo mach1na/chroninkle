@@ -38,7 +38,7 @@ independently in the meantime.
 | [Notes/Todos format](notes-todos-format.md) | Draft |
 | [Footer redesign](footer-redesign.md) | Draft |
 | [Back navigation](back-navigation.md) | Done |
-| [FollowUp rework](followup-rework.md) | Draft |
+| [FollowUp deprecation](followup-rework.md) | Draft |
 | [Stickies deprecation](stickies-deprecation.md) | Done |
 | [Topics flow](topics-flow.md) | Draft |
 
