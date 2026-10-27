@@ -333,3 +333,17 @@ personal credentials afterward, and no risk of a release accidentally shipping t
   `docs/todo-archive.md` (verbatim, with a resolution note) as part of the
   same change that resolves it, rather than just deleting or checking it
   off in place.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `mach1na/chroninkle` via `gh` (always pass `--repo mach1na/chroninkle`; the fork otherwise defaults to the upstream). Long-form V2 specs stay in `docs/specs/v2/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` + `docs/adr/`, both created lazily. See `docs/agents/domain.md`.
