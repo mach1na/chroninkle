@@ -165,3 +165,17 @@ into the firmware image and fully decoded to PCM in PSRAM on first play
 short blips, and `startup.mp3` is already the longest at a few seconds, so
 keep the replacement in that ballpark.
 
+
+## v2: rename the "Task" tag to "To-do" in the UI, docs and strings
+
+Decided 2026-10-27 while building `GLOSSARY.md`: the record menu's tag is
+labelled "Task" while the list screen is "Todos" and the code/`CLAUDE.md`
+say Todo/To-do. The glossary standardizes on **To-do** for both the tag and
+the list ("Task" and "Todo" are listed as terms to avoid).
+
+Scope: the record-menu label, the "Turn to task" action, Details/Notes
+badges and any other user-visible "Task"/"Todo" strings, plus the matching
+wording in `docs/user-manual.md` (which currently calls out the Task/Todos
+mismatch). Pure copy change, but part of the V2 icon/text rework, so check
+it against the Home-grid and footer specs before editing strings that those
+specs are about to replace.
