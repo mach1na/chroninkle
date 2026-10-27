@@ -9,6 +9,10 @@ icon set (replacing text-based UI elements across Home and subscreens), and
 a new default font (replacing the current Inter-based font), sourced by
 Craig as royalty-free/open-source.
 
+**Release-blocking (2026-10-27):** the new logo and the new font are
+required for `2.0.0`. V2 does not ship on Inter and `kFollowupLogo`. They don't
+block the other specs, which can proceed in the meantime.
+
 ## Problem / Motivation
 
 The graphical/icon-based V2 redesign depends on new visual assets that

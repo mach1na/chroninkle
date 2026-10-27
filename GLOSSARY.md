@@ -47,6 +47,12 @@ _Avoid_: Project, category
 A generated overview of all the Entries tagged with one Topic. Never produced for a single Entry.
 _Avoid_: Transcript (the text of one Recording)
 
+### Reading
+
+**Book**:
+A plain-text file on the SD card that Chroninkle can display, remembering the reader's page. Unrelated to Entries.
+_Avoid_: Document, note
+
 ### Deprecated
 
 **Follow-up**:

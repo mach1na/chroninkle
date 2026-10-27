@@ -1,13 +1,14 @@
 # Footer redesign
 
-**Status:** Draft
+**Status:** Done
 
 ## Summary
 
-Remove the current per-screen "context options" footer icons (Settings,
-Sticky) and replace them with elements that fit the new icon-based visual
-design. The Mic (record) footer element is confirmed to stay; the
-replacement for Settings/Sticky is not decided yet.
+The footer is now just the Mic (press-and-hold-to-record) button on every
+screen. The per-screen "context options" icons (Settings, Sticky, Home) were
+removed rather than replaced: Settings became a Home grid tile, the sticky-note
+overlay was deprecated, and the universal Back gesture replaced the Home icon.
+Decided 2026-10-27: this is the final footer design.
 
 ## Problem / Motivation
 
@@ -17,18 +18,12 @@ rather than a like-for-like icon swap.
 
 ## Current Behavior
 
-- Per-screen footer layout is defined in `main/app_shell.cpp:170-196`
-  (`FooterLayoutForScreen`): Home shows Settings + Sticky (no Home icon);
-  every other screen shows Home only (no Settings/Sticky); Mic is always
-  visible.
-- WiFi/Time footer icons are already dead code paths (`show_wifi`/
-  `show_time` permanently false — reached via the Settings hub instead).
-- Projected into `epaper_ui::GlobalFooterState` by `main/footer_runtime.cpp`;
-  each page's `NavigationModel`/`AddFooterItems` mirrors the same
-  visibility split so focus can't land on a hidden icon.
-- The footer Sticky button opens the sticky-note overlay, which is being
-  deprecated separately (see [stickies-deprecation.md](stickies-deprecation.md)) —
-  so its footer entry point goes away regardless of what replaces it.
+- `FooterLayoutForScreen` (`main/app_shell.cpp`) returns the same layout for
+  every screen: Mic visible; Settings, Home, WiFi and Time hidden.
+- No page's `NavigationModel` places a footer item, so roving focus can't
+  land on a hidden icon. The footer runtime/widget still carry the other
+  buttons' plumbing, left in place rather than swept out of every page.
+- WiFi/Time are reached from the Settings hub, not the footer.
 
 ## Goals
 
@@ -41,24 +36,22 @@ rather than a like-for-like icon swap.
 
 ## Proposed Design
 
-TBD — needs design conversation. Likely interacts with
-[back-navigation.md](back-navigation.md): if back navigation becomes
-universal/history-aware, the footer's per-screen Home-icon convention may
-also need rethinking.
+Mic-only footer on every screen, as implemented (see Current Behavior). Back
+navigation (see [back-navigation.md](back-navigation.md)) replaced the Home icon.
 
 ## Open Questions
 
-- What replaces Settings/Sticky in the footer, if anything?
-- Does every screen still need an explicit "Home" footer icon once
-  [back-navigation.md](back-navigation.md) makes back universal, or does
-  back navigation subsume that?
+- ~~What replaces Settings/Sticky in the footer?~~ Nothing: Settings is a Home
+  grid tile and Stickies were removed.
+- ~~Does every screen still need a Home footer icon?~~ No: Back subsumes it.
 
 ## Acceptance Criteria
 
-TBD — needs design conversation.
+- The footer shows only the Mic button on every screen.
+- No hidden footer item can receive focus.
 
 ## Related
 
 - [back-navigation.md](back-navigation.md) — likely overlapping navigation concerns
 - [stickies-deprecation.md](stickies-deprecation.md) — removes the Sticky footer entry point
-- [visual-assets.md](visual-assets.md) — new footer icons needed once shape is decided
+- [visual-assets.md](visual-assets.md) — the Mic icon may be redrawn to match the new style
