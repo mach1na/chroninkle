@@ -1,6 +1,6 @@
 # FollowUp rework
 
-**Status:** Draft
+**Status:** Ready
 
 ## Summary
 
@@ -40,10 +40,14 @@ deprecate it rather than rework it (see Summary).
 ## Proposed Design
 
 Deprecate: hide the flag, keep the data. See [GLOSSARY.md](../../../GLOSSARY.md)
-("Follow-up" is listed under Deprecated). Remaining UI detail (which
-Home-grid slot the Follow-ups tile frees up, what replaces the Details-page
-actions) is still to be settled with [home-screen.md](home-screen.md) and
-[footer-redesign.md](footer-redesign.md).
+("Follow-up" is listed under Deprecated).
+
+- Remove the Follow up tile from the Home grid; the remaining 5 tiles reflow
+  to 3 + 2 with nothing added.
+- Remove the Follow up / Remove follow-up / Complete follow-up actions and the
+  Follow-ups screen.
+- Entries flagged but not completed show in Notes/To-dos like any other
+  entry, with no marker. Nothing on the SD card is modified or deleted.
 
 ## Open Questions
 
@@ -51,9 +55,10 @@ actions) is still to be settled with [home-screen.md](home-screen.md) and
 - ~~What happens to existing data?~~ Hide but keep (2026-10-27).
 - ~~Does Stickies deprecation depend on this?~~ Resolved: the sticky-note
   overlay is already removed (see [stickies-deprecation.md](stickies-deprecation.md)).
-- What takes over the Follow-ups tile's slot on the Home grid?
-- If the flag is hidden, what happens to an entry that is flagged and
-  incomplete: does it reappear normally in Notes/To-dos with no marker?
+- ~~What takes over the Follow-ups tile's slot on the Home grid?~~ Nothing:
+  the grid reflows to 5 tiles (3 + 2). (2026-10-27)
+- ~~What happens to a flagged, incomplete entry?~~ It appears in Notes/To-dos
+  like any other entry, with no marker. (2026-10-27)
 
 ## Acceptance Criteria
 

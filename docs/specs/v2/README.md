@@ -36,9 +36,9 @@ independently in the meantime.
 | [Home screen](home-screen.md) | Done |
 | [Visual assets (logo, icons, font)](visual-assets.md) | Draft |
 | [Notes/Todos format](notes-todos-format.md) | Draft |
-| [Footer redesign](footer-redesign.md) | Draft |
+| [Footer redesign](footer-redesign.md) | Done |
 | [Back navigation](back-navigation.md) | Done |
-| [FollowUp deprecation](followup-rework.md) | Draft |
+| [FollowUp deprecation](followup-rework.md) | Ready |
 | [Stickies deprecation](stickies-deprecation.md) | Done |
 | [Topics flow](topics-flow.md) | Draft |
 
